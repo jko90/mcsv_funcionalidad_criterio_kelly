@@ -6,6 +6,10 @@
 > **Servicio afectado:** `rest_criteriokelly` (autónomo; no se replica en otros `rest_*`).
 > **Versión HLT:** 1.0.0
 > **Fecha:** 2026-07-17
+>
+> **Nota de formato:** este documento contiene **solo indicaciones** (descripciones y tablas). No
+> incluye código, directivas Apache literales, HTML ni comandos de consola. El agente implementador
+> traduce cada indicación a la sintaxis correspondiente respetando las convenciones del repo.
 
 ---
 
@@ -20,19 +24,19 @@
 
 ### Reglas de estado (mandatorias)
 
-- El HLT nace en `PROPUESTO`. El agente planificador **entrega todos los checkboxes en `[ ]`**.
+- El HLT nace en `PROPUESTO`. El agente planificador entrega **todos los checkboxes en `[ ]`**.
 - Un senior debe aprobar el HLT (§6 de `doc_modo_planificacion.md`) antes de que el agente
   implementador ejecute tarea alguna. Al aprobar, cambiar `Aprobación senior` a `APROBADO` y el
   `Estado` a `EN EJECUCIÓN`.
-- El agente implementador **solo** puede cambiar el estado del HLT a **`COMPLETADO`** cuando se
+- El agente implementador **solo** puede cambiar el `Estado` del HLT a **`COMPLETADO`** cuando se
   cumplan **todas** estas condiciones simultáneamente:
   1. **Todas** las tareas `T1`–`T20` están en `[X]` (ninguna en `[ ]` ni en `[BLOCKED]`).
-  2. **Todas** las tareas de validación (`T12`–`T20`) se ejecutaron con su comando exacto y su salida
-     observada **coincide** con la esperada, registrado en el Execution Report.
+  2. **Todas** las validaciones (`T12`–`T20`) se ejecutaron y su resultado observado **coincide** con
+     el esperado, registrado en el Execution Report.
   3. La Declaración final del Execution Report es `RESUELTO`.
 - Si cualquier tarea queda en `[BLOCKED]`, el `Estado` del HLT es **`BLOQUEADO`** (no `COMPLETADO`).
-- Si algunas tareas quedan `[X]` y otras `[ ]`/`[BLOCKED]` sin resolución, el `Estado` es
-  **`EN EJECUCIÓN`** o **`PARCIAL`** según corresponda; **nunca** `COMPLETADO`.
+- Si hay tareas `[X]` y otras `[ ]`/`[BLOCKED]` sin resolución, el `Estado` es **`EN EJECUCIÓN`** o
+  **`PARCIAL`**; **nunca** `COMPLETADO`.
 
 ---
 
@@ -49,7 +53,7 @@ observable de la API** (mismos endpoints, mismos códigos HTTP, mismas restricci
 
 Lista cerrada de artefactos afectados en el servicio `rest_criteriokelly`:
 
-- **Archivo `.htaccess`** (MODIFY): consolidación de bloques `mod_rewrite`, unificación del bloqueo de
+- **Archivo `.htaccess`** (MODIFY): consolidación de bloques de reescritura, unificación del bloqueo de
   carpetas internas, eliminación de reglas de estáticos, corrección del redirect trailing-slash,
   eliminación del comentario placeholder y preservación sincronizada de los headers CORS.
 - **`errors/400.html`** (CREATE).
@@ -58,24 +62,24 @@ Lista cerrada de artefactos afectados en el servicio `rest_criteriokelly`:
 - **`errors/404.html`** (CREATE).
 - **`errors/500.html`** (CREATE).
 
-No hay cambios en la tripleta PHP (`rutas/`, `controladores/`, `modelos/`) ni en `index.php` ni en SQL.
+No hay cambios en la tripleta PHP (`rutas/`, `controladores/`, `modelos/`), ni en `index.php`, ni en SQL.
 
 ---
 
 ## 3. Out-of-scope (qué NO entra)
 
 - No se modifica el ruteo funcional de la API ni el mapa `$rutas` de `index.php`.
-- No se elimina el manejo de CORS del `.htaccess` (headers y rewrite de preflight `OPTIONS` se
-  **conservan**; ver §7 D1/A7).
+- No se elimina el manejo de CORS del `.htaccess` (los headers CORS y el manejo de preflight `OPTIONS`
+  se **conservan**; ver §7, D1/A7).
 - No se activa el forzado de HTTPS (la regla HTTPS comentada **permanece comentada**).
 - No se mueve la lógica de CORS ni de errores fuera de PHP; `CorsConfig` y `BaseCtrl` siguen siendo la
   fuente primaria en PHP.
 - No se externalizan credenciales ni el secreto JWT.
 - No se toca `configuracion/global.php`, `configuracion/CorsConfig.php` ni ningún `*.php`.
 - No se replican cambios en otros servicios `rest_*`.
-- No se modifican los bloques `mod_deflate` (gzip), los headers de seguridad (`X-Frame-Options`,
-  CSP, etc.), `Options -Indexes`, `ServerSignature Off`, los `php_value`/`php_flag`, ni la protección
-  de archivos sensibles por `<Files>`/`<FilesMatch>` (no son parte de los defectos D1–D7).
+- No se modifican: el bloque de compresión gzip, los headers de seguridad (X-Frame-Options, CSP,
+  etc.), la desactivación de índices, la ocultación de firma del servidor, los límites de subida y
+  configuración PHP, ni la protección de archivos sensibles individuales. No son parte de D1–D7.
 
 ---
 
@@ -88,10 +92,10 @@ existente en lugar de un error interno de "documento de error no encontrado".
 
 | Superficie | Antes | Después |
 |-----------|-------|---------|
-| `GET /rest_criteriokelly/cuentas` (health check) | `200` + JSON `{"status":"ok",...}` | **Idéntico** |
-| Acceso directo a `configuracion/`, `rutas/`, `modelos/`, `controladores/`, `logs/` | Denegado (301/403 inconsistente) | Denegado **`403`** (unificado) |
+| `GET /rest_criteriokelly/cuentas` (health check) | 200 + JSON `{"status":"ok",...}` | **Idéntico** |
+| Acceso directo a `configuracion/`, `rutas/`, `modelos/`, `controladores/`, `logs/` | Denegado (301/403 inconsistente) | Denegado **403** (unificado) |
 | Error 400/401/403/404/500 de Apache | `ErrorDocument` apunta a archivo inexistente | Sirve `errors/<código>.html` existente |
-| Preflight `OPTIONS` | `200` (rewrite + `CorsConfig::manejarPreflight`) | **Idéntico** |
+| Preflight `OPTIONS` | 200 (reescritura + `CorsConfig::manejarPreflight`) | **Idéntico** |
 | Headers CORS `Access-Control-*` | Emitidos por `.htaccess` (origen `http://localhost:8100`) | **Idénticos** (preservados) |
 
 ---
@@ -119,84 +123,75 @@ ni `anexos/*.sql`. Servicio único: `rest_criteriokelly`.
 
 ## 7. Delta arquitectónico
 
-> `CorsConfig.php` verificado: **no emite headers `Access-Control-*`** (solo `Content-Type`,
-> `Cache-Control`, `Expires`); su comentario declara que "los headers CORS están en `.htaccess`". Por
-> tanto el `.htaccess` es el **único emisor** de CORS y "sincronizar" (A7/R3) significa **preservar sin
-> cambios** los valores actuales; no existe divergencia que reconciliar.
+> **Hallazgo verificado sobre CORS:** `configuracion/CorsConfig.php` **no emite** los headers
+> `Access-Control-*` (solo fija `Content-Type`, `Cache-Control` y `Expires`); su propio comentario
+> declara que los headers CORS "están en el `.htaccess`". Por tanto el `.htaccess` es el **único
+> emisor** real de CORS, y "sincronizar" (A7/R3) significa **preservar sin cambios** los valores
+> actuales del `.htaccess`; no existe divergencia que reconciliar.
 
-### 7.1. Tabla de Delta (una fila por cambio)
+### 7.1. Tabla de Delta (una indicación de cambio por fila)
 
-| Capa | Artefacto (path absoluto) | Acción | Detalle cerrado |
-|------|---------------------------|--------|-----------------|
-| Config | `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/400.html` | CREATE | Página HTML estática autocontenida, `lang="es"`, título `Error 400 — Criterio Kelly`, mensaje `Solicitud incorrecta`. |
-| Config | `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/401.html` | CREATE | HTML estático, mensaje `No autorizado`. |
-| Config | `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/403.html` | CREATE | HTML estático, mensaje `Acceso denegado`. |
-| Config | `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/404.html` | CREATE | HTML estático, mensaje `Recurso no encontrado`. |
-| Config | `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/500.html` | CREATE | HTML estático, mensaje `Error interno del servidor`. |
-| Config | `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/.htaccess` | MODIFY | Consolidar los 2 bloques `<IfModule mod_rewrite.c>` en uno; eliminar bloque anti-hotlinking (D5/A1). |
-| Config | `.../rest_criteriokelly/.htaccess` | MODIFY | Reemplazar los 4 `RewriteRule` de bloqueo `[R=301]` y el `RedirectMatch 403 ^/?(configuracion\|logs\|backups\|temp)/?$` por **un** único `RewriteRule ... [F,L]` (403) que cubre `configuracion`, `rutas`, `modelos`, `controladores`, `logs` con prefijo `/rest_criteriokelly/` (D6/A2/R4). |
-| Config | `.../rest_criteriokelly/.htaccess` | MODIFY | Eliminar reglas de estáticos: bloque anti-hotlinking, `AddType .js`/`.css`, entradas de `mod_expires` de imágenes/pdf/css/js/ico, y la `RewriteCond` de `assets/`; conservar `AddType application/json .json` y `ExpiresByType application/json "access plus 0 seconds"` (D3/A3). |
-| Config | `.../rest_criteriokelly/.htaccess` | MODIFY | En el redirect trailing-slash, reemplazar `(empresa\|persona\|usuario\|categoria\|producto\|autenticacion)` por `(cuentas\|bitacora\|comentarios\|criterioKelly)` (D4/A4). |
-| Config | `.../rest_criteriokelly/.htaccess` | MODIFY | Eliminar la sección `# PREVENCIÓN DE ATAQUES` con el comentario placeholder muerto `# ...resto del código de prevención de ataques existente...` (D7/A5). |
-| Config | `.../rest_criteriokelly/.htaccess` | MODIFY | Conservar **sin cambios** el bloque `<IfModule mod_headers.c>` con los headers CORS (origen `http://localhost:8100`; métodos `GET, POST, PUT, DELETE, OPTIONS`; headers `Content-Type, Authorization, X-Requested-With`; `Max-Age 3600`) y el rewrite de preflight `OPTIONS`, reubicando este último dentro del bloque `mod_rewrite` único (D1/A7). |
+| Capa | Artefacto | Acción | Indicación cerrada |
+|------|-----------|--------|--------------------|
+| Config | `errors/400.html` | CREATE | Crear la carpeta `errors/` y la página de error según §7.3, con código 400 y mensaje "Solicitud incorrecta". |
+| Config | `errors/401.html` | CREATE | Página de error según §7.3, código 401, mensaje "No autorizado". |
+| Config | `errors/403.html` | CREATE | Página de error según §7.3, código 403, mensaje "Acceso denegado". |
+| Config | `errors/404.html` | CREATE | Página de error según §7.3, código 404, mensaje "Recurso no encontrado". |
+| Config | `errors/500.html` | CREATE | Página de error según §7.3, código 500, mensaje "Error interno del servidor". |
+| Config | `.htaccess` | MODIFY | Consolidar los dos bloques de reescritura (`mod_rewrite`) en uno solo y eliminar el segundo bloque, dedicado al anti-hotlinking (D5/A1). |
+| Config | `.htaccess` | MODIFY | Reemplazar las cuatro reglas de bloqueo que hoy redirigen con 301 y la regla `RedirectMatch` que responde 403, por **una única** regla que deniegue con **403** el acceso directo a las carpetas `configuracion`, `rutas`, `modelos`, `controladores` y `logs`, bajo el prefijo del servicio (D6/A2/R4). |
+| Config | `.htaccess` | MODIFY | Eliminar todas las reglas de estáticos: anti-hotlinking, declaración de tipos MIME para `.js` y `.css`, y las entradas de caché/expiración para imágenes, PDF, CSS, JS e íconos; además, quitar la condición que exceptúa la carpeta `assets/`. Conservar únicamente la declaración de tipo MIME para JSON y la entrada de expiración para JSON en cero segundos (D3/A3). |
+| Config | `.htaccess` | MODIFY | En el redirect de trailing-slash, sustituir la lista de dominios ajenos (`empresa`, `persona`, `usuario`, `categoria`, `producto`, `autenticacion`) por los dominios reales del servicio: `cuentas`, `bitacora`, `comentarios`, `criterioKelly` (D4/A4). |
+| Config | `.htaccess` | MODIFY | Eliminar la sección de "prevención de ataques" que solo contiene el comentario placeholder muerto sin contenido asociado (D7/A5). |
+| Config | `.htaccess` | MODIFY | Conservar **intactos** los headers CORS (origen `http://localhost:8100`; métodos GET, POST, PUT, DELETE, OPTIONS; headers permitidos Content-Type, Authorization, X-Requested-With; edad máxima 3600) y el manejo del preflight `OPTIONS`, reubicando este último dentro del bloque de reescritura único (D1/A7). |
 
-### 7.2. Estado objetivo del `.htaccess` (bloques y orden, cerrado)
+### 7.2. Estado objetivo del `.htaccess` (indicación de bloques y orden)
 
-Tras el refactor, el `.htaccess` contiene **exactamente** estos bloques, en este orden:
+Tras el refactor, el `.htaccess` debe contener **exactamente** estos bloques, en este orden:
 
-1. `Options -Indexes` + `ServerSignature Off` — **sin cambios**.
-2. `<IfModule mod_headers.c>` — headers de seguridad y CORS — **sin cambios** (D1/A7).
-3. `<IfModule mod_deflate.c>` — gzip — **sin cambios**.
-4. `<IfModule mod_expires.c>` — **reducido**: única entrada `ExpiresByType application/json "access plus 0 seconds"` (A3).
-5. Protección de archivos sensibles `<Files>` + `<FilesMatch>` — **sin cambios**.
-6. `<IfModule mod_rewrite.c>` — **bloque único** que contiene, en orden:
-   - `RewriteEngine On`
-   - Preflight `OPTIONS`: `RewriteCond %{REQUEST_METHOD} OPTIONS` + `RewriteRule ^(.*)$ index.php [L,R=200]` (conservado, D1/A7).
-   - Bloqueo unificado de carpetas internas: `RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/(configuracion|rutas|modelos|controladores|logs)/ [NC]` + `RewriteRule ^ - [F,L]` (403) (A2/D6/R4).
-   - API REST: `RewriteCond %{REQUEST_FILENAME} !-f` + `!-d` + `RewriteRule ^(.*)$ index.php [QSA,L]` (**sin** la `RewriteCond` de `assets/`, A3).
-   - Regla HTTPS **comentada** (permanece comentada).
-   - Trailing-slash con dominios reales `(cuentas|bitacora|comentarios|criterioKelly)` (A4).
-7. `ErrorDocument 400/401/403/404/500` con prefijo `/rest_criteriokelly/errors/<código>.html` — **sin cambios** (los archivos referenciados ahora existen).
-8. `php_value`/`php_flag` (límites de subida, `display_errors Off`, `log_errors`, `error_log`) — **sin cambios**.
-9. `<IfModule mod_mime.c>` — **reducido**: única entrada `AddType application/json .json` (A3).
-10. **Eliminados**: sección `# PREVENCIÓN DE ATAQUES` con placeholder (A5); segundo bloque `mod_rewrite` de hotlinking (A1/A3); `RedirectMatch 403 ^/?(configuracion|logs|backups|temp)/?$` (A2).
+1. Desactivación del listado de directorios y ocultación de la firma del servidor — **sin cambios**.
+2. Bloque de headers de seguridad y CORS — **sin cambios** (D1/A7).
+3. Bloque de compresión gzip — **sin cambios**.
+4. Bloque de caché/expiración — **reducido**: debe quedar únicamente la entrada que fija la expiración
+   de las respuestas JSON en cero segundos (A3).
+5. Protección de archivos sensibles individuales — **sin cambios**.
+6. **Bloque único** de reescritura (`mod_rewrite`), que contenga en este orden: (a) activación del
+   motor de reescritura; (b) manejo del preflight `OPTIONS` reenviando a `index.php` con respuesta 200
+   (conservado, D1/A7); (c) la única regla que deniega con 403 el acceso a las cinco carpetas internas
+   bajo el prefijo del servicio (A2/D6/R4); (d) la reescritura general de la API que reenvía a
+   `index.php` toda petición que no corresponda a un archivo o directorio existente (sin la condición
+   de exclusión de `assets/`, A3); (e) la regla de forzado de HTTPS que **permanece comentada**; (f) el
+   redirect de trailing-slash con los dominios reales `cuentas`, `bitacora`, `comentarios`,
+   `criterioKelly` (A4).
+7. Directivas `ErrorDocument` para 400/401/403/404/500 apuntando a `errors/<código>.html` bajo el
+   prefijo `/rest_criteriokelly/` — **sin cambios** (los archivos referenciados ahora existen).
+8. Límites de subida y configuración PHP (errores apagados, log de errores) — **sin cambios**.
+9. Bloque de tipos MIME — **reducido**: debe quedar únicamente la declaración del tipo MIME para JSON
+   (A3).
+10. **Eliminados por completo**: la sección de "prevención de ataques" con el placeholder (A5); el
+    segundo bloque de reescritura de anti-hotlinking (A1/A3); y la regla `RedirectMatch` de bloqueo
+    inconsistente que cubría `configuracion`, `logs`, `backups` y `temp` (A2).
 
-### 7.3. Contenido cerrado de las páginas de error (plantilla determinista)
+### 7.3. Indicación de contenido de las páginas de error
 
-Cada `errors/<código>.html` usa **exactamente** esta plantilla, sustituyendo `<CODIGO>` y `<MENSAJE>`
-por los valores de la tabla. HTML autocontenido (CSS inline, sin recursos externos, `lang="es"`):
+Cada `errors/<código>.html` debe ser una página HTML estática **autocontenida** (sin recursos ni
+enlaces externos), con las siguientes características, idénticas entre las cinco salvo el código y el
+mensaje:
 
-```html
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Error <CODIGO> — Criterio Kelly</title>
-  <style>
-    body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#1e3a8a;color:#fff;
-         display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;text-align:center}
-    .caja{background:rgba(255,255,255,.08);padding:2.5rem 3rem;border-radius:16px}
-    h1{font-size:4rem;margin:0}
-    p{font-size:1.2rem;margin:.5rem 0 0}
-  </style>
-</head>
-<body>
-  <div class="caja">
-    <h1><CODIGO></h1>
-    <p><MENSAJE></p>
-  </div>
-</body>
-</html>
-```
+- Idioma declarado en español.
+- Título de la pestaña con el formato: `Error <código> — Criterio Kelly`.
+- Un encabezado principal grande que muestre el **número de código**.
+- Un párrafo con el **mensaje** correspondiente.
+- Estilo sobrio e inline, acorde a la identidad del servicio (fondo azul institucional, texto claro,
+  contenido centrado vertical y horizontalmente).
 
-| Archivo | `<CODIGO>` | `<MENSAJE>` |
-|---------|-----------|-------------|
-| `errors/400.html` | `400` | `Solicitud incorrecta` |
-| `errors/401.html` | `401` | `No autorizado` |
-| `errors/403.html` | `403` | `Acceso denegado` |
-| `errors/404.html` | `404` | `Recurso no encontrado` |
-| `errors/500.html` | `500` | `Error interno del servidor` |
+| Archivo | Código a mostrar | Mensaje |
+|---------|------------------|---------|
+| `errors/400.html` | 400 | Solicitud incorrecta |
+| `errors/401.html` | 401 | No autorizado |
+| `errors/403.html` | 403 | Acceso denegado |
+| `errors/404.html` | 404 | Recurso no encontrado |
+| `errors/500.html` | 500 | Error interno del servidor |
 
 ---
 
@@ -204,61 +199,73 @@ por los valores de la tabla. HTML autocontenido (CSS inline, sin recursos extern
 
 | Path absoluto | Acción | Motivo |
 |---------------|--------|--------|
-| `.../rest_criteriokelly/errors/400.html` | CREATE | Existencia para `ErrorDocument 400` (D2/A6). |
-| `.../rest_criteriokelly/errors/401.html` | CREATE | Existencia para `ErrorDocument 401` (D2/A6). |
-| `.../rest_criteriokelly/errors/403.html` | CREATE | Existencia para `ErrorDocument 403` (D2/A6). |
-| `.../rest_criteriokelly/errors/404.html` | CREATE | Existencia para `ErrorDocument 404` (D2/A6). |
-| `.../rest_criteriokelly/errors/500.html` | CREATE | Existencia para `ErrorDocument 500` (D2/A6). |
-| `.../rest_criteriokelly/.htaccess` | MODIFY | Refactor D1–D7 conforme a §7.2. |
+| `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/400.html` | CREATE | Existencia para `ErrorDocument 400` (D2/A6). |
+| `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/401.html` | CREATE | Existencia para `ErrorDocument 401` (D2/A6). |
+| `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/403.html` | CREATE | Existencia para `ErrorDocument 403` (D2/A6). |
+| `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/404.html` | CREATE | Existencia para `ErrorDocument 404` (D2/A6). |
+| `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/500.html` | CREATE | Existencia para `ErrorDocument 500` (D2/A6). |
+| `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/.htaccess` | MODIFY | Refactor D1–D7 conforme a §7.2. |
 
 ---
 
 ## 9. Estrategia de validación
 
-Cada comprobación es una tarea con checkbox (T12–T20) en §12, con comando exacto y salida esperada.
-Comandos ejecutados desde el host con Apache sirviendo el servicio en `http://localhost/rest_criteriokelly/`.
-Ruta base del archivo para greps: `rest_criteriokelly/.htaccess`.
+Cada comprobación es una tarea con checkbox (T12–T20) en §12, con la indicación exacta de qué ejecutar
+y qué resultado se espera. Las verificaciones sobre HTTP asumen Apache sirviendo el servicio en
+`http://localhost/rest_criteriokelly/`; las verificaciones sobre el contenido del archivo se hacen
+inspeccionando `rest_criteriokelly/.htaccess`.
 
-- **Health check** (R1): `curl -s -o /dev/null -w "%{http_code}" http://localhost/rest_criteriokelly/cuentas` → `200`.
-- **Bloque único** `mod_rewrite` (D5): `grep -c "<IfModule mod_rewrite.c>" rest_criteriokelly/.htaccess` → `1`.
-- **Dominios ajenos ausentes** (D4): `grep -E "empresa|persona|categoria|producto|autenticacion" rest_criteriokelly/.htaccess` → sin coincidencias (exit 1).
-- **Placeholder ausente** (D7): `grep -F "resto del código de prevención de ataques" rest_criteriokelly/.htaccess` → sin coincidencias (exit 1).
-- **Carpetas internas denegadas** (R4): `curl -s -o /dev/null -w "%{http_code}" http://localhost/rest_criteriokelly/configuracion/global.php` → `403` (idéntico para `rutas/`, `modelos/`, `controladores/`, `logs/`).
-- **Páginas de error existen y se sirven** (D2): `curl -s -o /dev/null -w "%{http_code}" http://localhost/rest_criteriokelly/errors/404.html` → `200` (idéntico para 400/401/403/500).
-- **Sin reglas de estáticos** (D3): `grep -E "HTTP_REFERER|AddType .*(\.js|\.css)|ExpiresByType image" rest_criteriokelly/.htaccess` → sin coincidencias (exit 1).
-- **CORS preservado** (D1/A7/R3): `curl -s -I -H "Origin: http://localhost:8100" http://localhost/rest_criteriokelly/cuentas | grep -i "Access-Control-Allow-Origin"` → `Access-Control-Allow-Origin: http://localhost:8100`.
-- **Prefijo preservado** (R2): `grep -E "ErrorDocument|RewriteRule|RewriteCond %\{REQUEST_URI\}" rest_criteriokelly/.htaccess` → todas las rutas usan `/rest_criteriokelly/`.
+- **Health check (R1):** solicitar por GET el endpoint `cuentas` del servicio y confirmar respuesta
+  200 con cuerpo JSON de estado `ok`.
+- **Bloque único de reescritura (D5):** confirmar que en el `.htaccess` existe **una sola** apertura de
+  bloque `mod_rewrite`.
+- **Dominios ajenos ausentes (D4):** confirmar que en el `.htaccess` **no aparecen** los términos
+  `empresa`, `persona`, `categoria`, `producto` ni `autenticacion`.
+- **Placeholder ausente (D7):** confirmar que **no aparece** el comentario placeholder de prevención de
+  ataques.
+- **Carpetas internas denegadas (R4):** solicitar el acceso directo a cada una de las carpetas
+  `configuracion`, `rutas`, `modelos`, `controladores` y `logs` (incluyendo un archivo interno de
+  `configuracion`) y confirmar respuesta **403** en todos los casos.
+- **Páginas de error existen y se sirven (D2):** solicitar cada una de las cinco páginas
+  `errors/<código>.html` y confirmar respuesta 200.
+- **Sin reglas de estáticos (D3):** confirmar que en el `.htaccess` **no aparecen** reglas de
+  anti-hotlinking (referrer), declaraciones de tipo MIME para `.js`/`.css`, ni entradas de expiración
+  para imágenes.
+- **CORS preservado (D1/A7/R3):** enviar una petición con origen `http://localhost:8100` y confirmar
+  que el header `Access-Control-Allow-Origin` devuelto vale exactamente `http://localhost:8100`.
+- **Prefijo preservado (R2):** confirmar que todas las reglas de reescritura, bloqueos y directivas
+  `ErrorDocument` usan el prefijo `/rest_criteriokelly/`.
 
 ---
 
 ## 10. Riesgos
 
-- **Riesgo de regresión en denegación de carpetas.** Cambiar 301→403 y unificar el mecanismo podría
-  dejar alguna carpeta accesible si el patrón es incorrecto. *Mitigación:* T16 verifica las 5 carpetas
-  explícitamente con `curl` esperando `403`.
-- **Riesgo de romper el ruteo por eliminar la `RewriteCond` de `assets/`.** *Mitigación:* `assets/` no
-  existe (verificado); T12 (health check) confirma que el ruteo sigue intacto.
-- **Riesgo de divergencia CORS.** *Mitigación:* los valores CORS se preservan verbatim; `CorsConfig`
-  no emite CORS, por lo que no hay fuente divergente; T19 confirma el header.
+- **Regresión en la denegación de carpetas.** Cambiar 301→403 y unificar el mecanismo podría dejar
+  alguna carpeta accesible si el patrón queda mal definido. *Mitigación:* T16 verifica las cinco
+  carpetas explícitamente esperando 403.
+- **Romper el ruteo al quitar la exclusión de `assets/`.** *Mitigación:* la carpeta `assets/` no existe
+  (verificado); T12 (health check) confirma que el ruteo sigue intacto.
+- **Divergencia de CORS.** *Mitigación:* los valores CORS se preservan sin cambios y `CorsConfig` no
+  emite CORS, por lo que no hay fuente divergente; T19 confirma el header.
 
 ---
 
 ## 11. Rollback
 
-- **Global:** `git checkout -- rest_criteriokelly/.htaccess` restaura el `.htaccess` previo;
-  `rm -rf rest_criteriokelly/errors/` elimina las páginas creadas. El servicio vuelve al estado
-  anterior sin efectos en BD ni en la tripleta PHP (cambios exclusivamente de configuración/estáticos).
-- **Por artefacto:** revertir cada `RewriteRule`/bloque al estado documentado en §7.2 columna "antes",
-  o eliminar el archivo `errors/*.html` correspondiente.
+- **Global:** restaurar el `.htaccess` a su versión anterior desde el control de versiones y eliminar
+  la carpeta `errors/` creada. El servicio vuelve al estado previo sin efectos en BD ni en la tripleta
+  PHP (cambios exclusivamente de configuración y estáticos).
+- **Por artefacto:** revertir cada regla o bloque del `.htaccess` a su estado anterior descrito en
+  §7.2, o eliminar el archivo `errors/*.html` correspondiente.
 
 ---
 
 ## 12. Plan de tareas ejecutable (checklist)
 
-> **Reglas de seguimiento (§9 de `doc_modo_planificacion.md`):** `[ ]` = no realizado; `[X]` = realizado
-> y verificado (lo marca el agente implementador); `[BLOCKED]` = bloqueado + razón. Un checkbox = una
-> acción verificable. El agente implementador **actualiza cada checkbox al completar y verificar** la
-> tarea, y solo entonces. Todos se entregan en `[ ]`.
+> **Reglas de seguimiento (§9 de `doc_modo_planificacion.md`):** `[ ]` = no realizado; `[X]` =
+> realizado y verificado (lo marca el agente implementador); `[BLOCKED]` = bloqueado, con razón. Un
+> checkbox = una acción verificable. El agente implementador **actualiza cada checkbox al completar y
+> verificar** la tarea, y solo entonces. Todos se entregan en `[ ]`.
 
 ### Execution Context
 
@@ -271,117 +278,75 @@ Ruta base del archivo para greps: `rest_criteriokelly/.htaccess`.
 | Capa de datos | `configuracion/enlace.php` (clase `Enlace`, `bind_param`) — **no tocada** |
 | Capa de respuesta | `controladores/BaseCtrl.php` — **no tocada** |
 | CORS (PHP) | `configuracion/CorsConfig.php` — **no emite `Access-Control-*`**; el `.htaccess` es el emisor |
-| BD | MySQL/MariaDB — `DB_NAME=sist_criteriokelly` (`configuracion/global.php`) — **no tocada** |
+| BD | MySQL/MariaDB — `DB_NAME=sist_criteriokelly` — **no tocada** |
 | Prefijo de tablas | `sckc_` (no aplica a este refactor) |
 | Comando de build | N/A (sin Composer/build; desplegar carpeta en `DocumentRoot` de Apache) |
-| Health check | `curl http://localhost/rest_criteriokelly/cuentas` |
+| Health check | `GET http://localhost/rest_criteriokelly/cuentas` |
 | Dominios reales del servicio | `cuentas`, `bitacora`, `comentarios`, `criterioKelly` |
 | Logs | `logs/php_errors.log` del servicio |
 
 ### Grupo A — Crear páginas de error (prerrequisito de `ErrorDocument`)
 
-```
-[ ] T1 | /run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/400.html | CREATE
-    - Delta: crear la carpeta errors/ y el archivo con la plantilla de §7.3, CODIGO=400, MENSAJE="Solicitud incorrecta".
-    - Note: HTML autocontenido, sin recursos externos.
-
-[ ] T2 | /run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/401.html | CREATE
-    - Delta: plantilla de §7.3, CODIGO=401, MENSAJE="No autorizado".
-
-[ ] T3 | /run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/403.html | CREATE
-    - Delta: plantilla de §7.3, CODIGO=403, MENSAJE="Acceso denegado".
-
-[ ] T4 | /run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/404.html | CREATE
-    - Delta: plantilla de §7.3, CODIGO=404, MENSAJE="Recurso no encontrado".
-
-[ ] T5 | /run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/500.html | CREATE
-    - Delta: plantilla de §7.3, CODIGO=500, MENSAJE="Error interno del servidor".
-```
+- `[ ]` **T1** | `errors/400.html` | CREATE — Crear la carpeta `errors/` y la página de error según la
+  indicación de §7.3, con código 400 y mensaje "Solicitud incorrecta". *Nota:* HTML autocontenido, sin
+  recursos externos.
+- `[ ]` **T2** | `errors/401.html` | CREATE — Página de error según §7.3, código 401, mensaje "No
+  autorizado".
+- `[ ]` **T3** | `errors/403.html` | CREATE — Página de error según §7.3, código 403, mensaje "Acceso
+  denegado".
+- `[ ]` **T4** | `errors/404.html` | CREATE — Página de error según §7.3, código 404, mensaje "Recurso
+  no encontrado".
+- `[ ]` **T5** | `errors/500.html` | CREATE — Página de error según §7.3, código 500, mensaje "Error
+  interno del servidor".
 
 ### Grupo B — Refactor del `.htaccess` (cada tarea es un cambio atómico sobre el mismo archivo)
 
-```
-[ ] T6 | /run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/.htaccess | MODIFY
-    - Delta: consolidar los dos bloques <IfModule mod_rewrite.c> en uno; eliminar por completo el
-      segundo bloque (anti-hotlinking) (A1/D5).
-    - Insert after: ancla "# URL REWRITING PARA API REST" / "<IfModule mod_rewrite.c>" (primer bloque);
-      eliminar el bloque bajo "# PREVENIR HOTLINKING".
-    - Note: el resultado final del bloque único debe seguir el orden de §7.2 punto 6.
+- `[ ]` **T6** | `.htaccess` | MODIFY — Consolidar los dos bloques de reescritura en uno solo y
+  eliminar el segundo bloque (anti-hotlinking). El bloque único resultante debe respetar el orden
+  descrito en §7.2 punto 6 (A1/D5).
+- `[ ]` **T7** | `.htaccess` | MODIFY — Reemplazar las cuatro reglas de bloqueo con redirección 301 y
+  la regla `RedirectMatch` 403 por una única regla que deniegue con 403 el acceso a las carpetas
+  `configuracion`, `rutas`, `modelos`, `controladores` y `logs` bajo el prefijo del servicio.
+  Conservar intactos los bloques de protección de archivos sensibles individuales (A2/D6/R4).
+- `[ ]` **T8** | `.htaccess` | MODIFY — Eliminar las reglas de estáticos: tipos MIME de `.js` y `.css`,
+  entradas de expiración para imágenes/PDF/CSS/JS/íconos, y la condición de exclusión de `assets/`.
+  Conservar únicamente el tipo MIME para JSON y la expiración de JSON en cero segundos (A3/D3).
+- `[ ]` **T9** | `.htaccess` | MODIFY — En el redirect de trailing-slash, sustituir la lista de
+  dominios ajenos por los dominios reales del servicio: `cuentas`, `bitacora`, `comentarios`,
+  `criterioKelly` (A4/D4).
+- `[ ]` **T10** | `.htaccess` | MODIFY — Eliminar la sección de "prevención de ataques" que solo
+  contiene el comentario placeholder muerto (A5/D7).
+- `[ ]` **T11** | `.htaccess` | MODIFY — Verificar que el bloque de headers CORS queda intacto (origen
+  `http://localhost:8100`; métodos GET, POST, PUT, DELETE, OPTIONS; headers Content-Type, Authorization,
+  X-Requested-With; edad máxima 3600) y que el manejo del preflight `OPTIONS` quedó reubicado dentro
+  del bloque de reescritura único. No modificar valores CORS: no hay divergencia con `CorsConfig`
+  (A7/D1).
 
-[ ] T7 | .../rest_criteriokelly/.htaccess | MODIFY
-    - Delta: reemplazar los 4 RewriteRule de bloqueo con [R=301] y el RedirectMatch 403 por UN único
-      RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/(configuracion|rutas|modelos|controladores|logs)/ [NC]
-      + RewriteRule ^ - [F,L] (A2/D6/R4).
-    - Insert after: ancla "# BLOQUEAR ACCESO DIRECTO A CARPETAS INTERNAS".
-    - Note: eliminar también "RedirectMatch 403 ^/?(configuracion|logs|backups|temp)/?$". Conservar
-      intactos los bloques <Files>/<FilesMatch> de archivos sensibles.
+### Grupo C — Validaciones (cada una es una tarea con su resultado esperado)
 
-[ ] T8 | .../rest_criteriokelly/.htaccess | MODIFY
-    - Delta: eliminar reglas de estáticos: bloque anti-hotlinking (ya en T6), AddType .js y .css,
-      entradas mod_expires de image/*, application/pdf, text/css, application/javascript, *icon*,
-      y la RewriteCond de assets/. Conservar AddType application/json .json y
-      ExpiresByType application/json "access plus 0 seconds" (A3/D3).
-    - Insert after: anclas "# CACHE CONTROL" (mod_expires), "# CONFIGURACIÓN DE TIPOS MIME" (mod_mime),
-      "RewriteCond %{REQUEST_URI} !^/rest_criteriokelly/assets/".
-
-[ ] T9 | .../rest_criteriokelly/.htaccess | MODIFY
-    - Delta: en el redirect trailing-slash, sustituir (empresa|persona|usuario|categoria|producto|autenticacion)
-      por (cuentas|bitacora|comentarios|criterioKelly) (A4/D4).
-    - Insert after: ancla "# Trailing slash redirect".
-
-[ ] T10 | .../rest_criteriokelly/.htaccess | MODIFY
-    - Delta: eliminar la sección "# PREVENCIÓN DE ATAQUES" y su comentario placeholder muerto
-      "# ...resto del código de prevención de ataques existente..." (A5/D7).
-    - Insert after: ancla "# PREVENCIÓN DE ATAQUES".
-
-[ ] T11 | .../rest_criteriokelly/.htaccess | MODIFY
-    - Delta: verificar que el bloque <IfModule mod_headers.c> con los headers CORS queda intacto
-      (origen http://localhost:8100; métodos GET,POST,PUT,DELETE,OPTIONS; headers Content-Type,
-      Authorization,X-Requested-With; Max-Age 3600) y que el rewrite de preflight OPTIONS quedó
-      reubicado dentro del bloque mod_rewrite único (A7/D1).
-    - Insert after: ancla "# HEADERS DE SEGURIDAD Y CORS CENTRALIZADOS".
-    - Note: NO modificar valores CORS; CorsConfig no emite CORS, no hay divergencia que reconciliar.
-```
-
-### Grupo C — Validaciones (cada una con su comando exacto y salida esperada)
-
-```
-[ ] T12 | Validación — health check | RUN
-    - Comando: curl -s -o /dev/null -w "%{http_code}" http://localhost/rest_criteriokelly/cuentas
-    - Esperado: 200 (y cuerpo JSON {"status":"ok",...} idéntico al previo).
-
-[ ] T13 | Validación — bloque mod_rewrite único (D5) | RUN
-    - Comando: grep -c "<IfModule mod_rewrite.c>" rest_criteriokelly/.htaccess
-    - Esperado: 1
-
-[ ] T14 | Validación — dominios ajenos ausentes (D4) | RUN
-    - Comando: grep -E "empresa|persona|categoria|producto|autenticacion" rest_criteriokelly/.htaccess
-    - Esperado: sin coincidencias (exit code 1)
-
-[ ] T15 | Validación — placeholder ausente (D7) | RUN
-    - Comando: grep -F "resto del código de prevención de ataques" rest_criteriokelly/.htaccess
-    - Esperado: sin coincidencias (exit code 1)
-
-[ ] T16 | Validación — carpetas internas denegadas 403 (R4) | RUN
-    - Comando: for d in configuracion rutas modelos controladores logs; do curl -s -o /dev/null -w "%{http_code}\n" "http://localhost/rest_criteriokelly/$d/"; done
-    - Esperado: 403 en las 5 líneas (para configuracion probar además /configuracion/global.php → 403).
-
-[ ] T17 | Validación — páginas de error existen y se sirven (D2) | RUN
-    - Comando: for c in 400 401 403 404 500; do curl -s -o /dev/null -w "%{http_code}\n" "http://localhost/rest_criteriokelly/errors/$c.html"; done
-    - Esperado: 200 en las 5 líneas.
-
-[ ] T18 | Validación — sin reglas de estáticos (D3) | RUN
-    - Comando: grep -E "HTTP_REFERER|AddType [^ ]*\.(js|css)|ExpiresByType image" rest_criteriokelly/.htaccess
-    - Esperado: sin coincidencias (exit code 1)
-
-[ ] T19 | Validación — CORS preservado (D1/A7/R3) | RUN
-    - Comando: curl -s -I -H "Origin: http://localhost:8100" http://localhost/rest_criteriokelly/cuentas | grep -i "Access-Control-Allow-Origin"
-    - Esperado: Access-Control-Allow-Origin: http://localhost:8100
-
-[ ] T20 | Validación — prefijo /rest_criteriokelly/ preservado (R2) | RUN
-    - Comando: grep -n "ErrorDocument\|/rest_criteriokelly/" rest_criteriokelly/.htaccess
-    - Esperado: todas las reglas de rewrite, bloqueos y ErrorDocument usan el prefijo /rest_criteriokelly/.
-```
+- `[ ]` **T12** | Validación — health check — Solicitar por GET el endpoint `cuentas` del servicio.
+  **Esperado:** 200 y cuerpo JSON de estado `ok`, idéntico al previo.
+- `[ ]` **T13** | Validación — bloque de reescritura único (D5) — Inspeccionar el `.htaccess`.
+  **Esperado:** existe una sola apertura de bloque `mod_rewrite`.
+- `[ ]` **T14** | Validación — dominios ajenos ausentes (D4) — Inspeccionar el `.htaccess`.
+  **Esperado:** no aparecen `empresa`, `persona`, `categoria`, `producto` ni `autenticacion`.
+- `[ ]` **T15** | Validación — placeholder ausente (D7) — Inspeccionar el `.htaccess`. **Esperado:** no
+  aparece el comentario placeholder de prevención de ataques.
+- `[ ]` **T16** | Validación — carpetas internas denegadas (R4) — Solicitar el acceso directo a
+  `configuracion` (incluido un archivo interno como `global.php`), `rutas`, `modelos`, `controladores`
+  y `logs`. **Esperado:** 403 en todos los casos.
+- `[ ]` **T17** | Validación — páginas de error se sirven (D2) — Solicitar las cinco páginas
+  `errors/400.html`, `errors/401.html`, `errors/403.html`, `errors/404.html`, `errors/500.html`.
+  **Esperado:** 200 en las cinco.
+- `[ ]` **T18** | Validación — sin reglas de estáticos (D3) — Inspeccionar el `.htaccess`. **Esperado:**
+  no aparecen reglas de anti-hotlinking (referrer), ni tipos MIME de `.js`/`.css`, ni entradas de
+  expiración para imágenes.
+- `[ ]` **T19** | Validación — CORS preservado (D1/A7/R3) — Enviar una petición con origen
+  `http://localhost:8100`. **Esperado:** el header `Access-Control-Allow-Origin` devuelto vale
+  exactamente `http://localhost:8100`.
+- `[ ]` **T20** | Validación — prefijo preservado (R2) — Inspeccionar el `.htaccess`. **Esperado:**
+  todas las reglas de reescritura, bloqueos y directivas `ErrorDocument` usan el prefijo
+  `/rest_criteriokelly/`.
 
 ---
 
@@ -391,11 +356,12 @@ Ruta base del archivo para greps: `rest_criteriokelly/.htaccess`.
 
 ### Resumen de tareas
 - Total de tareas: 20
-- Completadas [X]: <n>
-- Bloqueadas [BLOCKED]: <n>
-- Omitidas: <n>
+- Completadas [X]: _(pendiente)_
+- Bloqueadas [BLOCKED]: _(pendiente)_
+- Omitidas: _(pendiente)_
 
 ### Estado por tarea
+
 | ID | Estado ([X]/[BLOCKED]/[ ]) | Archivo | Nota / Razón si BLOCKED |
 |----|----------------------------|---------|-------------------------|
 | T1 |  | errors/400.html |  |
@@ -420,20 +386,20 @@ Ruta base del archivo para greps: `rest_criteriokelly/.htaccess`.
 | T20 |  | (validación) |  |
 
 ### Validaciones ejecutadas
-| ID | Comando exacto ejecutado | Salida / HTTP observado | Esperado | ¿Coincide? |
-|----|--------------------------|-------------------------|----------|------------|
-|    |                          |                         |          |            |
+
+| ID | Qué se ejecutó | Resultado observado | Esperado | ¿Coincide? |
+|----|----------------|---------------------|----------|------------|
+|    |                |                     |          |            |
 
 ### Blockers
-- <descripción del bloqueo, tarea afectada y qué se necesita para desbloquear>
+- _(descripción del bloqueo, tarea afectada y qué se necesita para desbloquear)_
 
 ### Archivos cambiados
-- <path absoluto> — CREATE|MODIFY — <resumen de una línea>
+- _(path absoluto — CREATE|MODIFY — resumen de una línea)_
 
 ### Declaración final
 - [ ] Todas las tareas ejecutables fueron completadas o marcadas como BLOCKED con razón.
-- [ ] Todas las validaciones declaradas corrieron con su comando exacto y su salida quedó registrada.
+- [ ] Todas las validaciones declaradas se ejecutaron y su resultado quedó registrado.
 - [ ] No se introdujeron decisiones fuera del HLT aprobado.
 - [ ] El estado del HLT se actualizó según §"Reglas de estado" (COMPLETADO solo si T1–T20 en [X]).
-- Declaración: <RESUELTO | PARCIAL | BLOQUEADO> — <una frase de cierre>
-```
+- Declaración: _(RESUELTO | PARCIAL | BLOQUEADO)_ — _(una frase de cierre)_
