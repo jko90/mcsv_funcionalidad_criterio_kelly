@@ -1,15 +1,21 @@
 <?php
 
 require_once(__DIR__ . '/BaseCtrl.php');
+require_once(__DIR__ . '/../modelos/ForexMdl.php');
 
 class ForexCtrl extends BaseCtrl
 {
-    // Api para forex: https://financialmodelingprep.com/stable/forex-list?apikey=mlS7wcZXGdqMNU9DZ8VSoxOU5eX8hePW
-    private $base_url = "https://api.frankfurter.app";
+    private $baseUrl = "https://api.frankfurter.app";
+    private $forexMdl;
+
+    public function __construct()
+    {
+        $this->forexMdl = new ForexMdl();
+    }
 
     public function getAllMajorForex()
     {
-        $currencies = $this->getAllCurrencies();
+        $currencies = $this->forexMdl->obtenerDivisas();
         if (!is_array($currencies) || empty($currencies)) {
             return [];
         }
@@ -20,7 +26,6 @@ class ForexCtrl extends BaseCtrl
         $chunk_size = 20;
 
         foreach ($currency_codes as $base) {
-            // Targets: todas las demás divisas (excluir la misma)
             $targets = array_values(array_filter($currency_codes, function ($c) use ($base) {
                 return $c !== $base;
             }));
@@ -29,28 +34,25 @@ class ForexCtrl extends BaseCtrl
                 continue;
             }
 
-            // Dividir targets en chunks
             $chunks = array_chunk($targets, $chunk_size);
 
             foreach ($chunks as $chunk) {
                 $targets_string = implode(',', $chunk);
-                $url = $this->base_url . "/latest?from=" . urlencode($base) . "&to=" . urlencode($targets_string);
 
-                $response = @file_get_contents($url);
-                if ($response === false) {
-                    // Si falla este request, continuar con el siguiente chunk
+                try {
+                    $data = $this->forexMdl->obtenerTasas($base, $targets_string);
+                } catch (ProveedorNoDisponibleException $e) {
+                    error_log("Forex chunk fallido ($base -> $targets_string): " . $e->getMessage());
                     usleep(50000);
                     continue;
                 }
 
-                $data = json_decode($response, true);
                 if (!isset($data['rates']) || !is_array($data['rates'])) {
                     usleep(50000);
                     continue;
                 }
 
                 foreach ($data['rates'] as $currency => $rate) {
-                    // Evitar pares no válidos o nulos
                     if ($currency === $base || !is_numeric($rate)) {
                         continue;
                     }
@@ -64,28 +66,17 @@ class ForexCtrl extends BaseCtrl
                     ];
                 }
 
-                // Pequeña pausa entre requests del mismo base
-                usleep(50000); // 50ms
+                usleep(50000);
             }
 
-            // Pausa más larga entre cambios de base para no saturar la API
-            usleep(150000); // 150ms
+            usleep(150000);
         }
 
         return $forex_data;
     }
 
-    /**
-     * Obtener lista completa de divisas desde la API (codigo => nombre).
-     */
     public function getAllCurrencies()
     {
-        $url = $this->base_url . "/currencies";
-        $response = @file_get_contents($url);
-        if ($response === false) {
-            return [];
-        }
-        $data = json_decode($response, true);
-        return is_array($data) ? $data : [];
+        return $this->forexMdl->obtenerDivisas();
     }
 }

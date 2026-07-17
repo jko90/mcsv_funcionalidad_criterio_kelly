@@ -1,19 +1,11 @@
 <?php
-//ip de la pc servidor base de datos
-define("DB_HOST", "localhost");
 
-// nombre de la base de datos
-define("DB_NAME", "sist_criteriokelly");
+define("FMP_API_KEY", "mlS7wcZXGdqMNU9DZ8VSoxOU5eX8hePW");
 
+define("BINANCE_BASE_URL", "https://api.binance.com/api/v3");
 
-//nombre de usuario de base de datos
-define("DB_USERNAME", "root");
+define("FRANKFURTER_BASE_URL", "https://api.frankfurter.app");
 
-//conraseña del usuario de base de datos
-define("DB_PASSWORD", "");
+define("FMP_BASE_URL", "https://financialmodelingprep.com/api/v3");
 
-//codificacion de caracteres
-define("DB_ENCODE", "utf8");
-
-//nombre del proyecto
 define("PRO_NOMBRE", "Crip-Tecnología");
