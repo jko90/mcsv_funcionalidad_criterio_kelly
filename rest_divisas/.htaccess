@@ -76,7 +76,7 @@ ServerSignature Off
     RewriteRule ^(.*)$ index.php [L,R=200]
     
     # Bloquear acceso directo a carpetas internas (403)
-    RewriteRule ^/?(configuracion|rutas|modelos|controladores|logs|vistas)(/.*)?$ - [F,L]
+    RewriteRule ^/?(configuracion|rutas|modelos|controladores|logs|vistas|cache)(/.*)?$ - [F,L]
     
     # Redirigir todas las peticiones que no sean archivos o directorios a index.php
     RewriteCond %{REQUEST_FILENAME} !-f

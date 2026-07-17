@@ -2,6 +2,7 @@
 
 require_once(__DIR__ . '/BaseCtrl.php');
 require_once(__DIR__ . '/../modelos/ForexMdl.php');
+require_once(__DIR__ . '/../configuracion/CacheProveedor.php');
 
 class ForexCtrl extends BaseCtrl
 {
@@ -17,6 +18,14 @@ class ForexCtrl extends BaseCtrl
 
     public function getAllMajorForex()
     {
+        $clave = "forex_matrix";
+        $cache = new CacheProveedor();
+
+        $cached = $cache->obtener($clave);
+        if ($cached !== null) {
+            return $cached;
+        }
+
         $currencies = $this->forexMdl->obtenerDivisas();
         if (!is_array($currencies) || empty($currencies)) {
             return [];
@@ -73,6 +82,8 @@ class ForexCtrl extends BaseCtrl
 
             usleep(self::BASE_DELAY_US);
         }
+
+        $cache->guardar($clave, $forex_data, CACHE_TTL_FOREX);
 
         return $forex_data;
     }
