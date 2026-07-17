@@ -52,20 +52,10 @@ ServerSignature Off
 </IfModule>
 
 # ================================
-# CACHE CONTROL
+# CACHE CONTROL — solo JSON
 # ================================
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType image/png "access plus 1 month"
-    ExpiresByType image/jpg "access plus 1 month"
-    ExpiresByType image/jpeg "access plus 1 month"
-    ExpiresByType image/gif "access plus 1 month"
-    ExpiresByType image/ico "access plus 1 month"
-    ExpiresByType image/icon "access plus 1 month"
-    ExpiresByType text/x-icon "access plus 1 month"
-    ExpiresByType application/pdf "access plus 1 month"
     ExpiresByType application/json "access plus 0 seconds"
 </IfModule>
 
@@ -82,53 +72,23 @@ ServerSignature Off
     Require all denied
 </FilesMatch>
 
-# Proteger directorios sensibles
-RedirectMatch 403 ^/?(configuracion|logs|backups|temp)/?$
-
-# ================================
-# PREVENCIÓN DE ATAQUES
-# ================================
-# ...resto del código de prevención de ataques existente...
-
 # ================================
 # URL REWRITING PARA API REST
 # ================================
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # ================================
-    # MANEJO DE CORS PREFLIGHT
-    # ================================
-    # Manejar peticiones OPTIONS para CORS preflight
+    # Manejo de CORS preflight
     RewriteCond %{REQUEST_METHOD} OPTIONS
     RewriteRule ^(.*)$ index.php [L,R=200]
     
-    # ================================
-    # BLOQUEAR ACCESO DIRECTO A CARPETAS INTERNAS
-    # ================================
-    # Bloquear acceso directo a /rutas/
-    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/rutas/ [NC]
-    RewriteRule ^(.*)$ /rest_criteriokelly/ [R=301,L]
+    # Bloquear acceso directo a carpetas internas
+    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/(configuracion|rutas|modelos|controladores|logs) [NC]
+    RewriteRule ^ - [F,L]
     
-    # Bloquear acceso directo a /modelos/
-    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/modelos/ [NC]
-    RewriteRule ^(.*)$ /rest_criteriokelly/ [R=301,L]
-    
-    # Bloquear acceso directo a /configuracion/
-    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/configuracion/ [NC]
-    RewriteRule ^(.*)$ /rest_criteriokelly/ [R=301,L]
-    
-    # Bloquear acceso directo a /controladores/
-    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/controladores/ [NC]
-    RewriteRule ^(.*)$ /rest_criteriokelly/ [R=301,L]
-    
-    # ================================
-    # MANEJO DE API REST
-    # ================================
-    # Redirigir todas las peticiones que no sean archivos o directorios a index.php
+    # Redirigir peticiones que no sean archivos o directorios a index.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} !^/rest_criteriokelly/assets/
     RewriteRule ^(.*)$ index.php [QSA,L]
     
     # Force HTTPS (descomenta si tienes SSL)
@@ -138,7 +98,7 @@ RedirectMatch 403 ^/?(configuracion|logs|backups|temp)/?$
     # Trailing slash redirect
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_URI} !/$
-    RewriteCond %{REQUEST_URI} !^/rest_criteriokelly/(empresa|persona|usuario|categoria|producto|autenticacion)
+    RewriteCond %{REQUEST_URI} !^/rest_criteriokelly/(cuentas|bitacora|comentarios|criterioKelly)
     RewriteRule ^(.*)$ $1/ [L,R=301]
 </IfModule>
 
@@ -167,20 +127,8 @@ php_flag log_errors On
 php_value error_log logs/php_errors.log
 
 # ================================
-# PREVENIR HOTLINKING
-# ================================
-<IfModule mod_rewrite.c>
-    RewriteCond %{HTTP_REFERER} !^$
-    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?localhost [NC]
-    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?criptecnologia\.com [NC]
-    RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
-</IfModule>
-
-# ================================
 # CONFIGURACIÓN DE TIPOS MIME
 # ================================
 <IfModule mod_mime.c>
     AddType application/json .json
-    AddType application/javascript .js
-    AddType text/css .css
 </IfModule>

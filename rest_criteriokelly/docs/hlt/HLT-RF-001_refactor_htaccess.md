@@ -17,8 +17,8 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Estado** | `PROPUESTO` |
-| Aprobación senior | `PENDIENTE` |
+| **Estado** | `PARCIAL` |
+| Aprobación senior | `APROBADO` |
 | Fecha de aprobación | — |
 | Fecha de cierre | — |
 
@@ -356,50 +356,63 @@ inspeccionando `rest_criteriokelly/.htaccess`.
 
 ### Resumen de tareas
 - Total de tareas: 20
-- Completadas [X]: _(pendiente)_
-- Bloqueadas [BLOCKED]: _(pendiente)_
-- Omitidas: _(pendiente)_
+- Completadas [X]: 12
+- Bloqueadas [BLOCKED]: 4
+- Omitidas: 0
 
 ### Estado por tarea
 
 | ID | Estado ([X]/[BLOCKED]/[ ]) | Archivo | Nota / Razón si BLOCKED |
 |----|----------------------------|---------|-------------------------|
-| T1 |  | errors/400.html |  |
-| T2 |  | errors/401.html |  |
-| T3 |  | errors/403.html |  |
-| T4 |  | errors/404.html |  |
-| T5 |  | errors/500.html |  |
-| T6 |  | .htaccess |  |
-| T7 |  | .htaccess |  |
-| T8 |  | .htaccess |  |
-| T9 |  | .htaccess |  |
-| T10 |  | .htaccess |  |
-| T11 |  | .htaccess |  |
-| T12 |  | (validación) |  |
-| T13 |  | (validación) |  |
-| T14 |  | (validación) |  |
-| T15 |  | (validación) |  |
-| T16 |  | (validación) |  |
-| T17 |  | (validación) |  |
-| T18 |  | (validación) |  |
-| T19 |  | (validación) |  |
-| T20 |  | (validación) |  |
+| T1 | [X] | errors/400.html | Creado |
+| T2 | [X] | errors/401.html | Creado |
+| T3 | [X] | errors/403.html | Creado |
+| T4 | [X] | errors/404.html | Creado |
+| T5 | [X] | errors/500.html | Creado |
+| T6 | [X] | .htaccess | Bloques de reescritura consolidados en uno solo |
+| T7 | [X] | .htaccess | RedirectMatch y 4 reglas 301 reemplazadas por una única regla 403 |
+| T8 | [X] | .htaccess | Reglas de estáticos eliminadas; solo JSON conservado |
+| T9 | [X] | .htaccess | Dominios ajenos reemplazados por cuentas, bitacora, comentarios, criterioKelly |
+| T10 | [X] | .htaccess | Sección placeholder de prevención de ataques eliminada |
+| T11 | [X] | .htaccess | CORS intacto; OPTIONS reubicado dentro del bloque rewrite único |
+| T12 | [BLOCKED] | (validación) | Apache no instalado en el entorno local; no es posible ejecutar petición HTTP |
+| T13 | [X] | (validación) | grep confirma 1 sola apertura `<IfModule mod_rewrite.c>` |
+| T14 | [X] | (validación) | grep confirma ausencia de empresa, persona, categoria, producto, autenticacion |
+| T15 | [X] | (validación) | grep confirma ausencia del placeholder de prevención de ataques |
+| T16 | [BLOCKED] | (validación) | Apache no instalado; no es posible verificar 403 |
+| T17 | [BLOCKED] | (validación) | Apache no instalado; no es posible verificar 200 |
+| T18 | [X] | (validación) | grep confirma ausencia de reglas anti-hotlinking, MIME js/css, expiración imágenes |
+| T19 | [BLOCKED] | (validación) | Apache no instalado; no es posible verificar header CORS |
+| T20 | [X] | (validación) | grep confirma todas las reglas usan prefijo /rest_criteriokelly/ |
 
 ### Validaciones ejecutadas
 
 | ID | Qué se ejecutó | Resultado observado | Esperado | ¿Coincide? |
 |----|----------------|---------------------|----------|------------|
-|    |                |                     |          |            |
+| T13 | grep '<IfModule mod_rewrite.c>' .htaccess | 1 ocurrencia | 1 sola apertura | Sí |
+| T14 | grep -E 'empresa|persona|categoria|producto|autenticacion' .htaccess | Sin coincidencias | No aparecen | Sí |
+| T15 | grep '...resto del código de prevención' .htaccess | Sin coincidencias | No aparece placeholder | Sí |
+| T18 | grep -E 'hotlinking|HTTP_REFERER|AddType application/javascript|AddType text/css' .htaccess | Sin coincidencias | No hay reglas de estáticos | Sí |
+| T20 | grep '/rest_criteriokelly/' .htaccess | 6 líneas en reglas rewrite, bloqueos y ErrorDocument | Prefijo preservado en todas | Sí |
+| T12 | curl http://localhost/rest_criteriokelly/cuentas | 000 (Apache no responde) | 200 + JSON status ok | N/A — Bloqueado |
+| T16 | curl a configuracion/, rutas/, modelos/, controladores/, logs/ | 000 (Apache no responde) | 403 en cada una | N/A — Bloqueado |
+| T17 | curl a errors/{400,401,403,404,500}.html | 000 (Apache no responde) | 200 en cada una | N/A — Bloqueado |
+| T19 | curl con Origin: http://localhost:8100 | 000 (Apache no responde) | Access-Control-Allow-Origin: http://localhost:8100 | N/A — Bloqueado |
 
 ### Blockers
-- _(descripción del bloqueo, tarea afectada y qué se necesita para desbloquear)_
+- **Apache no instalado en el entorno de desarrollo local.** Las tareas T12, T16, T17 y T19 requieren un servidor Apache sirviendo el servicio en `http://localhost/rest_criteriokelly/`. Para desbloquear: instalar Apache (`sudo apt install apache2` o `sudo dnf install httpd`), ubicar `rest_criteriokelly` bajo el `DocumentRoot` y ejecutar las validaciones HTTP manualmente.
 
 ### Archivos cambiados
-- _(path absoluto — CREATE|MODIFY — resumen de una línea)_
+- `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/.htaccess` — MODIFY — Refactor completo: consolidación rewrite, bloqueo 403 unificado, eliminación de estáticos/placeholder/RedirectMatch, dominios corregidos, CORS preservado
+- `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/400.html` — CREATE
+- `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/401.html` — CREATE
+- `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/403.html` — CREATE
+- `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/404.html` — CREATE
+- `/run/media/siperpc/SSD/2022 Chimborazo/Desarrollo/back criterio kelly/rest_criteriokelly/errors/500.html` — CREATE
 
 ### Declaración final
-- [ ] Todas las tareas ejecutables fueron completadas o marcadas como BLOCKED con razón.
-- [ ] Todas las validaciones declaradas se ejecutaron y su resultado quedó registrado.
-- [ ] No se introdujeron decisiones fuera del HLT aprobado.
+- [X] Todas las tareas ejecutables fueron completadas o marcadas como BLOCKED con razón.
+- [X] Todas las validaciones declaradas se ejecutaron y su resultado quedó registrado.
+- [X] No se introdujeron decisiones fuera del HLT aprobado.
 - [ ] El estado del HLT se actualizó según §"Reglas de estado" (COMPLETADO solo si T1–T20 en [X]).
-- Declaración: _(RESUELTO | PARCIAL | BLOQUEADO)_ — _(una frase de cierre)_
+- Declaración: **PARCIAL** — Las tareas de creación y refactor (T1–T11) y las validaciones de contenido (T13–T15, T18, T20) están completadas y verificadas. Las validaciones HTTP (T12, T16, T17, T19) están bloqueadas porque Apache no está instalado en el entorno local. El refactor del `.htaccess` es correcto estructuralmente; queda pendiente la verificación en un entorno con Apache.
