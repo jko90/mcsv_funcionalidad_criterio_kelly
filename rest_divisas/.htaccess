@@ -5,17 +5,10 @@ Options -Indexes
 ServerSignature Off
 
 # ================================
-# HEADERS DE SEGURIDAD Y CORS
+# HEADERS DE SEGURIDAD
 # ================================
 <IfModule mod_headers.c>
-    # CORS Headers
-    Header always set Access-Control-Allow-Origin "http://localhost:8100"
-    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
-    Header always set Access-Control-Max-Age "3600"
-    
-    # Protección XSS
-    Header always set X-XSS-Protection "1; mode=block"
+    # CORS se configura programáticamente en CorsConfig.php
     
     # Prevenir MIME type sniffing
     Header always set X-Content-Type-Options "nosniff"
@@ -26,8 +19,10 @@ ServerSignature Off
     # Política de referrer
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     
-    # Content Security Policy
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; font-src 'self' cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' http://localhost:8100"
+    # CSP se configura programáticamente en CorsConfig.php
+    
+    # HSTS (HTTPS Strict Transport Security)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
     
     # Remove server info
     Header always unset Server
@@ -81,16 +76,16 @@ ServerSignature Off
     RewriteRule ^(.*)$ index.php [L,R=200]
     
     # Bloquear acceso directo a carpetas internas (403)
-    RewriteRule ^/?(configuracion|rutas|modelos|controladores|logs)(/.*)?$ - [F,L]
+    RewriteRule ^/?(configuracion|rutas|modelos|controladores|logs|vistas)(/.*)?$ - [F,L]
     
     # Redirigir todas las peticiones que no sean archivos o directorios a index.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php [QSA,L]
     
-    # Force HTTPS (descomenta si tienes SSL)
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # Force HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     
     # Trailing slash redirect
     RewriteCond %{REQUEST_FILENAME} !-f

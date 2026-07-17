@@ -21,11 +21,12 @@ class ClienteHttp
         curl_close($ch);
 
         if ($curlError !== '') {
-            throw new ProveedorNoDisponibleException("Error de cURL: " . $curlError);
+            throw new ProveedorNoDisponibleException("Error de conexión con proveedor externo");
         }
 
         if ($httpCode !== 200) {
-            throw new ProveedorNoDisponibleException("HTTP $httpCode desde $url");
+            $host = parse_url($url, PHP_URL_HOST);
+            throw new ProveedorNoDisponibleException("HTTP $httpCode desde proveedor $host");
         }
 
         $data = json_decode($response, true);

@@ -1,6 +1,5 @@
 <?php
 
-require_once(__DIR__ . '/../controladores/ForexCtrl.php');
+require_once(__DIR__ . '/RuteoCentralizado.php');
 
-$forexController = new ForexCtrl();
-$forexController->despachar('forex', 'ForexRTS', ['disponible' => 'getAllMajorForex']);
+ejecutarRuteo('ForexCtrl', 'forex', 'ForexRTS', ['disponible' => 'getAllMajorForex']);

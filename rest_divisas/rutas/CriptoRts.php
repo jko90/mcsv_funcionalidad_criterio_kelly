@@ -1,6 +1,5 @@
 <?php
 
-require_once(__DIR__ . '/../controladores/CriptoCtrl.php');
+require_once(__DIR__ . '/RuteoCentralizado.php');
 
-$criptoController = new CriptoCtrl();
-$criptoController->despachar('cripto', 'CriptoRTS', ['disponible' => 'getCryptos']);
+ejecutarRuteo('CriptoCtrl', 'cripto', 'CriptoRTS', ['disponible' => 'getCryptos']);

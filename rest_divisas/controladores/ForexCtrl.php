@@ -5,7 +5,9 @@ require_once(__DIR__ . '/../modelos/ForexMdl.php');
 
 class ForexCtrl extends BaseCtrl
 {
-    private $baseUrl = "https://api.frankfurter.app";
+    const CHUNK_DELAY_US = 50000;
+    const BASE_DELAY_US = 150000;
+
     private $forexMdl;
 
     public function __construct()
@@ -43,12 +45,12 @@ class ForexCtrl extends BaseCtrl
                     $data = $this->forexMdl->obtenerTasas($base, $targets_string);
                 } catch (ProveedorNoDisponibleException $e) {
                     error_log("Forex chunk fallido ($base -> $targets_string): " . $e->getMessage());
-                    usleep(50000);
+                    usleep(self::CHUNK_DELAY_US);
                     continue;
                 }
 
                 if (!isset($data['rates']) || !is_array($data['rates'])) {
-                    usleep(50000);
+                    usleep(self::CHUNK_DELAY_US);
                     continue;
                 }
 
@@ -66,10 +68,10 @@ class ForexCtrl extends BaseCtrl
                     ];
                 }
 
-                usleep(50000);
+                usleep(self::CHUNK_DELAY_US);
             }
 
-            usleep(150000);
+            usleep(self::BASE_DELAY_US);
         }
 
         return $forex_data;

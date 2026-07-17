@@ -5,13 +5,10 @@ require_once(__DIR__ . '/../modelos/IndiceMdl.php');
 
 class IndiceCtrl extends BaseCtrl
 {
-    private $baseUrl = "https://financialmodelingprep.com/api/v3";
-    private $apiKey;
     private $indiceMdl;
 
     public function __construct()
     {
-        $this->apiKey = FMP_API_KEY;
         $this->indiceMdl = new IndiceMdl();
     }
 

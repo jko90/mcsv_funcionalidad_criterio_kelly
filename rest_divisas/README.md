@@ -35,13 +35,19 @@ con un enrutador frontal único (*front controller*).
 Cliente HTTP
      │
      ▼
- index.php               ← Front Controller: CORS, seguridad y ruteo
+ index.php               ← Front Controller: CORS, CSP, seguridad y ruteo
      │
      ▼
- rutas/*Rts.php          ← Routing: método HTTP + acción, formateo de la respuesta
+ rutas/*Rts.php          ← Routing centralizado (RuteoCentralizado.php)
      │
      ▼
  controladores/*Ctrl.php ← Lógica de negocio (extienden BaseCtrl)
+     │
+     ▼
+ modelos/*Mdl.php        ← Llamadas a APIs externas vía ClienteHttp
+     │
+     ▼
+ configuracion/          ← global.php (constantes), ClienteHttp.php (cURL)
      │
      ▼
  APIs externas           ← Binance / Frankfurter / Financial Modeling Prep
@@ -65,10 +71,9 @@ Cliente HTTP
 |-------------------|------------------------------------------------------|
 | PHP               | 8.0+                                                 |
 | Apache            | 2.4+ con `mod_rewrite`, `mod_headers`, `mod_deflate` |
-| Extensiones PHP   | `mysqli`, `curl`, `json`                             |
-| MySQL / MariaDB   | 5.7+ / 10.4+ (opcional; solo si se persisten datos)  |
+| Extensiones PHP   | `curl`, `json`, `mbstring`                           |
 
-> El proyecto no usa Composer actualmente. Las dependencias son extensiones nativas
+> El proyecto no usa Composer ni base de datos. Las dependencias son extensiones nativas
 > de PHP. Ver [Roadmap](#roadmap) para la incorporación de autoload PSR-4.
 
 ---
@@ -77,22 +82,33 @@ Cliente HTTP
 
 ```
 rest_divisas/
-├── index.php                    # Front controller: CORS, seguridad y ruteo
+├── index.php                    # Front controller: CORS, CSP, seguridad y ruteo
 ├── .htaccess                    # Reescritura de URL, cabeceras y hardening
+├── .gitignore                   # Exclusiones para Git
 ├── configuracion/
-│   ├── global.php               # Constantes de entorno (BD, nombre del proyecto)
-│   ├── enlace.php               # Capa de acceso a datos (mysqli + prepared statements)
-│   └── CorsConfig.php           # Cabeceras CORS y de seguridad
+│   ├── global.php               # Constantes (URLs base, CORS_ORIGIN, APP_VERSION, PRO_NOMBRE)
+│   ├── .env.example             # Plantilla de variables de entorno
+│   ├── CorsConfig.php           # Cabeceras CORS, CSP y de seguridad (programático)
+│   ├── ClienteHttp.php          # Cliente HTTP genérico con cURL (inyecta API key)
+│   └── ProveedorNoDisponibleException.php  # Excepción para fallos externos
 ├── controladores/
 │   ├── BaseCtrl.php             # Clase base: validación, saneamiento y respuestas JSON
 │   ├── CriptoCtrl.php           # Criptomonedas (Binance)
 │   ├── ForexCtrl.php            # Pares Forex (Frankfurter)
 │   └── IndiceCtrl.php           # Índices bursátiles (Financial Modeling Prep)
 ├── rutas/
-│   ├── CriptoRts.php            # Enrutado del dominio cripto
-│   ├── ForexRts.php             # Enrutado del dominio forex
-│   └── IndiceRts.php            # Enrutado del dominio índices
-├── modelos/                     # (reservado para modelos de persistencia)
+│   ├── RuteoCentralizado.php    # Lógica de despacho compartida
+│   ├── CriptoRts.php            # Enrutado del dominio cripto (delega en RuteoCentralizado)
+│   ├── ForexRts.php             # Enrutado del dominio forex (delega en RuteoCentralizado)
+│   └── IndiceRts.php            # Enrutado del dominio índices (delega en RuteoCentralizado)
+├── modelos/
+│   ├── CriptoMdl.php            # Llamadas a Binance API
+│   ├── ForexMdl.php             # Llamadas a Frankfurter API
+│   └── IndiceMdl.php            # Llamadas a Financial Modeling Prep API
+├── logs/                        # Logs de errores de PHP (protegido por .htaccess)
+├── errors/                      # Páginas HTML de error personalizadas
+├── vistas/
+│   └── landing.php              # Página de presentación del servicio
 └── anexos/                      # Recursos auxiliares
 ```
 
@@ -128,20 +144,21 @@ curl http://localhost/rest_divisas/cripto/disponible
 
 ## Configuración
 
-Las constantes de entorno viven en [`configuracion/global.php`](configuracion/global.php):
+Las constantes del servicio viven en [`configuracion/global.php`](configuracion/global.php):
 
-| Constante     | Descripción                          |
-|---------------|--------------------------------------|
-| `DB_HOST`     | Host de la base de datos             |
-| `DB_NAME`     | Nombre de la base de datos           |
-| `DB_USERNAME` | Usuario de base de datos             |
-| `DB_PASSWORD` | Contraseña del usuario               |
-| `DB_ENCODE`   | Codificación de caracteres (`utf8`)  |
-| `PRO_NOMBRE`  | Nombre del proyecto                  |
+| Constante            | Descripción                                      |
+|----------------------|--------------------------------------------------|
+| `FMP_API_KEY`        | API key de Financial Modeling Prep (desde entorno)|
+| `BINANCE_BASE_URL`   | URL base de Binance API                          |
+| `FRANKFURTER_BASE_URL`| URL base de Frankfurter API                     |
+| `FMP_BASE_URL`       | URL base de Financial Modeling Prep API          |
+| `CORS_ORIGIN`        | Origen CORS permitido (desde entorno)            |
+| `APP_VERSION`        | Versión del servicio (desde entorno)             |
+| `PRO_NOMBRE`         | Nombre del proyecto                              |
 
-> **Importante:** no se deben versionar credenciales ni claves de API reales.
-> Migrar a variables de entorno (`getenv()` / archivo `.env`) es una tarea del
-> [Roadmap](#roadmap). El archivo `global.php` ya está protegido en `.htaccess`.
+> Las claves de API se leen de variables de entorno (`getenv()`) para no versionar secretos.
+> Copiar [`configuracion/.env.example`](configuracion/.env.example) como `configuracion/.env`
+> y ajustar los valores. `configuracion/.env` está ignorado por Git (ver `.gitignore`).
 
 ---
 
@@ -203,9 +220,9 @@ Cada activo, sin importar el dominio, se normaliza al mismo esquema:
 ```json
 {
   "status": "ok",
-  "timestamp": "2026-07-17 12:00:00",
+  "timestamp": "2026-07-17T12:00:00+00:00",
   "version": "1.0.0",
-  "service": "PlanesRTS"
+  "service": "CriptoRTS"
 }
 ```
 
@@ -213,8 +230,7 @@ Cada activo, sin importar el dominio, se normaliza al mismo esquema:
 
 ```json
 {
-  "error": "Error interno del servidor",
-  "detalle": "mensaje técnico"
+  "error": "Error interno del servidor"
 }
 ```
 
@@ -236,14 +252,14 @@ Este microservicio se alinea con las buenas prácticas de desarrollo backend en 
 - **PSR-4** *(objetivo)* — Autoload por espacios de nombres (ver Roadmap).
 - **REST** — Uso semántico de verbos HTTP y códigos de estado; recursos en las URI.
 - **12-Factor App**:
-  - *Config en el entorno* (migrar `global.php` a variables de entorno).
+  - *Config en el entorno* (variables de entorno / `.env`).
   - *Procesos sin estado* (ya cumplido).
   - *Paridad dev/prod* mediante el servidor embebido de PHP.
-- **Prepared statements** — Todo acceso a BD usa consultas parametrizadas
-  (`mysqli::prepare` + `bind_param`) para prevenir inyección SQL, centralizado en
-  [`configuracion/enlace.php`](configuracion/enlace.php).
+- **Cliente HTTP** — Toda comunicación con APIs externas se hace vía `ClienteHttp`
+  (cURL), con manejo de errores y timeouts configurables.
 - **Manejo de errores** — Excepciones capturadas y registradas con `error_log`;
-  nunca se exponen trazas internas al cliente en producción (`display_errors Off`).
+  nunca se exponen trazas internas al cliente en producción (`display_errors Off`);
+  los mensajes de error externos se sanitizan (sin URLs ni mensajes crudos).
 - **Separación de responsabilidades** — Ruteo, negocio y acceso a datos en capas
   distintas.
 
@@ -276,10 +292,10 @@ Para mantener la coherencia del código se respetan las siguientes convenciones:
 
 **Flujo de una petición**
 
-1. `index.php` aplica CORS/seguridad y mapea el prefijo de la URI a un archivo de ruta.
-2. El archivo `*Rts.php` extrae la acción, valida el método HTTP e invoca al controlador.
-3. El `*Ctrl.php` ejecuta la lógica (consulta al proveedor externo, normaliza el DTO).
-4. La ruta serializa y devuelve el JSON con el código HTTP correspondiente.
+1. `index.php` aplica CORS/CSP/seguridad y mapea el prefijo de la URI a un archivo de ruta.
+2. El archivo `*Rts.php` (a través de `RuteoCentralizado.php`) instancia el controlador y llama a `despachar()`.
+3. El `*Ctrl.php` ejecuta la lógica (consulta al modelo, que llama a la API externa vía `ClienteHttp`).
+4. `BaseCtrl::despachar()` serializa la respuesta JSON con el código HTTP correspondiente.
 
 ---
 
@@ -287,17 +303,17 @@ Para mantener la coherencia del código se respetan las siguientes convenciones:
 
 Controles implementados a nivel de `.htaccess` y de aplicación:
 
-- **CORS** restringido por origen (`Access-Control-Allow-Origin`).
+- **CORS** configurable vía `CORS_ORIGIN` en `configuracion/global.php` (entorno).
+- **CSP** configurado programáticamente en `CorsConfig.php` (sin CDN externos ni `unsafe-inline` en scripts).
+- **HSTS** con `max-age=31536000` (redirección HTTP→HTTPS forzada).
 - **Cabeceras de seguridad**: `X-Content-Type-Options`, `X-Frame-Options`,
-  `X-XSS-Protection`, `Referrer-Policy`, `Content-Security-Policy`.
+  `Referrer-Policy`.
 - **Ocultamiento** de `Server` y `X-Powered-By`.
-- **Protección de archivos sensibles** (`global.php`, `enlace.php`, `.htaccess`).
-- **Bloqueo de acceso directo** a `configuracion/`, `controladores/`, `rutas/`, `modelos/`.
-- **Prepared statements** en toda la capa de datos.
+- **Protección de archivos sensibles** (`global.php`, `.htaccess`, `.env`).
+- **Bloqueo de acceso directo** a `configuracion/`, `controladores/`, `rutas/`, `modelos/`,
+  `logs/`, `vistas/`.
+- **Sanitización** de excepciones externas (sin URLs ni mensajes crudos de cURL).
 - **Saneamiento** de entradas con `htmlspecialchars` (`BaseCtrl::limpiarDatos`).
-
-> ⚠️ Las claves de API embebidas en el código (`IndiceCtrl`) deben moverse a variables
-> de entorno antes de un despliegue en producción.
 
 ---
 
@@ -305,7 +321,7 @@ Controles implementados a nivel de `.htaccess` y de aplicación:
 
 Mejoras sugeridas para elevar la madurez del microservicio:
 
-- [ ] Migrar configuración y secretos a variables de entorno / `.env`.
+- [x] Migrar configuración y secretos a variables de entorno / `.env` (RF-004).
 - [ ] Incorporar **Composer** con autoload **PSR-4** y espacios de nombres.
 - [ ] Añadir **caché** (Redis / APCu) para respuestas de proveedores externos.
 - [ ] Implementar **paginación** y filtros en los listados.

@@ -21,11 +21,10 @@ if ($esRaiz) {
     }
 
     http_response_code(200);
-    header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
         'status' => 'ok',
         'timestamp' => date('c'),
-        'version' => '1.0.0',
+        'version' => APP_VERSION,
         'service' => 'rest_divisas'
     ], JSON_UNESCAPED_UNICODE);
     exit;
@@ -52,7 +51,7 @@ foreach ($rutas as $patron => $archivo) {
                 echo json_encode([
                     "error" => "Archivo de ruta no encontrado",
                     "timestamp" => date('c')
-                ]);
+                ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
         }
@@ -65,5 +64,5 @@ if (!$rutaEncontrada) {
         "error" => "Endpoint no encontrado",
         "mensaje" => "La ruta solicitada no existe",
         "timestamp" => date('c')
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 }

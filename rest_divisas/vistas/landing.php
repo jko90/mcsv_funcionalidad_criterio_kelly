@@ -338,14 +338,12 @@ function mostrarPaginaAnuncio()
             <div class="api-info">
                 <h2 class="api-title">API REST Disponible</h2>
                 <p style="text-align: center; color: #4a5568; margin-bottom: 1rem;">
-                    Endpoints para gestion empresarial - Version 2.0
+                    Endpoints de activos financieros - Divisas API
                 </p>
                 <ul class="endpoint-list">
-                    <li>/empresa - Gestion de empresas</li>
-                    <li>/persona - Gestion de personas</li>
-                    <li>/usuario - Gestion de usuarios</li>
-                    <li>/categoria - Gestion de categorias</li>
-                    <li>/producto - Gestion de productos</li>
+                    <li>/cripto/disponible - Criptomonedas (Binance)</li>
+                    <li>/forex/disponible - Pares Forex (Frankfurter)</li>
+                    <li>/indice/disponible - Indices bursatiles (FMP)</li>
                 </ul>
             </div>
 

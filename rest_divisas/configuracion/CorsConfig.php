@@ -1,21 +1,24 @@
 <?php
 
+require_once(__DIR__ . '/global.php');
+
 class CorsConfig
 {
     public static function configurar()
     {
-        // No configurar headers si ya se enviaron
         if (headers_sent()) {
             return;
         }
 
-        // Content-Type siempre JSON para API
         header('Content-Type: application/json; charset=utf-8');
 
-        // Headers CORS ya están configurados en .htaccess
-        // Solo manejamos aquí casos especiales si es necesario
+        header('Access-Control-Allow-Origin: ' . CORS_ORIGIN);
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+        header('Access-Control-Max-Age: 3600');
 
-        // Headers de seguridad adicionales (complemento a .htaccess)
+        header('Content-Security-Policy: default-src \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; font-src \'self\'; img-src \'self\' data:; connect-src \'self\' ' . CORS_ORIGIN);
+
         header('Cache-Control: no-cache, must-revalidate');
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
     }

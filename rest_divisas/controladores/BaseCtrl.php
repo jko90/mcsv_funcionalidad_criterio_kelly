@@ -1,7 +1,5 @@
 <?php
 
-require_once(__DIR__ . '/../configuracion/ProveedorNoDisponibleException.php');
-
 abstract class BaseCtrl
 {
     protected function validarDatos($data, $requeridos = [])
@@ -71,8 +69,8 @@ abstract class BaseCtrl
         if ($accion === null) {
             $healthData = [
                 'status' => 'ok',
-                'timestamp' => date('Y-m-d H:i:s'),
-                'version' => '1.0.0',
+                'timestamp' => date('c'),
+                'version' => APP_VERSION,
                 'service' => $nombreServicio
             ];
             $this->respuestaJsonSimple($healthData, 200);
