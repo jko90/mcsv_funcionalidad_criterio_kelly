@@ -1,0 +1,186 @@
+# ================================
+# CONFIGURACIÓN BÁSICA
+# ================================
+Options -Indexes
+ServerSignature Off
+
+# ================================
+# HEADERS DE SEGURIDAD Y CORS CENTRALIZADOS
+# ================================
+<IfModule mod_headers.c>
+    # CORS Headers
+    Header always set Access-Control-Allow-Origin "http://localhost:8100"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header always set Access-Control-Max-Age "3600"
+    
+    # Protección XSS
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Prevenir MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Protección contra clickjacking
+    Header always set X-Frame-Options "DENY"
+    
+    # Política de referrer
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy básica
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; font-src 'self' cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' http://localhost:8100"
+    
+    # Remove server info
+    Header always unset Server
+    Header always unset X-Powered-By
+</IfModule>
+
+# ================================
+# COMPRESIÓN GZIP
+# ================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# ================================
+# CACHE CONTROL
+# ================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/ico "access plus 1 month"
+    ExpiresByType image/icon "access plus 1 month"
+    ExpiresByType text/x-icon "access plus 1 month"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType application/json "access plus 0 seconds"
+</IfModule>
+
+# ================================
+# PROTECCIÓN DE ARCHIVOS
+# ================================
+# Proteger archivos de configuración
+<Files ~ "^(\.htaccess|\.htpasswd|\.env|enlace\.php|global\.php)$">
+    Require all denied
+</Files>
+
+# Proteger archivos PHP sensibles
+<FilesMatch "\.(inc|enlace|conf|config)$">
+    Require all denied
+</FilesMatch>
+
+# Proteger directorios sensibles
+RedirectMatch 403 ^/?(configuracion|logs|backups|temp)/?$
+
+# ================================
+# PREVENCIÓN DE ATAQUES
+# ================================
+# ...resto del código de prevención de ataques existente...
+
+# ================================
+# URL REWRITING PARA API REST
+# ================================
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # ================================
+    # MANEJO DE CORS PREFLIGHT
+    # ================================
+    # Manejar peticiones OPTIONS para CORS preflight
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ index.php [L,R=200]
+    
+    # ================================
+    # BLOQUEAR ACCESO DIRECTO A CARPETAS INTERNAS
+    # ================================
+    # Bloquear acceso directo a /rutas/
+    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/rutas/ [NC]
+    RewriteRule ^(.*)$ /rest_criteriokelly/ [R=301,L]
+    
+    # Bloquear acceso directo a /modelos/
+    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/modelos/ [NC]
+    RewriteRule ^(.*)$ /rest_criteriokelly/ [R=301,L]
+    
+    # Bloquear acceso directo a /configuracion/
+    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/configuracion/ [NC]
+    RewriteRule ^(.*)$ /rest_criteriokelly/ [R=301,L]
+    
+    # Bloquear acceso directo a /controladores/
+    RewriteCond %{REQUEST_URI} ^/rest_criteriokelly/controladores/ [NC]
+    RewriteRule ^(.*)$ /rest_criteriokelly/ [R=301,L]
+    
+    # ================================
+    # MANEJO DE API REST
+    # ================================
+    # Redirigir todas las peticiones que no sean archivos o directorios a index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/rest_criteriokelly/assets/
+    RewriteRule ^(.*)$ index.php [QSA,L]
+    
+    # Force HTTPS (descomenta si tienes SSL)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Trailing slash redirect
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_URI} !/$
+    RewriteCond %{REQUEST_URI} !^/rest_criteriokelly/(empresa|persona|usuario|categoria|producto|autenticacion)
+    RewriteRule ^(.*)$ $1/ [L,R=301]
+</IfModule>
+
+# ================================
+# PÁGINAS DE ERROR PERSONALIZADAS
+# ================================
+ErrorDocument 400 /rest_criteriokelly/errors/400.html
+ErrorDocument 401 /rest_criteriokelly/errors/401.html
+ErrorDocument 403 /rest_criteriokelly/errors/403.html
+ErrorDocument 404 /rest_criteriokelly/errors/404.html
+ErrorDocument 500 /rest_criteriokelly/errors/500.html
+
+# ================================
+# LÍMITES DE SUBIDA
+# ================================
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value max_input_vars 3000
+
+# ================================
+# CONFIGURACIÓN PHP
+# ================================
+php_flag display_errors Off
+php_flag log_errors On
+php_value error_log logs/php_errors.log
+
+# ================================
+# PREVENIR HOTLINKING
+# ================================
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?localhost [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?criptecnologia\.com [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
+</IfModule>
+
+# ================================
+# CONFIGURACIÓN DE TIPOS MIME
+# ================================
+<IfModule mod_mime.c>
+    AddType application/json .json
+    AddType application/javascript .js
+    AddType text/css .css
+</IfModule>
