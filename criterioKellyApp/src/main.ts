@@ -1,0 +1,41 @@
+import { bootstrapApplication } from '@angular/platform-browser';
+import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { inject, isDevMode, provideAppInitializer } from '@angular/core';
+import { provideServiceWorker } from '@angular/service-worker';
+import { Capacitor } from '@capacitor/core';
+import { errorInterceptor } from './app/compartidos/interceptors/error.interceptor';
+import { autenticacionInterceptor } from './app/compartidos/interceptors/autenticacion.interceptor';
+import { SesionStore } from './app/compartidos/store/sesion.store';
+import { ServicioAutenticacion } from './app/compartidos/seguridades/ServicioAutenticacion';
+
+import { AppComponent } from './app/app.component';
+import { routes } from './app/app.routes';
+import * as allIcons from 'ionicons/icons';
+import { addIcons } from 'ionicons';
+
+import { defineCustomElements as jeepSqlite } from 'jeep-sqlite/loader';
+jeepSqlite(window);
+
+addIcons(allIcons);
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    provideIonicAngular(),
+    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideHttpClient(
+      withInterceptorsFromDi(),
+      withInterceptors([autenticacionInterceptor, errorInterceptor]),
+    ),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode() && !Capacitor.isNativePlatform(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
+    provideAppInitializer(() => {
+      inject(ServicioAutenticacion);
+      inject(SesionStore).restaurarSesion();
+    }),
+  ],
+});

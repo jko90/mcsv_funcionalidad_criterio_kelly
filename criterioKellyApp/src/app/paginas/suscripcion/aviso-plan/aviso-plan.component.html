@@ -1,0 +1,90 @@
+@if (textoTiempo(); as texto) {
+<ion-card class="aviso-plan aviso-plan--prueba">
+  <ion-card-content class="aviso-plan__contenido">
+    <ion-icon name="time-outline" class="aviso-plan__icono"></ion-icon>
+    <span class="aviso-plan__texto">{{ texto }}</span>
+  </ion-card-content>
+</ion-card>
+}
+
+@if (aviso(); as mensaje) {
+<ion-card class="aviso-plan aviso-plan--transicion">
+  <ion-card-content>
+    <div class="aviso-plan__contenido">
+      <ion-icon name="information-circle-outline" class="aviso-plan__icono"></ion-icon>
+      <span class="aviso-plan__texto">{{ mensaje }}</span>
+    </div>
+    <div class="aviso-plan__acciones">
+      @if (puedeVerPlanes()) {
+      <ion-button size="small" fill="outline" (click)="planesSolicitados.emit()">
+        Ver planes
+      </ion-button>
+      }
+      <ion-button size="small" (click)="entendido.emit()">Entendido</ion-button>
+    </div>
+  </ion-card-content>
+</ion-card>
+}
+
+@if (mensajePendiente(); as mensaje) {
+<ion-card class="aviso-plan aviso-plan--pendiente">
+  <ion-card-header>
+    <ion-card-subtitle>
+      {{ puedeVerEstadoPago() ? 'Pago en revisión' : 'Plan pendiente de pago' }}
+    </ion-card-subtitle>
+    @if (tituloPendiente(); as titulo) {
+    <ion-card-title>{{ titulo }}</ion-card-title>
+    }
+  </ion-card-header>
+  <ion-card-content>
+    <p class="aviso-plan__mensaje">{{ mensaje }}</p>
+    @if (puedeSubirComprobante()) {
+    <div class="aviso-plan__acciones">
+      <ion-button size="small" (click)="comprobanteSolicitado.emit()">
+        <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+        Subir comprobante
+      </ion-button>
+    </div>
+    } @else if (puedeVerEstadoPago()) {
+    <div class="aviso-plan__acciones">
+      <ion-button size="small" fill="outline" (click)="comprobanteSolicitado.emit()">
+        Ver estado del pago
+      </ion-button>
+    </div>
+    }
+  </ion-card-content>
+</ion-card>
+}
+
+@if (mensajeProgramado(); as mensaje) {
+<ion-card class="aviso-plan aviso-plan--programado">
+  <ion-card-content class="aviso-plan__contenido">
+    <ion-icon name="calendar-outline" class="aviso-plan__icono"></ion-icon>
+    <span class="aviso-plan__texto">{{ mensaje }}</span>
+  </ion-card-content>
+</ion-card>
+}
+
+@if (cancelado() && fechaCorte(); as fecha) {
+<ion-card class="aviso-plan aviso-plan--cancelado">
+  <ion-card-content class="aviso-plan__contenido">
+    <ion-icon name="calendar-outline" class="aviso-plan__icono"></ion-icon>
+    <span class="aviso-plan__texto">Tu plan termina el {{ fecha }}</span>
+  </ion-card-content>
+</ion-card>
+}
+
+@if (puedeCancelar() || puedePagarAnticipado()) {
+<div class="aviso-plan__acciones">
+  @if (puedePagarAnticipado()) {
+  <ion-button size="small" (click)="comprobanteSolicitado.emit()">
+    Pagar mi renovación por anticipado
+  </ion-button>
+  }
+  @if (puedeCancelar()) {
+  <ion-button size="small" fill="outline" color="danger" (click)="cancelar.emit()">
+    Cancelar plan
+  </ion-button>
+  }
+</div>
+}

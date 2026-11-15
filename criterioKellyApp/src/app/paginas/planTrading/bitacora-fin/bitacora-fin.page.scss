@@ -1,0 +1,69 @@
+.contenedor {
+  width: 100% !important;
+}
+
+.subtitulo {
+  text-align: center;
+  margin-bottom: 0%;
+  margin-top: 0%;
+}
+
+.vista-imagen {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.enunciado-negro {
+  color: var(--ion-text-color, #000) !important;
+  font-weight: bold !important;
+
+  // Automatic color switching based on theme
+  @media (prefers-color-scheme: dark) {
+    color: #fff !important;
+  }
+
+  @media (prefers-color-scheme: light) {
+    color: #000 !important;
+  }
+
+  // For Ionic dark mode class
+  :global(.dark) & {
+    color: #fff !important;
+  }
+}
+
+.respuesta-pequena {
+  font-size: 0.95rem !important;
+  font-weight: normal !important;
+  color: var(--ion-text-color) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: #fff !important;
+  }
+}
+
+.tabla-bitacora ion-row,
+.tabla-bitacora ion-col {
+  border: 1px solid var(--ion-color-primary);
+}
+
+.tabla-bitacora .row-compra {
+  background-color: var(--color-fondo-compra) !important;
+}
+
+.tabla-bitacora .row-venta {
+  background-color: var(--color-fondo-venta) !important;
+}
+
+/** Color de seleccionado */
+
+.accion-col {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.accion-col:hover {
+  background: #8b0fff17;
+}

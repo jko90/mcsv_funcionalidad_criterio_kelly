@@ -1,0 +1,42 @@
+<section class="subida-qr">
+  <h2 class="subida-qr__titulo">Código QR de la red {{ red().red_nombre }}</h2>
+
+  <div class="subida-qr__bloque">
+    <p class="subida-qr__etiqueta">QR actual</p>
+    @if (red().urlQr; as urlActual) {
+    <img class="subida-qr__imagen" [src]="urlActual" [alt]="'Código QR de la red ' + red().red_nombre" />
+    } @else if (red().tieneQr) {
+    <p class="subida-qr__vacio">Cargando el código QR…</p>
+    } @else {
+    <p class="subida-qr__vacio">Esta red aún no tiene código QR.</p>
+    }
+  </div>
+
+  @if (vistaPrevia(); as vista) {
+  <div class="subida-qr__bloque">
+    <p class="subida-qr__etiqueta">Vista previa del nuevo QR</p>
+    <img class="subida-qr__imagen" [src]="vista" alt="Vista previa del nuevo código QR" />
+    <div class="subida-qr__acciones">
+      <ion-button [disabled]="!puedeConfirmar()" (click)="confirmarSolicitado.emit()">
+        {{ red().tieneQr ? 'Reemplazar QR' : 'Guardar QR' }}
+      </ion-button>
+      <ion-button fill="outline" [disabled]="estaGuardando()" (click)="descartarSolicitado.emit()">
+        Descartar
+      </ion-button>
+    </div>
+  </div>
+  }
+
+  <label class="subida-qr__elegir">
+    <span>{{ red().tieneQr ? 'Elegir otra imagen' : 'Elegir imagen del QR' }}</span>
+    <input type="file" [accept]="tiposAceptados" (change)="alElegirArchivo($event)" />
+  </label>
+  <p class="subida-qr__ayuda">PNG, JPEG o WEBP de hasta {{ maximoKilobytes }} KB.</p>
+
+  @if (red().tieneQr) {
+  <ion-button expand="block" fill="outline" color="danger" [disabled]="estaGuardando()" (click)="quitarSolicitado.emit()">
+    <ion-icon name="trash-outline" slot="start"></ion-icon>
+    Quitar el QR
+  </ion-button>
+  }
+</section>

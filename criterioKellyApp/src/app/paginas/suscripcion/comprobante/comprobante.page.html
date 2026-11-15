@@ -1,0 +1,62 @@
+<app-encabezado [titulo]="tituloPagina" />
+<ion-content class="ion-padding">
+  <app-estado-pago [pago]="ultimoPago()" [planVigente]="planVigente()" />
+
+  @if (puedeEnviar()) {
+  <app-indicador-pasos-pago [pasoActual]="pasoActual()" />
+
+  @switch (pasoActual()) {
+  @case ('METODO') {
+  <app-selector-metodo-pago
+    [opciones]="opcionesMetodo()"
+    [resumenPlan]="descripcionPlanElegido()"
+    [estaCargando]="estaCargandoDatosPago()"
+    [hayErrorDeCarga]="hayErrorDeCargaDatosPago()"
+    (metodoSeleccionado)="alElegirMetodo($event)"
+    (reintentarSolicitado)="alReintentarCargaDatosPago()"
+  />
+  }
+  @case ('INSTRUCCIONES') {
+  @if (metodoActivo(); as metodo) {
+  <app-instrucciones-pago
+    [metodo]="metodo"
+    [disponible]="metodoActivoDisponible()"
+    [descripcionPlan]="descripcionPlanElegido()"
+    [monto]="montoPlan()"
+    [redesUsdt]="redesUsdt()"
+    [urlsQr]="urlsQr()"
+    [correoPaypal]="correoPaypal()"
+    [enlacePaypal]="enlacePaypal()"
+    [etapaBanco]="etapaBanco()"
+    (copiarSolicitado)="alCopiar($event)"
+    (whatsappSolicitado)="alPedirDatosPorWhatsapp()"
+    (solicitudConfirmada)="alConfirmarSolicitud()"
+    (comprobanteSolicitado)="alIrAlComprobante()"
+    (cambiarMetodoSolicitado)="alCambiarMetodo()"
+  />
+  }
+  }
+  @case ('COMPROBANTE') {
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>{{ tituloFormulario() }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <app-formulario-comprobante
+        [metodoElegido]="metodoActivo()"
+        [vistaPrevia]="vistaPrevia()"
+        [enviando]="enviando()"
+        [textoPeriodo]="textoPeriodo()"
+        [tituloEnvio]="tituloFormulario()"
+        (seleccionarImagen)="alSeleccionarImagen($event)"
+        (enviar)="alEnviarComprobante($event)"
+      />
+    </ion-card-content>
+  </ion-card>
+  <ion-button expand="block" fill="clear" (click)="alCambiarMetodo()">Cambiar método</ion-button>
+  }
+  }
+  } @else {
+  <ion-button expand="block" fill="outline" routerLink="/inicio">Volver al inicio</ion-button>
+  }
+</ion-content>

@@ -1,0 +1,99 @@
+@if (esPendiente()) {
+<app-alerta-ck
+  [abierta]="true"
+  [titulo]="tituloPendiente"
+  [mensaje]="texto() ?? mensajePendienteRespaldo"
+  [tipo]="puedeSubirComprobante() ? 'confirmacion' : 'informativa'"
+  [textoCancelar]="textoEntendido"
+  [textoConfirmar]="puedeSubirComprobante() ? textoSubirComprobante : undefined"
+  (confirmada)="alConfirmarPendiente()"
+  (cancelada)="cerrarAviso()"
+/>
+} @else if (esSinPlan()) {
+<ion-modal
+  class="aviso-bloqueo"
+  [isOpen]="true"
+  [initialBreakpoint]="0.92"
+  [breakpoints]="[0, 0.92]"
+  (didDismiss)="cerrarAviso()"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>
+          {{ planSeleccionado() ? 'Confirma tu plan' : 'Activa tu plan' }}
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="cerrarAviso()">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      @if (planSeleccionado(); as plan) {
+      <section class="aviso-bloqueo__resumen">
+        <ion-icon name="ribbon-outline" class="aviso-bloqueo__resumen-icono"></ion-icon>
+        <p class="aviso-bloqueo__resumen-pregunta">¿Quieres elegir este plan?</p>
+        <h2 class="aviso-bloqueo__resumen-plan">{{ plan.pla_nombre }}</h2>
+        <p class="aviso-bloqueo__resumen-intervalo">{{ plan.ins_nombre }}</p>
+        <p class="aviso-bloqueo__resumen-precio">
+          {{ plan.pin_precioFinal }} <small>{{ plan.pla_moneda }}</small>
+        </p>
+        @if (precioPorMes(); as porMes) {
+        <p class="aviso-bloqueo__resumen-detalle">
+          Equivale a {{ porMes }} {{ plan.pla_moneda }} por mes
+        </p>
+        }
+        @if (plan.ins_x100descuen > 0) {
+        <p class="aviso-bloqueo__resumen-detalle">
+          Incluye {{ plan.ins_x100descuen }}% de descuento
+        </p>
+        }
+        <p class="aviso-bloqueo__resumen-detalle">
+          Cuentas incluidas: {{ plan.pla_numCuentas }}
+        </p>
+        <p class="aviso-bloqueo__resumen-nota">
+          Quedará pendiente de pago hasta que subas tu comprobante y el administrador lo valide.
+        </p>
+
+        <ion-button expand="block" [disabled]="estaCargando()" (click)="confirmar()">
+          Sí, elegir este plan
+        </ion-button>
+        <ion-button expand="block" fill="clear" (click)="cambiarSeleccion()">
+          Elegir otro plan
+        </ion-button>
+      </section>
+      } @else {
+      @if (texto(); as mensaje) {
+      <p class="aviso-bloqueo__texto">{{ mensaje }}</p>
+      }
+
+      <p class="aviso-bloqueo__ayuda">Toca el plan que más te convenga:</p>
+      @for (grupo of planesAgrupados(); track grupo.nombre) {
+      <section class="aviso-bloqueo__grupo">
+        <h3 class="aviso-bloqueo__plan">{{ grupo.nombre }}</h3>
+        <div class="aviso-bloqueo__opciones">
+          @for (plan of grupo.opciones; track plan.pin_idPlanInterv) {
+          <button
+            type="button"
+            class="aviso-bloqueo__tarjeta"
+            [disabled]="estaCargando()"
+            (click)="seleccionar(plan)"
+          >
+            <span class="aviso-bloqueo__tarjeta-intervalo">{{ plan.ins_nombre }}</span>
+            <span class="aviso-bloqueo__tarjeta-precio">
+              {{ plan.pin_precioFinal }} <small>{{ plan.pla_moneda }}</small>
+            </span>
+            @if (plan.ins_x100descuen > 0) {
+            <span class="aviso-bloqueo__tarjeta-descuento">-{{ plan.ins_x100descuen }}%</span>
+            }
+          </button>
+          }
+        </div>
+      </section>
+      }
+      }
+    </ion-content>
+  </ng-template>
+</ion-modal>
+}

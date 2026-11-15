@@ -1,69 +1,47 @@
 <?php
 
+declare(strict_types=1);
 
-include_once(__DIR__ . '/../configuracion/enlace.php');
+require_once __DIR__ . '/../configuracion/enlace.php';
 
 class ValidacionMdl
 {
-    private $conexion;
+    private Enlace $conexion;
 
-    public function __construct()
+    public function __construct(?Enlace $enlace = null)
     {
-        $this->conexion = new Enlace();
+        $this->conexion = $enlace ?? new Enlace();
     }
 
-    public function autenticarUsuario($usuario, $clave)
+    public function buscarUsuarioParaAutenticar(string $usuario): ?array
     {
-        $sql = "SELECT u.usu_idUsuario, u.usu_clave, p.per_nombres,  p.per_apellidos 
-                FROM sgen_usuario u
-                INNER JOIN sgen_persona p ON u.usu_perIdPerso = p.per_idPersona  
-                WHERE u.usu_usuario = ? AND u.usu_estado = '1' AND u.usu_situacion = 'A' ";
-        $usuarioData = $this->conexion->ejecutarConsultaSimpleFila($sql, "s", $usuario);
-
-        if ($usuarioData && password_verify($clave, $usuarioData['usu_clave'])) {
-            return $usuarioData;
-        }
-        return null;
+        $sqlBuscarUsuario = "SELECT u.usu_idUsuario, u.usu_clave, u.usu_situacion,
+            p.per_nombres, p.per_apellidos
+            FROM sgen_usuario u INNER JOIN sgen_persona p ON u.usu_perIdPerso = p.per_idPersona
+            WHERE u.usu_usuario = ? AND u.usu_estado = '1' LIMIT 1";
+        return $this->conexion->ejecutarConsultaSimpleFila($sqlBuscarUsuario, 's', $usuario);
     }
 
-    public function obtenerRolesUsuarios($idUsua)
+    public function actualizarHashClave(int $idUsuario, string $hash): void
     {
-        $sql = "SELECT r.rol_id,  r.rol_descripcion 
-                FROM sgen_rolusuario ru 
-                INNER JOIN sgen_rol r ON ru.rus_rolId = r.rol_id 
-                WHERE ru.rus_usuId = ? AND ru.rus_estado = '1'";
-        return  $this->conexion->ejecutarConsulta($sql, "i", $idUsua);
+        $sqlActualizarClave = 'UPDATE sgen_usuario SET usu_clave = ? WHERE usu_idUsuario = ?';
+        $this->conexion->ejecutarActualizacion($sqlActualizarClave, 'si', $hash, $idUsuario);
     }
 
-    public function actualizarCodigoRecuperacionUsuario($id, $codiorecupe)
+    public function obtenerUsuarioActivoPorId(int $idUsuario): ?array
     {
-        $sql = "UPDATE sgen_usuario SET usu_codiorecupe = ? WHERE usu_idUsuario = ?";
-        $result = $this->conexion->ejecutarActualizacion(
-            $sql,
-            "ii",
-            $codiorecupe,
-            $id
-        );
-        return $result !== false;
+        $sqlBuscarUsuario = "SELECT u.usu_idUsuario, p.per_nombres, p.per_apellidos
+            FROM sgen_usuario u INNER JOIN sgen_persona p ON u.usu_perIdPerso = p.per_idPersona
+            WHERE u.usu_idUsuario = ? AND u.usu_estado = '1' AND u.usu_situacion = 'A' LIMIT 1";
+        return $this->conexion->ejecutarConsultaSimpleFila($sqlBuscarUsuario, 'i', $idUsuario);
     }
 
-    public function obtenerCodigoRecuperacionUsuario($usuario)
+    public function obtenerRolesUsuarios(int $idUsuario): mysqli_result
     {
-        $sql = "SELECT usu_codiorecupe FROM sgen_usuario WHERE usu_usuario = ?";
-        return $this->conexion->ejecutarConsultaSimpleFila($sql, "s", $usuario);
+        $sqlObtenerRoles = "SELECT r.rol_id, r.rol_descripcion
+            FROM sgen_rolusuario ru INNER JOIN sgen_rol r ON ru.rus_rolId = r.rol_id
+            WHERE ru.rus_usuId = ? AND ru.rus_estado = '1' ORDER BY r.rol_id";
+        return $this->conexion->ejecutarConsulta($sqlObtenerRoles, 'i', $idUsuario);
     }
 
-    public function actualizarClaveUsuario($id, $clave, $usuario)
-    {
-        $contraseniaEncriptada = password_hash($clave, PASSWORD_BCRYPT);
-        $sql = "UPDATE sgen_usuario SET usu_clave = ? WHERE usu_idUsuario = ? AND usu_usuario = ?";
-        $result = $this->conexion->ejecutarActualizacion(
-            $sql,
-            "sis",
-            $contraseniaEncriptada,
-            $id,
-            $usuario
-        );
-        return $result !== false;
-    }
 }

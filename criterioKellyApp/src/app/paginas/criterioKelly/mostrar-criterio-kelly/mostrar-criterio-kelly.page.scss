@@ -1,0 +1,47 @@
+.contenedor {
+  width: 100% !important;
+}
+
+.subtitulo {
+  text-align: center;
+  margin-bottom: 0%;
+  margin-top: 0%;
+}
+
+.enunciado-negro {
+  color: var(--ion-text-color, #000) !important;
+  font-weight: bold !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: #fff !important;
+  }
+  @media (prefers-color-scheme: light) {
+    color: #000 !important;
+  }
+  :global(.dark) & {
+    color: #fff !important;
+  }
+}
+
+.respuesta-pequena {
+  font-size: 0.95rem !important;
+  font-weight: normal !important;
+  color: var(--ion-text-color) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: #fff !important;
+  }
+}
+
+.tabla-bitacora ion-row,
+.tabla-bitacora ion-col {
+  border: 1px solid var(--ion-color-primary);
+}
+
+/* Eliminar doble línea entre filas */
+.tabla-bitacora ion-row:not(:first-child) {
+  border-top: none !important;
+}
+.tabla-bitacora ion-row:not(:last-child) {
+  border-bottom: none !important;
+}

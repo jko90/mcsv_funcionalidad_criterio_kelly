@@ -1,5 +1,65 @@
 <?php
 
-require_once(__DIR__ . '/RuteoCentralizado.php');
 
-ejecutarRuteo('CriptoCtrl', 'cripto', 'CriptoRTS', ['disponible' => 'getCryptos']);
+require_once(__DIR__ . '/../controladores/CriptoCtrl.php');
+
+
+$criptoController = new CriptoCtrl();
+
+// Parsear URI para obtener acción
+$requestUri = $_SERVER['REQUEST_URI'];
+$uriParts = explode('/', trim(parse_url($requestUri, PHP_URL_PATH), '/'));
+$action = null;
+
+// Buscar posición de 'cripto' y obtener siguiente parte
+for ($i = 0; $i < count($uriParts); $i++) {
+    if ($uriParts[$i] === 'cripto' && isset($uriParts[$i + 1])) {
+        $action = $uriParts[$i + 1];
+        break;
+    }
+}
+
+// Rutear según método HTTP
+switch ($_SERVER['REQUEST_METHOD']) {
+    case 'GET':
+        // Fix: pass the correct controller instance
+        manejarGet($criptoController, $action);
+        break;
+
+    default:
+        http_response_code(405);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'error' => 'Método no permitido',
+            'metodos_permitidos' => ['GET', 'POST']
+        ], JSON_UNESCAPED_UNICODE);
+        break;
+}
+
+
+function manejarGet($controller, $action, $actionParam = null)
+{
+    header('Content-Type: application/json; charset=utf-8');
+
+    switch ($action) {
+        case 'disponible':
+            try {
+                $result = $controller->getCryptos();
+                http_response_code(200);
+                echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            } catch (Throwable $e) {
+                error_log('[CriptoRts::disponible] ' . $e->getMessage());
+                http_response_code(500);
+                echo json_encode(['error' => 'Error interno del servidor'], JSON_UNESCAPED_UNICODE);
+            }
+            break;
+
+        default:
+            http_response_code(404);
+            echo json_encode([
+                'error' => 'Acción no encontrada',
+                'accion' => $action
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            break;
+    }
+}

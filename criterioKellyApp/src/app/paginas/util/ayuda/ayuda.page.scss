@@ -1,0 +1,21 @@
+.feature-card {
+  transition: transform 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (hover: hover) {
+  .feature-card:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.feature-card ion-card-content {
+  flex-grow: 1;
+}
+
+.feature-card ion-card-title {
+  font-size: 1.1em;
+  color: var(--ion-color-primary);
+}

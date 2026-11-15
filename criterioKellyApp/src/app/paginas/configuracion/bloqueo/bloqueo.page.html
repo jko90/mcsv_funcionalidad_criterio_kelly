@@ -1,0 +1,77 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+
+<ion-content>
+  <ion-grid>
+    <ion-refresher slot="fixed" (ionRefresh)="refrescarPantalla($event)">
+      <ion-refresher-content
+        refreshingSpinner="circles"
+      ></ion-refresher-content>
+    </ion-refresher>
+
+    <div>
+      <br />
+      <div class="ILS_label-row">{{passcodeLabel()}}</div>
+      <br />
+      <div
+        class="ILS_circles-row"
+        [ngClass]="passcodeWrong() ? 'ILS_shake' : ''"
+      >
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode().length>0 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode().length>1 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode().length>2 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode().length>3 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode().length>4 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode().length>5 ? 'ILS_full' : ''"
+        ></div>
+      </div>
+      <div class="ILS_numbers-row">
+        <div (click)="capturarPin(1)" class="ILS_digit">1</div>
+        <div (click)="capturarPin(2)" class="ILS_digit">2</div>
+        <div (click)="capturarPin(3)" class="ILS_digit">3</div>
+      </div>
+      <div class="ILS_numbers-row">
+        <div (click)="capturarPin(4)" class="ILS_digit">4</div>
+        <div (click)="capturarPin(5)" class="ILS_digit">5</div>
+        <div (click)="capturarPin(6)" class="ILS_digit">6</div>
+      </div>
+      <div class="ILS_numbers-row">
+        <div (click)="capturarPin(7)" class="ILS_digit">7</div>
+        <div (click)="capturarPin(8)" class="ILS_digit">8</div>
+        <div (click)="capturarPin(9)" class="ILS_digit">9</div>
+      </div>
+      <div class="ILS_numbers-row">
+        <div (click)="borrarPin()" class="ILS_digit ILS_ac">AC</div>
+        <div (click)="capturarPin(0)" class="ILS_digit">0</div>
+        <div (click)="borrarUltimo()" class="ILS_digit ILS_del">DEL</div>
+      </div>
+    </div>
+  </ion-grid>
+  <app-alerta-ck
+    [abierta]="alertaClaveAbierta()"
+    [titulo]="alertaClave.titulo"
+    [mensaje]="alertaClave.mensaje"
+    [textoConfirmar]="alertaClave.textoConfirmar"
+    [textoCancelar]="textoSalir"
+    [campos]="camposClave"
+    [cerrarAlTocarFuera]="false"
+    (confirmada)="alConfirmarClave($event)"
+    (cancelada)="alSalirDeClave()"
+  />
+</ion-content>

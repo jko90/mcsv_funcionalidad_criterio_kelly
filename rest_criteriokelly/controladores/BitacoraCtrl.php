@@ -1,206 +1,153 @@
 <?php
 
-require_once(__DIR__ . '/../modelos/BitacoraMdl.php');
-require_once(__DIR__ . '/BaseCtrl.php');
+declare(strict_types=1);
+
+require_once __DIR__ . '/../modelos/BitacoraMdl.php';
+require_once __DIR__ . '/../modelos/CuentasMdl.php';
+require_once __DIR__ . '/BaseCtrl.php';
 
 class BitacoraCtrl extends BaseCtrl
 {
-    private $bitacoraService;
+    private BitacoraMdl $bitacoraModelo;
+    private CuentasMdl $cuentasModelo;
+    private Enlace $enlace;
+
+    private const TIPOS_OPERACION_PERMITIDOS = ['COMPRA', 'VENTA'];
+    private const TIPOS_OBSERVACION_PERMITIDOS = ['I', 'E', 'P', 'L', 'F'];
+    private const PRECIO_MAXIMO = 999999.999999;
 
     public function __construct()
     {
-        $this->bitacoraService = new BitacoraMdl();
+        $this->enlace = new Enlace();
+        $this->bitacoraModelo = new BitacoraMdl($this->enlace);
+        $this->cuentasModelo = new CuentasMdl($this->enlace);
     }
 
-
-    public function crearBitacora($data)
+    public function crearBitacora(array $datos): void
     {
         try {
-            // Validar campos requeridos (incluyendo observación)
-            $errores = $this->validarDatos($data, [
-                'bit_usuarioId',
-                'bit_cueIdCuentas',
-                'bit_divisa',
-                'bit_tipoOperaci',
-                'bit_fechaCrea'
-            ]);
-            if (!empty($errores)) {
-                $this->respuestaErrorSimple(implode(', ', $errores), 400);
-            }
-
-            // Limpiar datos de entrada
-            $datosLimpios = $this->limpiarDatos($data);
-
-            // Validar que bit_usuarioId sea un entero válido
-            $usuarioId = (int)$datosLimpios['bit_usuarioId'];
-            if ($usuarioId <= 0) {
-                $this->respuestaErrorSimple('ID de usuario inválido', 400);
-            }
-
-            // Validar que bit_cueIdCuentas sea un entero válido
-            $cuentaId = (int)$datosLimpios['bit_cueIdCuentas'];
-            if ($cuentaId <= 0) {
-                $this->respuestaErrorSimple('ID de cuenta inválido', 400);
-            }
-
-            // Validar número de bitácora
-            $numeroBitac = isset($datosLimpios['bit_numeroBitac']) ? (int)$datosLimpios['bit_numeroBitac'] : 1;
-            if ($numeroBitac < 0) {
-                $this->respuestaErrorSimple('Número de bitácora inválido', 400);
-            }
-
-            // Validar divisa
-            $divisa = trim($datosLimpios['bit_divisa']);
-            if (strlen($divisa) > 32) {
-                $this->respuestaErrorSimple('La divisa no puede exceder 32 caracteres', 400);
-            }
-
-            // Validar tipo de operación
-            $tipoOperacion = strtoupper(trim($datosLimpios['bit_tipoOperaci']));
-            if (!in_array($tipoOperacion, ['COMPRA', 'VENTA'])) {
-                $this->respuestaErrorSimple('Tipo de operación inválido. Debe ser COMPRA o VENTA', 400);
-            }
-
-            $fechCrea = isset($datosLimpios['bit_fechaCrea']) ? $datosLimpios['bit_fechaCrea'] : null;
-            if ($fechCrea && !empty(trim($fechCrea))) {
-                $fechCrea = trim($fechCrea);
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $fechCrea)) {
-                    $this->respuestaErrorSimple('Formato de fecha fin inválido. Use formato ISO 8601', 400);
-                }
-            } else {
-                $fechCrea = date('Y-m-d\TH:i:s');
-            }
-
-
-            $precioEntra = isset($datosLimpios['bit_precioEntra']) ? (float)$datosLimpios['bit_precioEntra'] : 0;
-            $precioSL = isset($datosLimpios['bit_precioSL']) ? (float)$datosLimpios['bit_precioSL'] : 0;
-            $precioTP = isset($datosLimpios['bit_precioTP']) ? (float)$datosLimpios['bit_precioTP'] : 0;
-
-            // Validar campos de observación
-            $obsComentario = trim($datosLimpios['obs_comentario']);
-            if (strlen($obsComentario) > 4096) {
-                $this->respuestaErrorSimple('El comentario no puede exceder 4096 caracteres', 400);
-            }
-
-            $obsTipoObserva = strtoupper(trim($datosLimpios['obs_tipoObserva']));
-            if (!in_array($obsTipoObserva, ['I', 'O', 'R'])) {
-                $this->respuestaErrorSimple('Tipo de observación inválido. Debe ser I (inicio), O (operación) o R (respuesta)', 400);
-            }
-
-            $obsImagen = isset($datosLimpios['obs_imagen']) ? $datosLimpios['obs_imagen'] : null;
-
-            // Ejecutar inserción (bitácora + observación)
-            $resultadoInsercion = $this->bitacoraService->crearBitacora(
-                $usuarioId,
-                $cuentaId,
-                $numeroBitac,
-                $divisa,
-                $tipoOperacion,
-                $precioEntra,
-                $precioSL,
-                $precioTP,
-                $obsComentario,
-                $obsTipoObserva,
-                $obsImagen,
-                $fechCrea
+            $idCuenta = $this->leerEntero($datos['bit_cueIdCuentas'] ?? null, 'bit_cueIdCuentas');
+            $divisa = $this->leerTexto($datos['bit_divisa'] ?? null, 'bit_divisa', 32, true, '/^[A-Za-z0-9 .\/_^-]+$/');
+            $tipoOperacion = $this->leerOpcion($datos['bit_tipoOperaci'] ?? null, 'bit_tipoOperaci', self::TIPOS_OPERACION_PERMITIDOS);
+            $fechaCreacion = array_key_exists('bit_fechaCrea', $datos) && $datos['bit_fechaCrea'] !== null
+                ? $this->leerFechaHora($datos['bit_fechaCrea'], 'bit_fechaCrea')
+                : date('Y-m-d H:i:s');
+            $numeroBitacora = array_key_exists('bit_numeroBitac', $datos)
+                ? $this->leerEntero($datos['bit_numeroBitac'], 'bit_numeroBitac', 0)
+                : 1;
+            $precioEntrada = array_key_exists('bit_precioEntra', $datos)
+                ? $this->leerDecimal($datos['bit_precioEntra'], 'bit_precioEntra', 0, self::PRECIO_MAXIMO)
+                : 0.0;
+            $precioStopLoss = array_key_exists('bit_precioSL', $datos)
+                ? $this->leerDecimal($datos['bit_precioSL'], 'bit_precioSL', 0, self::PRECIO_MAXIMO)
+                : 0.0;
+            $precioTakeProfit = array_key_exists('bit_precioTP', $datos)
+                ? $this->leerDecimal($datos['bit_precioTP'], 'bit_precioTP', 0, self::PRECIO_MAXIMO)
+                : 0.0;
+            $comentario = $this->leerTexto($datos['obs_comentario'] ?? '', 'obs_comentario', 4096, false);
+            $tipoObservacion = $this->leerOpcion(
+                $datos['obs_tipoObserva'] ?? '',
+                'obs_tipoObserva',
+                self::TIPOS_OBSERVACION_PERMITIDOS
             );
+            $imagen = $this->leerImagen($datos['obs_imagen'] ?? null, 'obs_imagen');
+            $this->verificarUsuarioEnviado($datos['bit_usuarioId'] ?? null, 'bitacora/crear');
+            $idUsuario = $this->idUsuarioSesion();
 
-            if (!$resultadoInsercion || is_string($resultadoInsercion)) {
-                $mensaje = is_string($resultadoInsercion) ? $resultadoInsercion : 'No se pudo crear el registro de bitácora';
-                $this->respuestaErrorSimple($mensaje, 500);
+            $this->enlace->iniciarTransaccion();
+            try {
+                if ($this->cuentasModelo->obtenerCuentaActivaDeUsuario($idCuenta, $idUsuario, true) === null) {
+                    $this->enlace->revertirTransaccion();
+                    $this->denegarAcceso("cuenta=$idCuenta bitacora/crear");
+                }
+                $bitacora = $this->bitacoraModelo->crearBitacora(
+                    $idUsuario,
+                    $idCuenta,
+                    $numeroBitacora,
+                    $divisa,
+                    $tipoOperacion,
+                    $precioEntrada,
+                    $precioStopLoss,
+                    $precioTakeProfit,
+                    $comentario,
+                    $tipoObservacion,
+                    $imagen,
+                    $fechaCreacion
+                );
+                $this->enlace->confirmarTransaccion();
+            } catch (Throwable $error) {
+                $this->enlace->revertirTransaccion();
+                throw $error;
             }
-
-            $this->respuestaExitosaSimple($resultadoInsercion);
-        } catch (Exception $e) {
-            error_log("Error en crearBitacora: " . $e->getMessage());
+            $this->respuestaExitosaSimple($bitacora);
+        } catch (Throwable $error) {
+            error_log('[BitacoraCtrl::crearBitacora] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }
 
-
-    /**
-     * Obtiene la bitácora de operaciones para un usuario y una cuenta específica.
-     *
-     * @param array $data Datos de entrada que deben contener 'bit_usuarioId' y 'bit_cueIdCuentas'.
-     */
-    public function obtenerBitacoraPorCuenta($data)
+    public function obtenerBitacoraPorCuenta(array $datos): void
     {
         try {
-            // Validar que el idUsuario no esté vacío
-            $errores = $this->validarDatos($data, ['bit_usuarioId', 'bit_cueIdCuentas']);
-            if (!empty($errores)) {
-                $this->respuestaErrorSimple(implode(', ', $errores), 400);
+            $idCuenta = $this->leerEntero($datos['bit_cueIdCuentas'] ?? null, 'bit_cueIdCuentas');
+            $this->verificarUsuarioEnviado($datos['bit_usuarioId'] ?? null, 'bitacora/listBitacora');
+            $idUsuario = $this->idUsuarioSesion();
+            if ($this->cuentasModelo->obtenerCuentaActivaDeUsuario($idCuenta, $idUsuario) === null) {
+                $this->denegarAcceso("cuenta=$idCuenta bitacora/listBitacora");
             }
-
-            $datosLimpios = $this->limpiarDatos($data);
-            $bitacora = $this->bitacoraService->obtenerBitacoraPorCuenta($datosLimpios['bit_usuarioId'], $datosLimpios['bit_cueIdCuentas']);
-
-            if (!$bitacora || empty($bitacora)) {
-                $this->respuestaErrorSimple('No se encontraron registros de bitácora para la cuenta especificada', 404);
-            }
-
+            $bitacora = $this->bitacoraModelo->obtenerBitacoraPorCuenta($idUsuario, $idCuenta);
             $datosBitacora = [];
             foreach ($bitacora as $registro) {
                 $datosBitacora[] = [
-                    'bit_idbitacora' => (int)$registro['bit_idbitacora'],
-                    'bit_usuarioId' => (int)$registro['bit_usuarioId'],
-                    'bit_cueIdCuentas' => (int)$registro['bit_cueIdCuentas'],
-                    'bit_numeroBitac' => (int)($registro['bit_numeroBitac'] ?? 1),
-                    'bit_divisa' => $registro['bit_divisa'] ?? 'EURUSD',
-                    'bit_tipoOperaci' => $registro['bit_tipoOperaci'] ?? 'COMPRA',
-                    'bit_precioEntra' => (float)($registro['bit_precioEntra'] ?? 0),
-                    'bit_precioSL' => (float)($registro['bit_precioSL'] ?? 0),
-                    'bit_precioTP' => (float)($registro['bit_precioTP'] ?? 0),
-                    'bit_pipTotal' => (float)($registro['bit_pipTotal'] ?? 0),
-                    'bit_montoOpera' => (float)($registro['bit_montoOpera'] ?? 0),
-                    'bit_montoResult' => (float)($registro['bit_montoResult'] ?? 0),
-                    'bit_resultado' => $registro['bit_resultado'] ?? 'GANADOR',
-                    'bit_balance' => (float)($registro['bit_balance'] ?? 0),
-                    'bit_situacion' => $registro['bit_situacion'] ?? 'A',
-                    'bit_fechaCrea' => $registro['bit_fechaCrea'] ?? null,
-                    'bit_fechaFin' => $registro['bit_fechaFin'] ?? null,
-                    'bit_respeReglas' => $registro['bit_respeReglas'] ?? 'SI',
-                    'bit_estado' => $registro['bit_estado'] ?? '1'
+                    'bit_idbitacora' => (int) $registro['bit_idbitacora'],
+                    'bit_usuarioId' => (int) $registro['bit_usuarioId'],
+                    'bit_cueIdCuentas' => (int) $registro['bit_cueIdCuentas'],
+                    'bit_numeroBitac' => (int) $registro['bit_numeroBitac'],
+                    'bit_divisa' => $registro['bit_divisa'],
+                    'bit_tipoOperaci' => $registro['bit_tipoOperaci'],
+                    'bit_precioEntra' => (float) $registro['bit_precioEntra'],
+                    'bit_precioSL' => (float) $registro['bit_precioSL'],
+                    'bit_precioTP' => (float) $registro['bit_precioTP'],
+                    'bit_pipTotal' => (float) $registro['bit_pipTotal'],
+                    'bit_montoOpera' => (float) $registro['bit_montoOpera'],
+                    'bit_montoResult' => (float) $registro['bit_montoResult'],
+                    'bit_resultado' => $registro['bit_resultado'],
+                    'bit_balance' => (float) $registro['bit_balance'],
+                    'bit_situacion' => $registro['bit_situacion'],
+                    'bit_fechaCrea' => $registro['bit_fechaCrea'],
+                    'bit_fechaFin' => $registro['bit_fechaFin'],
+                    'bit_respeReglas' => $registro['bit_respeReglas'],
+                    'bit_estado' => $registro['bit_estado'],
                 ];
             }
-
             $this->respuestaExitosaSimple($datosBitacora);
-        } catch (Exception $e) {
-            error_log("Error en obtenerBitacoraPorCuenta: " . $e->getMessage());
+        } catch (Throwable $error) {
+            error_log('[BitacoraCtrl::obtenerBitacoraPorCuenta] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }
 
-    /**
-     * Elimina una bitácora y sus observaciones asociadas.
-     *
-     * @param int $id ID de la bitácora a eliminar.
-     */
-    public function eliminarBitacoraBitacora($id)
+    public function eliminarBitacoraBitacora(mixed $id): void
     {
         try {
-            // Validar que el idBitacora no esté vacío
-            if (empty(trim($id))) {
-                $this->respuestaErrorSimple('El ID de bitácora es requerido', 400);
+            $idBitacora = $this->leerEntero($id, 'id');
+            $idUsuario = $this->idUsuarioSesion();
+            $this->enlace->iniciarTransaccion();
+            try {
+                if ($this->bitacoraModelo->obtenerBitacoraDeUsuario($idBitacora, $idUsuario, true) === null) {
+                    $this->enlace->revertirTransaccion();
+                    $this->denegarAcceso("bitacora=$idBitacora bitacora/eliminarBitacora");
+                }
+                $this->bitacoraModelo->eliminarObservacion($idBitacora);
+                $this->bitacoraModelo->eliminarBitacoraPorId($idBitacora);
+                $this->enlace->confirmarTransaccion();
+            } catch (Throwable $error) {
+                $this->enlace->revertirTransaccion();
+                throw $error;
             }
-
-            $idBitacoraLimpio = htmlspecialchars(trim($id), ENT_QUOTES, 'UTF-8');
-            $idBitacora = (int)$idBitacoraLimpio;
-            if ($idBitacora <= 0) {
-                $this->respuestaErrorSimple('ID de bitácora inválido', 400);
-            }
-
-            $this->bitacoraService->eliminarObservacion($idBitacora);
-            $eliminacionBitacora = $this->bitacoraService->eliminarBitacoraError($idBitacora);
-
-            if ($eliminacionBitacora === false || $eliminacionBitacora === 0) {
-                $this->respuestaErrorSimple('Error al eliminar la bitácora', 404);
-                return;
-            }
-
-            $this->respuestaExitosaSimple(["success" => $idBitacora]);
-        } catch (Exception $e) {
-            error_log("Error en eliminarBitacoraBitacora: " . $e->getMessage());
+            $this->respuestaExitosaSimple(['success' => $idBitacora]);
+        } catch (Throwable $error) {
+            error_log('[BitacoraCtrl::eliminarBitacoraBitacora] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }

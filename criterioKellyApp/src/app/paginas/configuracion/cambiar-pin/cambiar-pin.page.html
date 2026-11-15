@@ -1,0 +1,120 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+
+<ion-content>
+  <ion-grid>
+    <div class="ILS_label-row ion-text-center">
+      <b>Cambiar PIN de acceso</b>
+    </div>
+    <ion-accordion-group>
+      <div style="text-align: justify; padding: 10px">
+        Puede cambiar el <b>PIN</b> mediante lo siguiente:
+        <br />
+        <ion-label>
+          <b>1.</b> Ingresar el <b>PIN</b> anterior.
+          <br />
+          <b>2.</b> Si olvidó su PIN, puede eliminarlo y crear uno nuevo.
+        </ion-label>
+        <div style="margin-top: 10px">
+          <b>NOTA:</b> Ingrese <b>6</b> dígitos!
+        </div>
+      </div>
+
+      <ion-accordion
+        *ngFor="let objformMos of objFormaMostrar"
+        (click)="tipoSeguridad(objformMos)"
+      >
+        <ion-item
+          slot="header"
+          [ngClass]="{'itemSeleccionado': marcarItem === objformMos}"
+        >
+          <ion-label>{{ objformMos }}</ion-label>
+        </ion-item>
+      </ion-accordion>
+      <hr style="border: 0px; border-top: 1px double" color="primary" />
+
+      @if(activar === 'P'){
+      <div class="ILS_label-rowN">{{ passcodeLabel }}</div>
+      <br />
+      <div class="ILS_circles-row" [ngClass]="passcodeWrong ? 'ILS_shake' : ''">
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode.length>0 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode.length>1 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode.length>2 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode.length>3 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode.length>4 ? 'ILS_full' : ''"
+        ></div>
+        <div
+          class="ILS_circle"
+          [ngClass]="enteredPasscode.length>5 ? 'ILS_full' : ''"
+        ></div>
+      </div>
+      <div class="ILS_numbers-row">
+        <div (click)="capturarPin(1)" class="ILS_digit">1</div>
+        <div (click)="capturarPin(2)" class="ILS_digit">2</div>
+        <div (click)="capturarPin(3)" class="ILS_digit">3</div>
+      </div>
+      <div class="ILS_numbers-row">
+        <div (click)="capturarPin(4)" class="ILS_digit">4</div>
+        <div (click)="capturarPin(5)" class="ILS_digit">5</div>
+        <div (click)="capturarPin(6)" class="ILS_digit">6</div>
+      </div>
+      <div class="ILS_numbers-row">
+        <div (click)="capturarPin(7)" class="ILS_digit">7</div>
+        <div (click)="capturarPin(8)" class="ILS_digit">8</div>
+        <div (click)="capturarPin(9)" class="ILS_digit">9</div>
+      </div>
+      <div class="ILS_numbers-row">
+        <div (click)="borrarPin()" class="ILS_digit ILS_ac">AC</div>
+        <div (click)="capturarPin(0)" class="ILS_digit">0</div>
+        <div (click)="borrarUltimo()" class="ILS_digit ILS_del">DEL</div>
+      </div>
+      } @if(activar === 'O'){
+        <ion-button expand="block" color="danger" (click)="alSolicitarOlvidoPin()">
+          OLVIDÉ MI PIN
+        </ion-button>
+      }
+    </ion-accordion-group>
+  </ion-grid>
+
+  <div class="image-overlay" *ngIf="mostrarImagen">
+    <img src="assets/contenidos.png" alt="Imagen" class="animated-image" />
+  </div>
+</ion-content>
+<ion-modal
+  #modalPin
+  [isOpen]="estaModalPinAbierto()"
+  [breakpoints]="puntosRupturaModalPin"
+  [initialBreakpoint]="puntoInicialModalPin"
+  (willDismiss)="alCerrarModalPin($event)"
+>
+  <ng-template>
+    <app-modal-pin
+      [guardando]="guardandoPin()"
+      (pinConfirmado)="alConfirmarPin($event, modalPin)"
+      (pinDistinto)="alMostrarPinDistinto()"
+      (omitido)="alOmitirPin(modalPin)"
+    />
+  </ng-template>
+</ion-modal>
+<app-alerta-ck
+  [abierta]="olvidoPinPendiente()"
+  [titulo]="alertaOlvidePin.titulo"
+  [mensaje]="alertaOlvidePin.mensaje"
+  [textoConfirmar]="alertaOlvidePin.textoConfirmar"
+  tipo="destructiva"
+  (confirmada)="alConfirmarOlvidoPin()"
+  (cancelada)="alDescartarOlvidoPin()"
+/>

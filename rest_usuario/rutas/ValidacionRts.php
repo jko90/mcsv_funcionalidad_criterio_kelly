@@ -1,162 +1,91 @@
 <?php
 
-require_once(__DIR__ . '/../controladores/ValidacionCtrl.php');
+declare(strict_types=1);
+
+require_once __DIR__ . '/../controladores/ValidacionCtrl.php';
+require_once __DIR__ . '/../controladores/ClaveCtrl.php';
 
 if (!headers_sent()) {
     header('Content-Type: application/json; charset=utf-8');
 }
 
-
 $validacionController = new ValidacionCtrl();
+$claveController = new ClaveCtrl();
 
-// Parsear URI para obtener acción
-$requestUri = $_SERVER['REQUEST_URI'];
-$uriParts = explode('/', trim(parse_url($requestUri, PHP_URL_PATH), '/'));
-$action = null;
-
-// Buscar posición de 'autenticacion' y obtener siguiente parte
-for ($i = 0; $i < count($uriParts); $i++) {
-    if ($uriParts[$i] === 'autenticacion' && isset($uriParts[$i + 1])) {
-        $action = $uriParts[$i + 1];
-        break;
-    }
-}
-
-// Rutear según método HTTP
-switch ($_SERVER['REQUEST_METHOD']) {
+switch ($metodo) {
     case 'GET':
-        manejarGet($validacionController, $action);
+        manejarGetValidacion($validacionController, $accion);
         break;
     case 'POST':
-        manejarPost($validacionController, $action);
+        manejarPostValidacion($validacionController, $claveController, $accion);
         break;
     case 'PUT':
-        manejarPut($validacionController, $action);
+        manejarPutValidacion($validacionController, $claveController, $accion);
         break;
     default:
         http_response_code(405);
-        echo json_encode(['error' => 'Método no permitido']);
+        echo json_encode(['error' => 'Método no permitido'], JSON_UNESCAPED_UNICODE);
         break;
 }
 
-function manejarGet($controller, $action)
+function manejarGetValidacion(ValidacionCtrl $controlador, string $accion): void
 {
-    if (!$action) {
-        // Health check del servicio
-        $healthData = [
-            "servicio" => "Autenticacion API",
-            "estado_servicio" => "activo",
-            "version" => "2.0",
-            "endpoints" => [
-                "POST /autenticacion/autenticar" => "Autenticar usuario",
-                "GET /autenticacion/usRol?id={id}" => "Obtener roles por ID",
-                "POST /autenticacion/obtenerCodigo" => "Obtener código de recuperación",
-                "POST /autenticacion/generarCodigo" => "Generar código de recuperación",
-                "PUT /autenticacion/actualizarClave" => "Actualizar contraseña"
-            ]
-        ];
-
-        http_response_code(200);
-        echo json_encode($healthData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    if ($accion === 'usRol') {
+        $controlador->obtenerRolesUsuario(isset($_GET['id']) ? (string) $_GET['id'] : null);
         return;
     }
-
-    switch ($action) {
-        case 'usRol':
-            $id = $_GET['id'] ?? null;
-            if (!$id) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Parámetro ID requerido']);
-                return;
-            }
-            $controller->obtenerRolesUsuario($id);
-            break;
-        default:
-            http_response_code(400);
-            echo json_encode(['error' => 'Acción no válida para método GET']);
-            break;
-    }
+    http_response_code(400);
+    echo json_encode(['error' => 'Acción no válida para método GET'], JSON_UNESCAPED_UNICODE);
 }
 
-function manejarPost($controller, $action)
+function manejarPostValidacion(ValidacionCtrl $controlador, ClaveCtrl $claveControlador, string $accion): void
 {
-    if (!$action) {
+    $accionesSinCuerpo = ['renovar', 'cerrarSesion', 'cerrarTodas'];
+    $datos = LectorSolicitud::obtenerCuerpoJson() ?? [];
+    if ($datos === [] && !in_array($accion, $accionesSinCuerpo, true)) {
         http_response_code(400);
-        echo json_encode(['error' => 'Acción requerida']);
+        echo json_encode(['error' => 'Datos requeridos'], JSON_UNESCAPED_UNICODE);
         return;
     }
 
-    $rawInput = file_get_contents("php://input");
-
-    if (empty($rawInput)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Datos requeridos']);
-        return;
-    }
-
-    $data = json_decode($rawInput, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        http_response_code(400);
-        echo json_encode(['error' => 'JSON inválido']);
-        return;
-    }
-
-    if (empty($data)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Los datos no pueden estar vacíos']);
-        return;
-    }
-
-
-    switch ($action) {
+    switch ($accion) {
         case 'autenticar':
-            $controller->autenticarUsuario($data);
+            $controlador->autenticarUsuario($datos);
             break;
-        case 'generarCodigo':
-            $controller->generarCodigoRecuperacion($data);
+        case 'renovar':
+            $controlador->renovarSesion($datos);
             break;
-        case 'obtenerCodigo':
-            $controller->obtenerCodigoRecuperacion($data);
+        case 'cerrarSesion':
+            $controlador->cerrarSesion();
+            break;
+        case 'cerrarTodas':
+            $controlador->cerrarTodasLasSesiones();
+            break;
+        case 'solicitarRecuperacion':
+            $claveControlador->solicitarRecuperacion($datos);
+            break;
+        case 'restablecerClave':
+            $claveControlador->restablecerClave($datos);
             break;
         default:
-            http_response_code(400);
-            echo json_encode(['error' => 'Acción no válida para método POST']);
+            http_response_code(404);
+            echo json_encode(['error' => 'Recurso no encontrado'], JSON_UNESCAPED_UNICODE);
             break;
     }
 }
 
-function manejarPut($controller, $action)
+function manejarPutValidacion(ValidacionCtrl $controlador, ClaveCtrl $claveControlador, string $accion): void
 {
-    $rawInput = file_get_contents("php://input");
-
-    if (empty($rawInput)) {
+    $datos = LectorSolicitud::obtenerCuerpoJson();
+    if ($datos === null) {
         http_response_code(400);
-        echo json_encode(['error' => 'Datos requeridos']);
+        echo json_encode(['error' => 'Datos requeridos'], JSON_UNESCAPED_UNICODE);
         return;
     }
-
-    $data = json_decode($rawInput, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        http_response_code(400);
-        echo json_encode(['error' => 'JSON inválido']);
+    if ($accion === 'actualizarClave') {
+        $claveControlador->actualizarClave($datos);
         return;
     }
-
-    if (!$action) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Acción requerida']);
-        return;
-    }
-
-    switch ($action) {
-        case 'actualizarClave':
-            $controller->actualizarClave($data);
-            break;
-        default:
-            http_response_code(400);
-            echo json_encode(['error' => 'Acción no válida para método PUT']);
-            break;
-    }
+    http_response_code(404);
+    echo json_encode(['error' => 'Recurso no encontrado'], JSON_UNESCAPED_UNICODE);
 }

@@ -1,0 +1,14 @@
+<form [formGroup]="formulario" (ngSubmit)="enviar()">
+  <ion-item><ion-label position="floating">Contraseña actual *</ion-label><ion-input type="password" formControlName="claveActual"></ion-input></ion-item>
+  <ion-item><ion-label position="floating">Nueva contraseña *</ion-label><ion-input type="password" formControlName="claveNueva"></ion-input></ion-item>
+  @if (formulario.controls.claveNueva.touched && formulario.controls.claveNueva.errors?.['politicaClave']; as error) {
+    <ion-note color="danger">
+      @if (error['longitudMinima']) { {{ mensajes.longitudMinima }} }
+      @if (error['longitudMaxima']) { {{ mensajes.longitudMaxima }} }
+      @if (error['igualAUsuario']) { {{ mensajes.igualAUsuario }} }
+    </ion-note>
+  }
+  <ion-item><ion-label position="floating">Confirmar nueva contraseña *</ion-label><ion-input type="password" formControlName="confirmacion"></ion-input></ion-item>
+  @if (formulario.hasError('clavesNoCoinciden') && formulario.controls.confirmacion.touched) { <ion-note color="danger">Las contraseñas no coinciden.</ion-note> }
+  <ion-button expand="block" type="submit" [disabled]="estaCargando()">Cambiar contraseña</ion-button>
+</form>

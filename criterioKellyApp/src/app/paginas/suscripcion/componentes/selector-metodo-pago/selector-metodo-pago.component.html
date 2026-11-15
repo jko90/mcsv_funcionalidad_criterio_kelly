@@ -1,0 +1,39 @@
+<section class="selector-metodo">
+  <h2 class="selector-metodo__titulo">Elige cómo pagar</h2>
+  @if (resumenPlan(); as plan) {
+  <p class="selector-metodo__plan">Plan elegido: <strong>{{ plan }}</strong></p>
+  }
+  @if (estaCargando()) {
+  <p class="selector-metodo__estado" role="status">
+    <ion-spinner name="dots"></ion-spinner>
+    <span>Cargando los métodos de pago…</span>
+  </p>
+  }
+  <div class="selector-metodo__opciones">
+    @for (opcion of opciones(); track opcion.metodo) {
+    <button
+      type="button"
+      class="selector-metodo__tarjeta"
+      [disabled]="!opcion.disponible || estaCargando()"
+      (click)="metodoSeleccionado.emit(opcion.metodo)"
+    >
+      <ion-icon [name]="opcion.icono" class="selector-metodo__icono" aria-hidden="true"></ion-icon>
+      <span class="selector-metodo__texto">
+        <span class="selector-metodo__nombre">{{ opcion.titulo }}</span>
+        <span class="selector-metodo__descripcion">
+          {{ opcion.disponible ? opcion.descripcion : 'Aún no está disponible, elige otro' }}
+        </span>
+      </span>
+    </button>
+    }
+  </div>
+  @if (hayErrorDeCarga() && !estaCargando()) {
+  <div class="selector-metodo__error" role="alert">
+    <p>{{ mensajeNoDisponible }}</p>
+    <ion-button fill="outline" (click)="reintentarSolicitado.emit()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Reintentar
+    </ion-button>
+  </div>
+  }
+</section>

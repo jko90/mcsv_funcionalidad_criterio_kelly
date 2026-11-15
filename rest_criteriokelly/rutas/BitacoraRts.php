@@ -50,20 +50,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 function manejarGet($controller, $action)
 {
-    if (!$action) {
-        // Health check del servicio
-        $healthData = [
-            'status' => 'ok',
-            'timestamp' => date('Y-m-d H:i:s'),
-            'version' => '1.0.0',
-            'service' => 'BitacoraRTs'
-        ];
-
-        http_response_code(200);
-        echo json_encode($healthData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        return;
-    }
-
 }
 
 

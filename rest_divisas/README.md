@@ -1,336 +1,137 @@
-# REST Divisas — Microservicio de Activos Financieros
+# rest_divisas
 
-Microservicio en **PHP** que expone una API REST para consultar catálogos de activos
-financieros (criptomonedas, pares Forex e índices bursátiles) agregando datos de
-proveedores externos (Binance, Frankfurter, Financial Modeling Prep).
+Servicio REST en PHP que consulta APIs públicas de mercado y devuelve listas de **activos con su último precio**: criptomonedas, pares de forex e índices bursátiles. Está pensado para alimentar el selector de divisas de la aplicación **Criterio Kelly** (`criterioKellyApp`).
 
-Forma parte del ecosistema **Criterio Kelly** de CRIP-Tecnología y sigue una
-arquitectura de microservicio autónomo y sin estado (*stateless*), con una única
-responsabilidad: **normalizar y servir listados de activos operables**.
+> **Estado:** en desarrollo y **todavía sin conectar a la app**. `criterioKellyApp` no tiene una URL para este servicio en `environment.ts` y usa una lista fija de pares (`paginas/planTrading/modelos/listaDivisas.ts`). Ver [Estado actual](#estado-actual).
+> **Correo:** este servicio no envía correo. Si algún día lo necesita, debe seguir la convención del módulo `correo/` descrita en `rest_usuario/correo/README.md` (carpeta `correo/` en la raíz del proyecto, marca `// [CORREO]`, registros en `logs/correos/`).
 
----
+## Stack
 
-## Tabla de contenidos
+- PHP **8.2** con Composer (`rutas/` → `controladores/`)
+- Dependencia: `vlucas/phpdotenv` (lectura del `.env`)
+- Extensiones `curl` y `allow_url_fopen` habilitadas (llamadas HTTP a las APIs externas)
+- Apache (XAMPP) con `mod_rewrite` y `mod_headers`
+- **No usa base de datos**: `configuracion/` mantiene `Configuracion.php` y `enlace.php` como los demás servicios, pero ningún endpoint guarda ni lee datos. Las carpetas `modelos/` y `anexos/` están vacías.
 
-- [Arquitectura](#arquitectura)
-- [Requisitos](#requisitos)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Instalación y ejecución](#instalación-y-ejecución)
-- [Configuración](#configuración)
-- [API — Endpoints](#api--endpoints)
-- [Contrato de respuesta](#contrato-de-respuesta)
-- [Estándares de desarrollo](#estándares-de-desarrollo)
-- [Convenciones del proyecto](#convenciones-del-proyecto)
-- [Seguridad](#seguridad)
-- [Roadmap](#roadmap)
-
----
-
-## Arquitectura
-
-El servicio implementa un patrón por capas **Ruta → Controlador → Proveedor externo**,
-con un enrutador frontal único (*front controller*).
-
-```
-Cliente HTTP
-     │
-     ▼
- index.php               ← Front Controller: CORS, CSP, seguridad y ruteo
-     │
-     ▼
- rutas/*Rts.php          ← Routing centralizado (RuteoCentralizado.php)
-     │
-     ▼
- controladores/*Ctrl.php ← Lógica de negocio (extienden BaseCtrl)
-     │
-     ▼
- modelos/*Mdl.php        ← Llamadas a APIs externas vía ClienteHttp
-     │
-     ▼
- configuracion/          ← global.php (constantes), ClienteHttp.php (cURL)
-     │
-     ▼
- APIs externas           ← Binance / Frankfurter / Financial Modeling Prep
-```
-
-**Principios aplicados**
-
-- **Stateless**: cada petición es autónoma; no hay sesión de servidor.
-- **Single Responsibility**: un controlador por dominio de activo.
-- **Front Controller**: `index.php` centraliza CORS, cabeceras de seguridad y ruteo.
-- **DTO uniforme**: todos los endpoints devuelven activos con el mismo esquema
-  (`symbol`, `name`, `price`, `type`), desacoplando al cliente del proveedor.
-- **Herencia de utilidades**: `BaseCtrl` concentra validación, saneamiento y
-  serialización JSON reutilizable.
-
----
-
-## Requisitos
-
-| Componente        | Versión mínima                                       |
-|-------------------|------------------------------------------------------|
-| PHP               | 8.0+                                                 |
-| Apache            | 2.4+ con `mod_rewrite`, `mod_headers`, `mod_deflate` |
-| Extensiones PHP   | `curl`, `json`, `mbstring`                           |
-
-> El proyecto no usa Composer ni base de datos. Las dependencias son extensiones nativas
-> de PHP. Ver [Roadmap](#roadmap) para la incorporación de autoload PSR-4.
-
----
-
-## Estructura del proyecto
+## Estructura
 
 ```
 rest_divisas/
-├── index.php                    # Front controller: CORS, CSP, seguridad y ruteo
-├── .htaccess                    # Reescritura de URL, cabeceras y hardening
-├── .gitignore                   # Exclusiones para Git
-├── configuracion/
-│   ├── global.php               # Constantes (URLs base, CORS_ORIGIN, APP_VERSION, PRO_NOMBRE)
-│   ├── .env.example             # Plantilla de variables de entorno
-│   ├── CorsConfig.php           # Cabeceras CORS, CSP y de seguridad (programático)
-│   ├── ClienteHttp.php          # Cliente HTTP genérico con cURL (inyecta API key)
-│   └── ProveedorNoDisponibleException.php  # Excepción para fallos externos
-├── controladores/
-│   ├── BaseCtrl.php             # Clase base: validación, saneamiento y respuestas JSON
-│   ├── CriptoCtrl.php           # Criptomonedas (Binance)
-│   ├── ForexCtrl.php            # Pares Forex (Frankfurter)
-│   └── IndiceCtrl.php           # Índices bursátiles (Financial Modeling Prep)
-├── rutas/
-│   ├── RuteoCentralizado.php    # Lógica de despacho compartida
-│   ├── CriptoRts.php            # Enrutado del dominio cripto (delega en RuteoCentralizado)
-│   ├── ForexRts.php             # Enrutado del dominio forex (delega en RuteoCentralizado)
-│   └── IndiceRts.php            # Enrutado del dominio índices (delega en RuteoCentralizado)
-├── modelos/
-│   ├── CriptoMdl.php            # Llamadas a Binance API
-│   ├── ForexMdl.php             # Llamadas a Frankfurter API
-│   └── IndiceMdl.php            # Llamadas a Financial Modeling Prep API
-├── logs/                        # Logs de errores de PHP (protegido por .htaccess)
-├── errors/                      # Páginas HTML de error personalizadas
-├── vistas/
-│   └── landing.php              # Página de presentación del servicio
-└── anexos/                      # Recursos auxiliares
+├── .env                 # Configuración y secretos locales (no se versiona)
+├── .env.ejemplo         # Plantilla del .env (sí se versiona)
+├── .htaccess            # CORS, cabeceras de seguridad, reescritura a index.php
+├── index.php            # Arranque (RUTA_APLICACION, .env) y enrutador por prefijo de URI
+├── composer.json        # Dependencias directas
+├── composer.lock        # Versiones fijadas
+├── vendor/              # Dependencias instaladas por Composer (no se versiona)
+├── configuracion/       # Configuracion.php (.env), enlace.php (sin uso), CorsConfig.php
+├── logs/                # Registro de errores del servicio (no se versiona el contenido)
+├── rutas/               # CriptoRts.php, ForexRts.php, IndiceRts.php
+├── controladores/       # CriptoCtrl, ForexCtrl, IndiceCtrl (extienden BaseCtrl)
+├── modelos/             # vacío
+└── anexos/              # vacío
 ```
 
----
+## Ambiente local
 
-## Instalación y ejecución
+Pasos J-02 a J-05 de la HU-001 para levantar el servicio en un equipo de desarrollo.
 
-### Opción A — Servidor embebido de PHP (desarrollo)
+### Requisitos
 
-```bash
-# Desde la raíz del proyecto
-php -S localhost:8080
+1. XAMPP con **PHP 8.2 o superior** y las extensiones `mysqli`, `curl`, `openssl` y `mbstring` activas (la misma versión de PHP que el servidor).
+2. **Composer 2** instalado (`composer --version` debe responder 2.x).
+3. Apache de XAMPP en ejecución. MySQL no es necesario para este servicio.
+4. Verifica en `php.ini` que la extensión `curl` esté habilitada, que `allow_url_fopen = On` y que `curl.cainfo` apunte a un bundle de certificados válido (necesario para verificar el TLS de las APIs externas).
 
-# Probar
-curl http://localhost:8080/cripto/disponible
-```
+### Pasos
 
-### Opción B — Apache / XAMPP
+1. Ubica el proyecto en `C:\xampp\htdocs\criterio_kelly\rest_divisas`; el servicio responde en `http://localhost/criterio_kelly/rest_divisas/`.
+2. Instala las dependencias:
 
-1. Ubicar el proyecto bajo el `DocumentRoot` (p. ej. `htdocs/rest_divisas`).
-2. Asegurar que `mod_rewrite`, `mod_headers` y `mod_deflate` estén activos.
-3. Ajustar la configuración en `configuracion/global.php`.
-4. Probar:
+   ```bash
+   cd C:\xampp\htdocs\criterio_kelly\rest_divisas
+   composer install
+   ```
 
-```bash
-curl http://localhost/rest_divisas/cripto/disponible
-```
+   Sin `vendor/autoload.php` el servicio responde **500** (el arranque falla al no poder cargar Composer).
+3. Copia `.env.ejemplo` como `.env` y completa los valores (ver tabla siguiente). `.env` nunca se versiona. `FMP_API_KEY` se obtiene de la cuenta de Financial Modeling Prep y solo se escribe en este archivo.
+4. Prueba un endpoint:
 
-> El `.htaccess` está preparado para la ruta base `/rest_divisas`. Si el servicio se
-> despliega en la raíz del dominio, revisar las reglas `RewriteCond`/`RedirectMatch`.
+   ```bash
+   curl http://localhost/criterio_kelly/rest_divisas/cripto/disponible
+   ```
 
----
+5. Pruebas de la app en local (J-03 a J-05): `ionic serve --port=8100` apunta a este backend; aquí no hay envío de correo ni base local.
 
-## Configuración
+### Variables del `.env`
 
-Las constantes del servicio viven en [`configuracion/global.php`](configuracion/global.php):
+Si falta una clave o su valor no cumple la regla, el servicio responde **500** `{"error":"Error interno del servidor"}` y registra `Configuración inválida` con el nombre de la clave (nunca su valor). Las claves `DB_*` se comparten con los demás backends aunque este servicio no use la base de datos.
 
-| Constante            | Descripción                                      |
-|----------------------|--------------------------------------------------|
-| `FMP_API_KEY`        | API key de Financial Modeling Prep (desde entorno)|
-| `BINANCE_BASE_URL`   | URL base de Binance API                          |
-| `FRANKFURTER_BASE_URL`| URL base de Frankfurter API                     |
-| `FMP_BASE_URL`       | URL base de Financial Modeling Prep API          |
-| `CORS_ORIGIN`        | Origen CORS permitido (desde entorno)            |
-| `APP_VERSION`        | Versión del servicio (desde entorno)             |
-| `PRO_NOMBRE`         | Nombre del proyecto                              |
+| Clave | Ejemplo | Regla |
+|-------|---------|-------|
+| `APP_ENTORNO` | `local` | `local`, `staging` o `produccion` |
+| `DB_HOST` | `localhost` | Obligatoria, no vacía |
+| `DB_PUERTO` | `3306` | Entero de 1 a 65535 |
+| `DB_NOMBRE` | `sist_criteriokelly` | Obligatoria, no vacía |
+| `DB_USUARIO` | `ck_aplicacion` | Obligatoria, no vacía; con `produccion`, distinta de `root` |
+| `DB_CLAVE` | *(vacía en el ejemplo)* | Puede ser vacía solo si `APP_ENTORNO` no es `produccion` |
+| `DB_CHARSET` | `utf8mb4` | Exactamente `utf8mb4` |
+| `CORS_ORIGENES_WEB` | `http://localhost:8100,http://localhost:4200` | Uno o más orígenes (`esquema://host[:puerto]`, sin ruta ni barra final); con `produccion`, ninguno con `http://` ni `localhost` |
+| `CORS_ORIGENES_NATIVOS` | `capacitor://localhost,https://localhost` | Lista (puede ser vacía) con el mismo formato de origen |
+| `IP_CABECERA_CONFIABLE` | *(vacía)* | Vacía o un nombre de cabecera (`A-Z`, `a-z`, `0-9`, `-`) |
+| `IP_PROXIES_CONFIABLES` | *(vacía)* | Lista de CIDR IPv4/IPv6; obligatoria si `IP_CABECERA_CONFIABLE` no está vacía |
+| `RUTA_LOGS` | `logs` | Carpeta existente y escribible (relativa a la raíz del backend) |
+| `FORZAR_HTTPS` | `false` | `true` o `false`; `true` obligatorio con `staging` o `produccion` |
+| `FMP_API_KEY` | *(sin valor en el ejemplo)* | Obligatoria, no vacía |
 
-> Las claves de API se leen de variables de entorno (`getenv()`) para no versionar secretos.
-> Copiar [`configuracion/.env.example`](configuracion/.env.example) como `configuracion/.env`
-> y ajustar los valores. `configuracion/.env` está ignorado por Git (ver `.gitignore`).
+`.htaccess` solo permite CORS desde `http://localhost:8100` (puerto de `ionic serve`); la lista blanca configurable desde el `.env` se aplica en HLT-02.
 
----
+HLT-03 protege las consultas de mercados con `Authorization: Bearer <accessToken>`.
+Este servicio conserva su ausencia de lógica de negocio de base de datos, pero la
+guardia comparte las tablas de seguridad de `sist_criteriokelly` con los demás
+backends.
 
-## API — Endpoints
+## Endpoints
 
-Todos los endpoints responden a `GET` y devuelven `application/json; charset=utf-8`.
+URL base: `http://localhost/rest_divisas/`. Todos son **GET** y requieren sesión.
+No hay rutas públicas de mercado. Cada recurso responde en su raíz con un estado de servicio
+(`{ status, timestamp, version, service }`) y en `/disponible` con la lista de activos.
 
-| Método | Ruta                 | Descripción                                           |
-|--------|----------------------|-------------------------------------------------------|
-| `GET`  | `/cripto`            | *Health check* del dominio cripto                     |
-| `GET`  | `/cripto/disponible` | Lista de criptomonedas (pares USDT/BUSD de Binance)   |
-| `GET`  | `/forex`             | *Health check* del dominio forex                      |
-| `GET`  | `/forex/disponible`  | Lista de pares Forex (tasas de Frankfurter)           |
-| `GET`  | `/indice`            | *Health check* del dominio índices                    |
-| `GET`  | `/indice/disponible` | Lista de índices bursátiles (Financial Modeling Prep) |
+| Ruta | Fuente | Qué devuelve |
+|------|--------|--------------|
+| `/cripto/disponible` | Binance `GET /api/v3/ticker/24hr` | Símbolos que contienen `USDT` o `BUSD`, con su último precio (`lastPrice`) |
+| `/forex/disponible` | [Frankfurter](https://www.frankfurter.app) (tasas del BCE) | Todos los pares entre las divisas que publica Frankfurter, con su tasa |
+| `/indice/disponible` | Financial Modeling Prep `/api/v3/quotes/index` (requiere API key) | Índices bursátiles con su precio |
+| `/sinteticos`, `/otros` | — | No existen; el enrutador responde 404 |
 
-### Ejemplos
-
-```bash
-# Health check
-curl http://localhost:8080/cripto
-
-# Listado de criptomonedas disponibles
-curl http://localhost:8080/cripto/disponible
-
-# Listado de pares forex
-curl http://localhost:8080/forex/disponible
-
-# Listado de índices
-curl http://localhost:8080/indice/disponible
-```
-
----
-
-## Contrato de respuesta
-
-### Activo (DTO uniforme)
-
-Cada activo, sin importar el dominio, se normaliza al mismo esquema:
+Todas las listas usan la misma forma:
 
 ```json
-{
-  "symbol": "BTCUSDT",
-  "name": "BTCUSDT",
-  "price": "64250.10000000",
-  "type": "crypto"
-}
+[
+  { "symbol": "BTCUSDT", "name": "BTCUSDT", "price": "67890.12000000", "type": "crypto" },
+  { "symbol": "EURUSD",  "name": "EUR/USD", "price": "1.084500",       "type": "forex" },
+  { "symbol": "^GSPC",   "name": "S&P 500", "price": "5123.410000",    "type": "indice" }
+]
 ```
 
-| Campo    | Tipo   | Descripción                            |
-|----------|--------|----------------------------------------|
-| `symbol` | string | Símbolo del activo                     |
-| `name`   | string | Nombre legible del activo              |
-| `price`  | string | Último precio (string para precisión)  |
-| `type`   | string | `crypto` \| `forex` \| `indice`        |
+- `price` siempre es una cadena. Forex e índices usan 6 decimales.
+- Si la API externa falla, la respuesta es `200` con una lista vacía `[]`, no un error.
+- Las excepciones se devuelven como `500` con `{ "error": "Error interno del servidor" }`.
 
-### Health check
+### Consideraciones por fuente
 
-```json
-{
-  "status": "ok",
-  "timestamp": "2026-07-17T12:00:00+00:00",
-  "version": "1.0.0",
-  "service": "CriptoRTS"
-}
-```
+- **Cripto:** Binance bloquea su API en algunas regiones (HTTP 451). En ese caso el endpoint devuelve `[]`. La conexión verifica el certificado TLS (`CURLOPT_SSL_VERIFYPEER => true`, `CURLOPT_SSL_VERIFYHOST => 2`).
+- **Forex:** hace una petición a Frankfurter por cada divisa base, en grupos de 20 destinos, con pausas de 50–150 ms para no saturar la API. Son decenas de peticiones por llamada, así que tarda varios segundos; conviene guardar el resultado en caché antes de exponerlo a la app.
+- **Índices:** requiere una API key de Financial Modeling Prep. El endpoint `/api/v3/...` es la versión anterior de su API; la nueva es `/stable/index-list`.
 
-### Error
+## Agregar una fuente
 
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+1. Crea `controladores/<Fuente>Ctrl.php` (extiende `BaseCtrl`) con un método que devuelva un arreglo de `{ symbol, name, price, type }`.
+2. Crea `rutas/<Fuente>Rts.php` copiando una ruta existente: localiza la acción después del prefijo y atiende `disponible` en `manejarGet`.
+3. Registra el prefijo en el arreglo `$rutas` de `index.php`.
 
-| Código HTTP | Significado                        |
-|-------------|------------------------------------|
-| `200`       | Éxito                              |
-| `404`       | Endpoint o acción no encontrada    |
-| `405`       | Método HTTP no permitido           |
-| `500`       | Error interno / fallo de proveedor |
+## Estado actual
 
----
-
-## Estándares de desarrollo
-
-Este microservicio se alinea con las buenas prácticas de desarrollo backend en PHP:
-
-- **PSR-1 / PSR-12** — Estilo de código: indentación de 4 espacios, una clase por
-  archivo, `<?php` sin etiqueta de cierre `?>` en archivos solo-PHP.
-- **PSR-4** *(objetivo)* — Autoload por espacios de nombres (ver Roadmap).
-- **REST** — Uso semántico de verbos HTTP y códigos de estado; recursos en las URI.
-- **12-Factor App**:
-  - *Config en el entorno* (variables de entorno / `.env`).
-  - *Procesos sin estado* (ya cumplido).
-  - *Paridad dev/prod* mediante el servidor embebido de PHP.
-- **Cliente HTTP** — Toda comunicación con APIs externas se hace vía `ClienteHttp`
-  (cURL), con manejo de errores y timeouts configurables.
-- **Manejo de errores** — Excepciones capturadas y registradas con `error_log`;
-  nunca se exponen trazas internas al cliente en producción (`display_errors Off`);
-  los mensajes de error externos se sanitizan (sin URLs ni mensajes crudos).
-- **Separación de responsabilidades** — Ruteo, negocio y acceso a datos en capas
-  distintas.
-
----
-
-## Convenciones del proyecto
-
-Para mantener la coherencia del código se respetan las siguientes convenciones:
-
-**Nomenclatura de archivos**
-
-| Tipo          | Sufijo  | Ejemplo          |
-|---------------|---------|------------------|
-| Controlador   | `*Ctrl` | `CriptoCtrl.php` |
-| Ruta          | `*Rts`  | `CriptoRts.php`  |
-| Configuración | —       | `CorsConfig.php` |
-
-**Código**
-
-- **Clases**: `PascalCase` (`CriptoCtrl`, `CorsConfig`).
-- **Métodos y variables**: `camelCase` (`getCryptos`, `$requestUri`).
-- **Constantes**: `UPPER_SNAKE_CASE` (`DB_HOST`, `PRO_NOMBRE`).
-- **Idioma**: dominio e interfaz en **español**; los nombres técnicos aceptan inglés
-  cuando es el estándar de facto (`getCryptos`, `symbol`, `price`).
-- **Controladores** extienden `BaseCtrl` y, siempre que sea posible, delegan la
-  serialización en los ayudantes de respuesta (`respuestaExitosaSimple`,
-  `respuestaErrorSimple`).
-- **Rutas** parsean la URI para obtener la *acción*, validan el método HTTP e invocan
-  al controlador; son las responsables de serializar la respuesta final.
-
-**Flujo de una petición**
-
-1. `index.php` aplica CORS/CSP/seguridad y mapea el prefijo de la URI a un archivo de ruta.
-2. El archivo `*Rts.php` (a través de `RuteoCentralizado.php`) instancia el controlador y llama a `despachar()`.
-3. El `*Ctrl.php` ejecuta la lógica (consulta al modelo, que llama a la API externa vía `ClienteHttp`).
-4. `BaseCtrl::despachar()` serializa la respuesta JSON con el código HTTP correspondiente.
-
----
-
-## Seguridad
-
-Controles implementados a nivel de `.htaccess` y de aplicación:
-
-- **CORS** configurable vía `CORS_ORIGIN` en `configuracion/global.php` (entorno).
-- **CSP** configurado programáticamente en `CorsConfig.php` (sin CDN externos ni `unsafe-inline` en scripts).
-- **HSTS** con `max-age=31536000` (redirección HTTP→HTTPS forzada).
-- **Cabeceras de seguridad**: `X-Content-Type-Options`, `X-Frame-Options`,
-  `Referrer-Policy`.
-- **Ocultamiento** de `Server` y `X-Powered-By`.
-- **Protección de archivos sensibles** (`global.php`, `.htaccess`, `.env`).
-- **Bloqueo de acceso directo** a `configuracion/`, `controladores/`, `rutas/`, `modelos/`,
-  `logs/`, `vistas/`.
-- **Sanitización** de excepciones externas (sin URLs ni mensajes crudos de cURL).
-- **Saneamiento** de entradas con `htmlspecialchars` (`BaseCtrl::limpiarDatos`).
-
----
-
-## Roadmap
-
-Mejoras sugeridas para elevar la madurez del microservicio:
-
-- [x] Migrar configuración y secretos a variables de entorno / `.env` (RF-004).
-- [ ] Incorporar **Composer** con autoload **PSR-4** y espacios de nombres.
-- [ ] Añadir **caché** (Redis / APCu) para respuestas de proveedores externos.
-- [ ] Implementar **paginación** y filtros en los listados.
-- [ ] Añadir **rate limiting** y autenticación por API key / JWT.
-- [ ] Documentar la API con **OpenAPI / Swagger**.
-- [ ] Pruebas automatizadas con **PHPUnit** e integración continua (CI).
-- [ ] Contenerizar con **Docker** para paridad dev/prod.
-- [ ] Estandarizar el envoltorio de respuesta (`{ data, meta, error }`).
-
----
-
-© CRIP-Tecnología — Ecosistema Criterio Kelly.
+- **Sin caché ni base de datos:** cada petición consulta las APIs externas en vivo.
+- **No se usa en la app:** falta añadir la URL en `environment.ts` y reemplazar la lista fija `listaDivisas.ts`.
+- **Mensajes del estado de servicio copiados:** las tres rutas devuelven `"service": "PlanesRTS"`, y la respuesta 405 anuncia `POST` aunque solo se acepta `GET`.

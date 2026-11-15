@@ -1,0 +1,13 @@
+<ol class="pasos-pago" aria-label="Pasos para pagar">
+  @for (paso of pasos(); track paso.numero) {
+  <li
+    class="pasos-pago__paso"
+    [class.pasos-pago__paso--actual]="paso.esActual"
+    [class.pasos-pago__paso--completo]="paso.estaCompleto"
+    [attr.aria-current]="paso.esActual ? 'step' : null"
+  >
+    <span class="pasos-pago__numero">{{ paso.estaCompleto ? '✓' : paso.numero }}</span>
+    <span class="pasos-pago__etiqueta">{{ paso.etiqueta }}</span>
+  </li>
+  }
+</ol>

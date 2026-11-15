@@ -1,0 +1,153 @@
+<ion-card class="formulario-banco">
+  <ion-card-header>
+    <ion-card-title class="formulario-banco__titulo">
+      <ion-icon name="business-outline" aria-hidden="true"></ion-icon>
+      Transferencia bancaria
+    </ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-item lines="none" class="formulario-banco__metodo">
+      <ion-toggle
+        [checked]="estaMetodoActivo()"
+        [disabled]="estaGuardando() || metodo() === null"
+        (ionChange)="estadoMetodoCambiado.emit($event.detail.checked)"
+      >
+        Mostrar este método a los usuarios
+      </ion-toggle>
+    </ion-item>
+
+    <form [formGroup]="formulario" (ngSubmit)="alEnviar()">
+      <h3 class="formulario-banco__seccion">WhatsApp y mensaje</h3>
+      <ion-item>
+        <ion-input
+          label="Número de WhatsApp"
+          labelPlacement="stacked"
+          type="tel"
+          placeholder="Con el código del país"
+          formControlName="mep_bancoNumero"
+          maxlength="24"
+        ></ion-input>
+      </ion-item>
+      @if (controles.mep_bancoNumero.touched && controles.mep_bancoNumero.invalid) {
+      <ion-note color="danger" class="formulario-banco__error">
+        {{ controles.mep_bancoNumero.errors?.['formato'] ?? 'Escribe el número de WhatsApp' }}
+      </ion-note>
+      }
+
+      <ion-item>
+        <ion-textarea
+          label="Plantilla del mensaje (opcional)"
+          labelPlacement="stacked"
+          formControlName="mep_bancoPlantilla"
+          [maxlength]="maximoPlantilla"
+          [autoGrow]="true"
+        ></ion-textarea>
+      </ion-item>
+      <p class="formulario-banco__ayuda">{{ ayudaPlantilla }}</p>
+
+      <h3 class="formulario-banco__seccion">Cuenta del propietario</h3>
+      <p class="formulario-banco__ayuda">
+        Estos datos solo los ve la administración: los usuarios todavía no los reciben.
+      </p>
+
+      <ion-item>
+        <ion-input
+          label="Titular"
+          labelPlacement="stacked"
+          formControlName="mep_bancoTitular"
+          [maxlength]="maximoTitular"
+        ></ion-input>
+      </ion-item>
+      @if (controles.mep_bancoTitular.touched && controles.mep_bancoTitular.invalid) {
+      <ion-note color="danger" class="formulario-banco__error">
+        {{ controles.mep_bancoTitular.errors?.['formato'] }}
+      </ion-note>
+      }
+
+      <ion-item>
+        <ion-input
+          label="Documento (opcional)"
+          labelPlacement="stacked"
+          formControlName="mep_bancoDocumento"
+          maxlength="20"
+        ></ion-input>
+      </ion-item>
+      @if (controles.mep_bancoDocumento.touched && controles.mep_bancoDocumento.invalid) {
+      <ion-note color="danger" class="formulario-banco__error">
+        {{ controles.mep_bancoDocumento.errors?.['formato'] }}
+      </ion-note>
+      }
+
+      <ion-item>
+        <ion-input
+          label="Banco o entidad"
+          labelPlacement="stacked"
+          formControlName="mep_bancoEntidad"
+          [maxlength]="maximoEntidad"
+        ></ion-input>
+      </ion-item>
+      @if (controles.mep_bancoEntidad.touched && controles.mep_bancoEntidad.invalid) {
+      <ion-note color="danger" class="formulario-banco__error">
+        {{ controles.mep_bancoEntidad.errors?.['formato'] }}
+      </ion-note>
+      }
+
+      <ion-item>
+        <ion-select
+          label="Tipo de cuenta"
+          labelPlacement="stacked"
+          placeholder="Sin especificar"
+          formControlName="mep_bancoTipoCuenta"
+        >
+          <ion-select-option value="">Sin especificar</ion-select-option>
+          @for (tipo of tiposCuenta; track tipo.valor) {
+          <ion-select-option [value]="tipo.valor">{{ tipo.etiqueta }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Número de cuenta"
+          labelPlacement="stacked"
+          formControlName="mep_bancoCuenta"
+          maxlength="40"
+        ></ion-input>
+      </ion-item>
+      @if (controles.mep_bancoCuenta.touched && controles.mep_bancoCuenta.invalid) {
+      <ion-note color="danger" class="formulario-banco__error">
+        {{ controles.mep_bancoCuenta.errors?.['formato'] }}
+      </ion-note>
+      }
+      @if (mensajeCuentaSinTitular(); as mensaje) {
+      <ion-note color="danger" class="formulario-banco__error">{{ mensaje }}</ion-note>
+      }
+
+      <ion-item>
+        <ion-input
+          label="País o moneda (opcional)"
+          labelPlacement="stacked"
+          formControlName="mep_bancoPaisMoneda"
+          maxlength="32"
+        ></ion-input>
+      </ion-item>
+      @if (controles.mep_bancoPaisMoneda.touched && controles.mep_bancoPaisMoneda.invalid) {
+      <ion-note color="danger" class="formulario-banco__error">
+        {{ controles.mep_bancoPaisMoneda.errors?.['formato'] }}
+      </ion-note>
+      }
+
+      <ion-item>
+        <ion-textarea
+          label="Observaciones (opcional)"
+          labelPlacement="stacked"
+          formControlName="mep_bancoObservaciones"
+          [maxlength]="maximoObservaciones"
+          [autoGrow]="true"
+        ></ion-textarea>
+      </ion-item>
+
+      <ion-button type="submit" expand="block" [disabled]="!puedeEnviar()">Guardar transferencia</ion-button>
+    </form>
+  </ion-card-content>
+</ion-card>

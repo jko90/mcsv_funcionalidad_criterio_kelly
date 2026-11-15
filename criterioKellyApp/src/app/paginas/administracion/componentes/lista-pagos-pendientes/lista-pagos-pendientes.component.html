@@ -1,0 +1,34 @@
+@if (filas().length === 0 && !estaCargando()) {
+<p class="lista-pagos__vacia">No hay pagos en revisión</p>
+}
+
+<ion-list>
+  @for (fila of filas(); track fila.pago.pag_idPago) {
+  <ion-item button detail class="lista-pagos__fila" (click)="pagoSeleccionado.emit(fila.pago)">
+    <ion-label>
+      <h2>{{ fila.pago.usuario }}</h2>
+      <p>{{ fila.pago.pla_nombre }} · {{ fila.pago.ins_nombre }}</p>
+      <p>{{ fila.monto }} · {{ fila.pago.pag_metodoPago }}</p>
+      @if (fila.pago.pag_idTransac) {
+      <p>Transacción: {{ fila.pago.pag_idTransac }}</p>
+      }
+      <p>Subido el {{ fila.fechaSubida }}</p>
+      <p [class.lista-pagos__sin-comprobante]="!fila.pago.tieneComprobante">
+        {{ fila.textoComprobante }}
+      </p>
+    </ion-label>
+  </ion-item>
+  }
+</ion-list>
+
+@if (hayMas()) {
+<ion-button
+  expand="block"
+  fill="outline"
+  class="lista-pagos__mas"
+  [disabled]="estaCargando()"
+  (click)="cargarMasSolicitado.emit()"
+>
+  Cargar más
+</ion-button>
+}

@@ -1,36 +1,50 @@
 <?php
 
 require_once(__DIR__ . '/BaseCtrl.php');
-require_once(__DIR__ . '/../modelos/CriptoMdl.php');
 
 class CriptoCtrl extends BaseCtrl
 {
-    private $criptoMdl;
-
-    public function __construct()
-    {
-        $this->criptoMdl = new CriptoMdl();
-    }
+    private $base_url = "https://api.binance.com/api/v3";
 
     public function getCryptos()
     {
-        $data = $this->criptoMdl->obtenerTicker24h();
-        $cryptos = [];
+        $url = $this->base_url . "/ticker/24hr";
 
-        foreach ($data as $crypto) {
-            if (
-                str_ends_with($crypto['symbol'], 'USDT') ||
-                str_ends_with($crypto['symbol'], 'BUSD')
-            ) {
-                $cryptos[] = [
-                    'symbol' => $crypto['symbol'],
-                    'name' => $crypto['symbol'],
-                    'price' => (string) number_format((float) $crypto['lastPrice'], 6, '.', ''),
-                    'type' => 'crypto'
-                ];
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2
+        ]);
+
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($http_code === 200 && $response) {
+            $data = json_decode($response, true);
+            $cryptos = [];
+
+            foreach ($data as $crypto) {
+                if (
+                    strpos($crypto['symbol'], 'USDT') !== false ||
+                    strpos($crypto['symbol'], 'BUSD') !== false
+                ) {
+
+                    $cryptos[] = [
+                        'symbol' => $crypto['symbol'],
+                        'name' => $crypto['symbol'],
+                        'price' => $crypto['lastPrice'],
+                        'type' => 'crypto'
+                    ];
+                }
             }
+
+            return array_slice($cryptos, 0, 100000);
         }
 
-        return $cryptos;
+        return [];
     }
 }

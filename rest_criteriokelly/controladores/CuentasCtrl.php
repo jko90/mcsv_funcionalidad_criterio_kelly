@@ -1,275 +1,164 @@
 <?php
 
-require_once(__DIR__ . '/../modelos/CuentasMdl.php');
-require_once(__DIR__ . '/BaseCtrl.php');
+declare(strict_types=1);
+
+require_once __DIR__ . '/../modelos/CuentasMdl.php';
+require_once __DIR__ . '/BaseCtrl.php';
 
 class CuentasCtrl extends BaseCtrl
 {
-    private $cuentasService;
+    private CuentasMdl $cuentasModelo;
+    private Enlace $enlace;
+
+    private const PATRON_NOMBRE_CUENTA = '/^[\p{L}\p{N} ._-]+$/u';
+    private const MONTO_MAXIMO_CAPITAL = 99999999.9999;
+    private const TIPOS_MOVIMIENTO_PERMITIDOS = ['D', 'R', 'C'];
+    private const MENSAJE_TOPE_CUENTAS = 'Tu plan permite %d cuenta(s). Actualiza tu plan para crear más';
 
     public function __construct()
     {
-        $this->cuentasService = new CuentasMdl();
+        $this->enlace = new Enlace();
+        $this->cuentasModelo = new CuentasMdl($this->enlace);
     }
 
-    public function agregarCuenta($data)
+    public function agregarCuenta(array $datos): void
     {
         try {
-            // Validar campos requeridos
-            $errores = $this->validarDatos($data, ['cue_nombre', 'cue_usuarioId', 'fecha_valor', 'valor_cuenta']);
-            if (!empty($errores)) {
-                $this->respuestaErrorSimple(implode(', ', $errores), 400);
+            $nombreCuenta = $this->leerTexto($datos['cue_nombre'] ?? null, 'cue_nombre', 64, true, self::PATRON_NOMBRE_CUENTA);
+            $fechaValor = $this->leerFecha($datos['fecha_valor'] ?? null, 'fecha_valor');
+            $valorCuenta = $this->leerDecimal($datos['valor_cuenta'] ?? null, 'valor_cuenta', 0, self::MONTO_MAXIMO_CAPITAL);
+            $this->verificarUsuarioEnviado($datos['cue_usuarioId'] ?? null, 'cuentas/nueva');
+            $idUsuario = $this->idUsuarioSesion();
+
+            $topeCuentas = ControlPlan::limites()['numCuentas'] ?? null;
+            $esTopeAlcanzado = false;
+            $idCapital = 0;
+            $this->enlace->iniciarTransaccion();
+            try {
+                // Mutex por usuario: dos creaciones simultáneas no pueden pasar el tope a la vez
+                $this->cuentasModelo->bloquearUsuario($idUsuario);
+                $cuentasActivas = $this->cuentasModelo->contarCuentasActivas($idUsuario);
+                if ($topeCuentas !== null && $cuentasActivas >= $topeCuentas) {
+                    $esTopeAlcanzado = true;
+                    $this->enlace->revertirTransaccion();
+                } else {
+                    $idCapital = $this->cuentasModelo->agregarCuenta($nombreCuenta, $idUsuario, $fechaValor, $valorCuenta);
+                    $this->enlace->confirmarTransaccion();
+                }
+            } catch (Throwable $error) {
+                $this->enlace->revertirTransaccion();
+                throw $error;
             }
 
-            // Limpiar datos de entrada
-            $datosLimpios = $this->limpiarDatos($data);
-
-            // Ejecutar servicio para agregar cuenta
-            $resultado = $this->cuentasService->agregarCuenta(
-                $datosLimpios['cue_nombre'],
-                (int)$datosLimpios['cue_usuarioId'],
-                $datosLimpios['fecha_valor'],
-                (float)$datosLimpios['valor_cuenta']
-            );
-
-            if (!$resultado) {
-                $this->respuestaErrorSimple('No se pudo agregar la cuenta. Verifique los datos ingresados.', 500);
+            if ($esTopeAlcanzado) {
+                ControlPlan::auditarRechazo('cuentas/nueva');
+                ControlPlan::responder(sprintf(self::MENSAJE_TOPE_CUENTAS, $topeCuentas));
             }
 
             $this->respuestaExitosaSimple([
-                'cue_nombre' => $datosLimpios['cue_nombre'],
-                'cue_usuarioId' => $datosLimpios['cue_usuarioId'],
-                'fecha_valor' => $datosLimpios['fecha_valor'],
-                'valor_cuenta' => (float)$datosLimpios['valor_cuenta'],
-
+                'cue_nombre' => $nombreCuenta,
+                'cue_usuarioId' => $idUsuario,
+                'fecha_valor' => $fechaValor,
+                'valor_cuenta' => $valorCuenta,
+                'cap_idCapital' => $idCapital,
             ]);
-        } catch (Exception $e) {
-            error_log("Error en agregarCuenta: " . $e->getMessage());
+        } catch (Throwable $error) {
+            error_log('[CuentasCtrl::agregarCuenta] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }
 
-
-    public function obtenerCuentasPorUsuario($idUsuario)
+    public function obtenerCuentasPorUsuario(mixed $idEnviado): void
     {
         try {
-            if (empty(trim($idUsuario))) {
-                $this->respuestaErrorSimple('El ID de usuario es requerido', 400);
-            }
-
-            $idUsuarioLimpio = htmlspecialchars(trim($idUsuario), ENT_QUOTES, 'UTF-8');
-
-            $id = (int)$idUsuarioLimpio;
-            if ($id <= 0) {
-                $this->respuestaErrorSimple('ID de usuario inválido', 400);
-            }
-
-            $cuentas = $this->cuentasService->obtenerCuentasPorUsuario($id);
-
-            if (!$cuentas || empty($cuentas)) {
-                $this->respuestaErrorSimple('No se encontraron cuentas para el usuario especificado', 404);
-            }
-
+            $this->verificarUsuarioEnviado($idEnviado, 'cuentas/obtener');
+            $cuentas = $this->cuentasModelo->obtenerCuentasPorUsuario($this->idUsuarioSesion());
             $datosCuentas = [];
             foreach ($cuentas as $cuenta) {
                 $datosCuentas[] = [
-                    'cap_idCapital' => (int)($cuenta['cap_idCapital'] ?? 0),
-                    'cue_idCuentas' => (int)$cuenta['cue_idCuentas'],
-                    'cue_nombre' => $cuenta['cue_nombre'] ?? '',
-                    'valor_cuenta' => (float)($cuenta['cap_capital'] ?? 0),
-                    'cue_usuarioId' => (int)($cuenta['cue_usuarioId'] ?? 0),
-                    'fecha_valor' => $cuenta['cap_fecha'] ?? null
+                    'cap_idCapital' => (int) $cuenta['cap_idCapital'],
+                    'cue_idCuentas' => (int) $cuenta['cue_idCuentas'],
+                    'cue_nombre' => $cuenta['cue_nombre'],
+                    'valor_cuenta' => (float) $cuenta['cap_capital'],
+                    'cue_usuarioId' => (int) $cuenta['cue_usuarioId'],
+                    'fecha_valor' => $cuenta['cap_fecha'],
                 ];
             }
-
             $this->respuestaExitosaSimple($datosCuentas);
-        } catch (Exception $e) {
-            error_log("Error en obtenerCuentasPorUsuario: " . $e->getMessage());
+        } catch (Throwable $error) {
+            error_log('[CuentasCtrl::obtenerCuentasPorUsuario] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }
 
-
-    public function registroMovimientoCapital($data)
+    public function registroMovimientoCapital(array $datos): void
     {
         try {
-            // Validar campos requeridos
-            $errores = $this->validarDatos($data, ['cap_usuarioId', 'cap_cueIdCuentas', 'cap_monto', 'cap_capital', 'cap_tipoMovimie']);
-            if (!empty($errores)) {
-                $this->respuestaErrorSimple(implode(', ', $errores), 400);
-            }
-
-            // Limpiar datos de entrada
-            $datosLimpios = $this->limpiarDatos($data);
-
-            // Validar que cueIdCuentas sea un entero válido
-            $cueIdCuentas = (int)$datosLimpios['cap_cueIdCuentas'];
-            if ($cueIdCuentas <= 0) {
-                $this->respuestaErrorSimple('ID de cuenta inválido', 400);
-            }
-
-            // Validar que usuarioId sea un entero válido
-            $usuarioId = (int)$datosLimpios['cap_usuarioId'];
-            if ($usuarioId <= 0) {
-                $this->respuestaErrorSimple('ID de usuario inválido', 400);
-            }
-
-            // Validar monto
-            if (!is_numeric($datosLimpios['cap_monto'])) {
-                $this->respuestaErrorSimple('El monto debe ser un valor numérico', 400);
-            }
-            $monto = (float)$datosLimpios['cap_monto'];
-            if ($monto < 0) {
-                $this->respuestaErrorSimple('El monto no puede ser negativo', 400);
-            }
-            if ($monto > 999999999.9999) {
-                $this->respuestaErrorSimple('El monto excede el límite permitido', 400);
-            }
-
-            // Validar capital
-            if (!is_numeric($datosLimpios['cap_capital'])) {
-                $this->respuestaErrorSimple('El capital debe ser un valor numérico', 400);
-            }
-            $capital = (float)$datosLimpios['cap_capital'];
-            if ($capital < 0) {
-                $this->respuestaErrorSimple('El capital no puede ser negativo', 400);
-            }
-            if ($capital > 999999999.9999) {
-                $this->respuestaErrorSimple('El capital excede el límite permitido', 400);
-            }
-
-            // Validar tipo de movimiento
-            $tipoMovimiento = strtoupper(trim($datosLimpios['cap_tipoMovimie']));
-            if (!in_array($tipoMovimiento, ['D', 'R', 'C'])) {
-                $this->respuestaErrorSimple('Tipo de movimiento inválido. Debe ser D (Depósito), R (Retiro) o C (Crédito)', 400);
-            }
-
-            // Ejecutar registro de movimiento
-            $resultado = $this->cuentasService->registroMovimientoCapital(
-                $cueIdCuentas,
-                $usuarioId,
+            $idCuenta = $this->leerEntero($datos['cap_cueIdCuentas'] ?? null, 'cap_cueIdCuentas');
+            $monto = $this->leerDecimal($datos['cap_monto'] ?? null, 'cap_monto', 0, self::MONTO_MAXIMO_CAPITAL);
+            $capital = $this->leerDecimal($datos['cap_capital'] ?? null, 'cap_capital', 0, self::MONTO_MAXIMO_CAPITAL);
+            $tipoMovimiento = $this->leerOpcion($datos['cap_tipoMovimie'] ?? null, 'cap_tipoMovimie', self::TIPOS_MOVIMIENTO_PERMITIDOS);
+            $this->verificarUsuarioEnviado($datos['cap_usuarioId'] ?? null, 'cuentas/movCapital');
+            $idUsuario = $this->idUsuarioSesion();
+            $idMovimiento = $this->cuentasModelo->registroMovimientoCapital(
+                $idCuenta,
                 $monto,
                 $capital,
-                $tipoMovimiento
+                $tipoMovimiento,
+                $idUsuario
             );
-
-            if (!$resultado || !is_numeric($resultado) || $resultado <= 0) {
-                $this->respuestaErrorSimple('No se pudo registrar el movimiento. Verifique que la cuenta y usuario existan.', 500);
-                return;
+            if ($idMovimiento <= 0) {
+                $this->denegarAcceso("cuenta=$idCuenta cuentas/movCapital");
             }
-
             $this->respuestaExitosaSimple([
-                'cap_idCapital' => $resultado,
-                'cap_cueIdCuentas' => $cueIdCuentas,
-                'cap_usuarioId' => $usuarioId,
+                'cap_idCapital' => $idMovimiento,
+                'cap_cueIdCuentas' => $idCuenta,
+                'cap_usuarioId' => $idUsuario,
                 'cap_monto' => $monto,
                 'cap_capital' => $capital,
                 'cap_tipoMovimie' => $tipoMovimiento,
             ]);
-        } catch (Exception $e) {
-            error_log("Error en registroMovimiento: " . $e->getMessage());
+        } catch (Throwable $error) {
+            error_log('[CuentasCtrl::registroMovimientoCapital] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }
 
-
-    public function actualizarNombreCuenta($data)
+    public function actualizarNombreCuenta(array $datos): void
     {
         try {
-            // Validar campos requeridos
-            $errores = $this->validarDatos($data, ['cue_nombre', 'cue_idCuenta', 'cue_usuarioId']);
-            if (!empty($errores)) {
-                $this->respuestaErrorSimple(implode(', ', $errores), 400);
+            $idCuenta = $this->leerEntero($datos['cue_idCuenta'] ?? null, 'cue_idCuenta');
+            $nombreCuenta = $this->leerTexto($datos['cue_nombre'] ?? null, 'cue_nombre', 64, true, self::PATRON_NOMBRE_CUENTA);
+            $this->verificarUsuarioEnviado($datos['cue_usuarioId'] ?? null, 'cuentas/nombre');
+            $idUsuario = $this->idUsuarioSesion();
+            if ($this->cuentasModelo->obtenerCuentaActivaDeUsuario($idCuenta, $idUsuario) === null) {
+                $this->denegarAcceso("cuenta=$idCuenta cuentas/nombre");
             }
-
-            // Limpiar datos de entrada
-            $datosLimpios = $this->limpiarDatos($data);
-
-            // Validar que cue_idCuenta sea un entero válido
-            $idCuenta = (int)$datosLimpios['cue_idCuenta'];
-            if ($idCuenta <= 0) {
-                $this->respuestaErrorSimple('ID de cuenta inválido', 400);
-            }
-
-            // Validar que cue_usuarioId sea un entero válido
-            $usuarioId = (int)$datosLimpios['cue_usuarioId'];
-            if ($usuarioId <= 0) {
-                $this->respuestaErrorSimple('ID de usuario inválido', 400);
-            }
-
-            // Validar nombre de cuenta
-            $nombreCuenta = trim($datosLimpios['cue_nombre']);
-            if (empty($nombreCuenta)) {
-                $this->respuestaErrorSimple('El nombre de la cuenta no puede estar vacío', 400);
-            }
-
-            if (strlen($nombreCuenta) > 64) {
-                $this->respuestaErrorSimple('El nombre de la cuenta no puede exceder 64 caracteres', 400);
-            }
-
-            // Validar formato del nombre (solo letras, números, espacios y algunos caracteres especiales)
-            if (!preg_match('/^[a-zA-Z0-9\s\-_\.]+$/', $nombreCuenta)) {
-                $this->respuestaErrorSimple('El nombre de la cuenta contiene caracteres no válidos', 400);
-            }
-
-            // Ejecutar actualización
-            $resultado = $this->cuentasService->actualizarNombreCuenta(
-                $nombreCuenta,
-                $idCuenta,
-                $usuarioId
-            );
-
-            if ($resultado === false || $resultado === 0) {
-                $this->respuestaErrorSimple('No se pudo actualizar la cuenta. Verifique que la cuenta exista y pertenezca al usuario.', 404);
-            }
-
+            $this->cuentasModelo->actualizarNombreCuenta($nombreCuenta, $idCuenta, $idUsuario);
             $this->respuestaExitosaSimple([
                 'cue_idCuenta' => $idCuenta,
-                'cue_usuarioId' => $usuarioId,
-                'cue_nombre' => $nombreCuenta
+                'cue_usuarioId' => $idUsuario,
+                'cue_nombre' => $nombreCuenta,
             ]);
-        } catch (Exception $e) {
-            error_log("Error en actualizarNombreCuenta: " . $e->getMessage());
+        } catch (Throwable $error) {
+            error_log('[CuentasCtrl::actualizarNombreCuenta] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }
 
-    public function eliminarCuenta($data)
+    public function eliminarCuenta(array $datos): void
     {
         try {
-            // Validar campos requeridos
-            $errores = $this->validarDatos($data, ['cue_idCuenta', 'cue_usuarioId']);
-            if (!empty($errores)) {
-                $this->respuestaErrorSimple(implode(', ', $errores), 400);
+            $idCuenta = $this->leerEntero($datos['cue_idCuenta'] ?? null, 'cue_idCuenta');
+            $this->verificarUsuarioEnviado($datos['cue_usuarioId'] ?? null, 'cuentas/eliminar');
+            $idUsuario = $this->idUsuarioSesion();
+            if ($this->cuentasModelo->obtenerCuentaActivaDeUsuario($idCuenta, $idUsuario) === null) {
+                $this->denegarAcceso("cuenta=$idCuenta cuentas/eliminar");
             }
-
-            // Limpiar datos de entrada
-            $datosLimpios = $this->limpiarDatos($data);
-
-            // Validar que cue_idCuenta sea un entero válido
-            $idCuenta = (int)$datosLimpios['cue_idCuenta'];
-            if ($idCuenta <= 0) {
-                $this->respuestaErrorSimple('ID de cuenta inválido', 400);
-            }
-
-            // Validar que cue_usuarioId sea un entero válido
-            $usuarioId = (int)$datosLimpios['cue_usuarioId'];
-            if ($usuarioId <= 0) {
-                $this->respuestaErrorSimple('ID de usuario inválido', 400);
-            }
-
-            // Ejecutar eliminación lógica (cambio de estado)
-            $resultado = $this->cuentasService->eliminarCuenta($idCuenta, $usuarioId);
-
-            if ($resultado === false || $resultado === 0) {
-                $this->respuestaErrorSimple('No se pudo eliminar la cuenta. Verifique que la cuenta exista y pertenezca al usuario.', 404);
-            }
-
-            $this->respuestaExitosaSimple([
-                'success' => 'Cuenta eliminada exitosamente'
-            ]);
-        } catch (Exception $e) {
-            error_log("Error en eliminarCuenta: " . $e->getMessage());
+            $this->cuentasModelo->eliminarCuenta($idCuenta, $idUsuario);
+            $this->respuestaExitosaSimple(['success' => 'Cuenta eliminada exitosamente']);
+        } catch (Throwable $error) {
+            error_log('[CuentasCtrl::eliminarCuenta] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }

@@ -1,0 +1,64 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+
+<ion-content>
+  <ion-grid fixed>
+    <h5 class="subtitulo enunciado-negro">Divisor valor Kelly</h5>
+
+    <ion-grid class="tabla-personalizada">
+      <ion-row>
+        <ion-col size="6" class="ion-text-center"
+          ><strong>Cuenta</strong></ion-col
+        >
+        <ion-col size="3" class="ion-text-center"
+          ><strong>Divisor</strong></ion-col
+        >
+        <ion-col size="3" class="ion-text-center"
+          ><strong>Acción</strong></ion-col
+        >
+      </ion-row>
+      @for (cuenta of listaObjCuentas(); track cuenta.cue_idCuentas) {
+      <ion-row>
+        <ion-col size="6" class="ion-text-left">
+          {{ cuenta.cue_nombre }}
+        </ion-col>
+        <ion-col size="3" class="ion-text-center">
+          @if (divisorEditable()) {
+            {{ cuenta.multipKelly !== undefined ? (cuenta.multipKelly |
+            currency:'USD':'symbol':'1.2-2') : '-' }}
+          } @else {
+            {{ divisorFijo | currency:'USD':'symbol':'1.2-2' }}
+          }
+        </ion-col>
+
+        <ion-col size="3" class="ion-text-center acciones-cuenta">
+          <ion-button
+            fill="clear"
+            color="primary"
+            size="small"
+            (click)="abrirModalCuenta(cuenta)"
+          >
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      }
+    </ion-grid>
+  </ion-grid>
+  <app-alerta-limite-plan
+    [abierta]="mostrarModalPlan()"
+    [mensaje]="textoDivisorFijo"
+    (cerrado)="cerrarModalPlan()"
+    (verPlanes)="alVerPlanes()"
+  />
+  <app-alerta-ck
+    [abierta]="alertaActiva() !== null"
+    [titulo]="tituloAlertaActiva()"
+    [mensaje]="esEdicionActiva() ? null : alertaConfirmarDivisor.mensaje"
+    [textoConfirmar]="esEdicionActiva() ? textoActualizar : alertaConfirmarDivisor.textoConfirmar"
+    [textoCancelar]="textoCancelar"
+    [campos]="camposAlertaActiva()"
+    [validador]="validarDivisor"
+    (confirmada)="alConfirmarAlerta($event)"
+    (cancelada)="alDescartarAlerta()"
+  />
+</ion-content>

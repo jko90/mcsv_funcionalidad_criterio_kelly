@@ -1,63 +1,94 @@
 <?php
 
-require_once(__DIR__ . '/configuracion/CorsConfig.php');
+const NOMBRE_SERVICIO = 'rest_suscripcion';
 
-// Configurar CORS y headers de seguridad globales
-CorsConfig::configurar();
+$rutaAplicacion = getenv('RUTA_APLICACION') ?: ($_SERVER['REDIRECT_RUTA_APLICACION'] ?? __DIR__);
+define('RUTA_APLICACION', rtrim($rutaAplicacion, '/\\'));
 
-// Manejar preflight OPTIONS
-CorsConfig::manejarPreflight();
+try {
+    if (!is_dir(RUTA_APLICACION)) {
+        throw new RuntimeException('RUTA_APLICACION no es una carpeta existente');
+    }
+    require_once RUTA_APLICACION . '/vendor/autoload.php';
+    require_once RUTA_APLICACION . '/configuracion/Configuracion.php';
+    Configuracion::cargar(RUTA_APLICACION, NOMBRE_SERVICIO);
+} catch (Throwable $error) {
+    error_log('[index.php] Configuración inválida: ' . $error->getMessage());
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'Error interno del servidor'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
-$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+const RUTAS = [
+    'planes' => 'rutas/PlanesRts.php',
+    'suscripcion' => 'rutas/SuscripcionRts.php',
+    'pagos' => 'rutas/PagosRts.php',
+    'datosPago' => 'rutas/DatosPagoRts.php',
+];
+const RECURSOS_CON_CREDENCIALES = [];
+const SERVICIO_ACTUAL = 'rest_suscripcion';
+const RUTAS_PUBLICAS = ['planes/disponible'];
 
+require_once RUTA_APLICACION . '/configuracion/ManejadorErrores.php';
+require_once RUTA_APLICACION . '/configuracion/CabecerasSeguridad.php';
+require_once RUTA_APLICACION . '/configuracion/CorsConfig.php';
+require_once RUTA_APLICACION . '/configuracion/LectorSolicitud.php';
+require_once RUTA_APLICACION . '/configuracion/Enrutador.php';
+require_once RUTA_APLICACION . '/configuracion/enlace.php';
+require_once RUTA_APLICACION . '/configuracion/ClienteIp.php';
+require_once RUTA_APLICACION . '/configuracion/ContextoSesion.php';
+require_once RUTA_APLICACION . '/configuracion/RegistroAuditoria.php';
+require_once RUTA_APLICACION . '/configuracion/ValidadorSesion.php';
+require_once RUTA_APLICACION . '/configuracion/LimitadorPeticiones.php';
 
-// Detectar si es la página principal
-$esRaiz = ($requestUri === '/' || $requestUri === '/rest_suscripcion/' || $requestUri === '/rest_suscripcion');
+// Paso 3: errores no controlados → 500 genérico
+ManejadorErrores::registrar();
 
-// Si es la raíz y viene de un navegador, mostrar página de anuncio
-if ($esRaiz) {
-    $acceptHeader = $_SERVER['HTTP_ACCEPT'] ?? '';
-    $esPeticionNavegador = strpos($acceptHeader, 'text/html') !== false;
-    
-    if ($esPeticionNavegador) {
+// Paso 4: cabeceras de seguridad y HTTPS
+CabecerasSeguridad::aplicar();
+
+// Paso 5: CORS y preflight
+$primerSegmento = Enrutador::segmentos()[0] ?? '';
+CorsConfig::aplicar(in_array($primerSegmento, RECURSOS_CON_CREDENCIALES, true));
+
+// Paso 6: método y cuerpo
+LectorSolicitud::validarMetodoYCuerpo();
+
+// Paso 7: recurso y acción por segmento exacto
+$metodo = $_SERVER['REQUEST_METHOD'];
+['recurso' => $recurso, 'accion' => $accion, 'archivo' => $archivoRuta] = Enrutador::resolver(RUTAS);
+if ($recurso === '' && $metodo !== 'GET') {
+    ManejadorErrores::responderError(404, 'Recurso no encontrado');
+}
+
+$enlaceSeguridad = new Enlace();
+$auditoriaSeguridad = new RegistroAuditoria($enlaceSeguridad, SERVICIO_ACTUAL);
+$esRutaPublica = ($metodo === 'GET' && $accion === '')
+    || in_array($recurso . '/' . $accion, RUTAS_PUBLICAS, true);
+if (!$esRutaPublica) {
+    (new ValidadorSesion($enlaceSeguridad))->exigir();
+}
+(new LimitadorPeticiones($enlaceSeguridad, $auditoriaSeguridad))->controlar();
+
+// Paso 10: estado del servicio o archivo de ruta
+if ($metodo === 'GET' && $accion === '') {
+    $esPaginaAnuncio = $recurso === ''
+        && Configuracion::obtener('APP_ENTORNO') === 'local'
+        && str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'text/html');
+    if ($esPaginaAnuncio) {
         mostrarPaginaAnuncio();
         exit;
     }
+    echo json_encode(['servicio' => NOMBRE_SERVICIO, 'estado' => 'activo'], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
-// Mapeo de rutas más eficiente
-$rutas = [
-    '/planes' => 'rutas/PlanesRts.php',
-    '/suscripcion' => 'rutas/SuscripcionRts.php',
-];
-
-$rutaEncontrada = false;
-
-foreach ($rutas as $patron => $archivo) {
-    if (strpos($requestUri, $patron) !== false) {
-        if (file_exists($archivo)) {
-            require_once $archivo;
-            $rutaEncontrada = true;
-            break;
-        } else {
-            http_response_code(500);
-            echo json_encode([
-                "error" => "Archivo de ruta no encontrado",
-                "timestamp" => date('c')
-            ]);
-            exit;
-        }
-    }
+$rutaArchivo = RUTA_APLICACION . '/' . $archivoRuta;
+if (!is_file($rutaArchivo)) {
+    throw new RuntimeException('Archivo de ruta inexistente: ' . $archivoRuta);
 }
-
-if (!$rutaEncontrada) {
-    http_response_code(404);
-    echo json_encode([
-        "error" => "Endpoint no encontrado",
-        "mensaje" => "La ruta solicitada no existe",
-        "fecha" => date('c')
-    ]);
-}
+require $rutaArchivo;
 
 function mostrarPaginaAnuncio()
 {
@@ -440,5 +471,3 @@ function mostrarPaginaAnuncio()
     </html>
     <?php
 }
-
-?>

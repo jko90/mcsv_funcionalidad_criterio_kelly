@@ -1,0 +1,11 @@
+<ion-card [class]="'estado-pago estado-pago--' + texto().clave.toLowerCase()">
+  <ion-card-content class="estado-pago__contenido">
+    <ion-icon [name]="icono()" class="estado-pago__icono"></ion-icon>
+    <div>
+      <p class="estado-pago__mensaje">{{ texto().mensaje }}</p>
+      @if (texto().detalle; as detalle) {
+      <p class="estado-pago__detalle">{{ detalle }}</p>
+      }
+    </div>
+  </ion-card-content>
+</ion-card>

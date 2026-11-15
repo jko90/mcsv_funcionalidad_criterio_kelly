@@ -1,0 +1,10 @@
+<app-alerta-ck
+  [abierta]="abierta()"
+  [titulo]="titulo()"
+  [mensaje]="mensajeAlerta()"
+  tipo="confirmacion"
+  [textoConfirmar]="textoVerPlanes"
+  [textoCancelar]="textoAhoraNo"
+  (confirmada)="verPlanes.emit()"
+  (cancelada)="cerrado.emit()"
+/>

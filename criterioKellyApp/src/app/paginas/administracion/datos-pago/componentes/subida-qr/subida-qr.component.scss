@@ -1,0 +1,57 @@
+.subida-qr {
+  padding: 16px;
+
+  &__titulo {
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+  }
+
+  &__bloque {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  &__etiqueta {
+    margin: 0 0 6px;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  &__imagen {
+    display: block;
+    width: 220px;
+    max-width: 100%;
+    margin: 0 auto 8px;
+    border: 1px solid var(--ion-color-light-shade);
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  &__vacio,
+  &__ayuda {
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+  }
+
+  &__acciones {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__elegir {
+    display: block;
+    padding: 12px;
+    text-align: center;
+    border: 2px dashed var(--ion-color-medium);
+    border-radius: 12px;
+    cursor: pointer;
+
+    input {
+      display: block;
+      margin: 8px auto 0;
+      max-width: 100%;
+    }
+  }
+}

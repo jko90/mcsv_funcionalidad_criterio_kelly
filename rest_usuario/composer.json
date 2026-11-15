@@ -1,0 +1,18 @@
+{
+    "name": "criterio-kelly/rest-usuario",
+    "description": "Servicio REST rest_usuario de Criterio Kelly",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2",
+        "phpmailer/phpmailer": "7.1.1",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "config": {
+        "platform": { "php": "8.2.0" },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

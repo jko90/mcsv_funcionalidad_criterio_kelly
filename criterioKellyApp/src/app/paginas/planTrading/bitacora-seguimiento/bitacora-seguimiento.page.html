@@ -1,0 +1,179 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+
+<ion-content>
+  <ion-grid fixed>
+    <h5 class="subtitulo enunciado-negro">SEGUIMIENTO</h5>
+    <ion-item>
+      <ion-select
+        label="CUENTA"
+        (ionChange)="seleccionrCuenta($event)"
+        interface="action-sheet"
+        placeholder="Seleccionar"
+      >
+        @for(cuenta of listaObjCuentas(); track cuenta.cue_idCuentas) {
+        <ion-select-option [value]="cuenta" class="respuesta-pequena">
+          {{ cuenta.cue_nombre }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    <ion-grid class="tabla-bitacora">
+      <ion-row>
+        <ion-col size="4" class="ion-text-center"
+          ><strong>Divisa</strong></ion-col
+        >
+        <ion-col size="4" class="ion-text-center"
+          ><strong>Precios</strong></ion-col
+        >
+        <ion-col size="4" class="ion-text-center"
+          ><strong>Acción</strong></ion-col
+        >
+      </ion-row>
+      @for (item of nuevaListaObjBitacora(); track item.bit_idbitacora) {
+      <ion-row
+        [ngClass]="{
+              'row-compra': item.bit_tipoOperaci === 'COMPRA',
+              'row-venta': item.bit_tipoOperaci === 'VENTA'
+            }"
+      >
+        <ion-col size="4" class="ion-text-left">
+          {{ item.bit_divisa }} ({{ item.bit_tipoOperaci }})
+        </ion-col>
+        <ion-col size="4" class="ion-text-left">
+          <div>E: {{ item.bit_precioEntra }}</div>
+          <div>SL: {{ item.bit_precioSL }}</div>
+          <div>TP: {{ item.bit_precioTP }}</div>
+        </ion-col>
+        <ion-col
+          size="4"
+          class="ion-text-center accion-col"
+          [style.opacity]="habilitaEdicion() ? '1' : '0.5'"
+          [style.pointer-events]="habilitaEdicion() ? 'auto' : 'none'"
+          (click)="habilitaEdicion() ? editarComentarios(item) : null"
+        >
+          <ion-button
+            fill="clear"
+            style="font-weight: bold"
+            class="enunciado-negro"
+          >
+            <ion-icon name="create-outline"></ion-icon> Cometar
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      }
+    </ion-grid>
+
+    @if(objSeguimiento){
+    <form [formGroup]="bitacoraForm">
+      <ion-col style="text-align: center">
+        <ion-item>
+          <ion-textarea
+            formControlName="emocion"
+            label="EMOCIÓN PSICOLÓGICA"
+            label-placement="stacked"
+            placeholder="Escriba tu estado emocional hasta el momento"
+            class="ionLabel enunciado-negro respuesta-pequena"
+          >
+          </ion-textarea>
+        </ion-item>
+
+        <ion-item>
+          <ion-textarea
+            formControlName="descripcion"
+            label="DESCRIPCIÓN DE LA OPERATIVA EN PROCESO"
+            label-placement="stacked"
+            placeholder="Escriba una descripción"
+            class="ionLabel enunciado-negro respuesta-pequena"
+          >
+          </ion-textarea>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked" class="ionLabel enunciado-negro"
+            >GRÁFICA DE TRADING</ion-label
+          >
+          <ion-input
+            formControlName="urlImagen"
+            label=""
+            label-placement="stacked"
+            placeholder="Inserte la URL de la imagen"
+            fill="outline"
+            class="ionLabel respuesta-pequena"
+          >
+          </ion-input>
+          <ion-button
+            fill="outline"
+            color="medium"
+            (click)="fileInput.click()"
+            class="respuesta-pequena"
+          >
+            <ion-icon name="image-outline" slot="start"></ion-icon>Seleccionar
+            una imagen
+          </ion-button>
+          <input
+            #fileInput
+            type="file"
+            accept="image/*"
+            style="display: none"
+            (change)="seleccionarImagen($event)"
+          />
+        </ion-item>
+
+        @if(imagePreview){
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="12" style="text-align: center">
+              <img
+                [src]="imagePreview"
+                alt="Vista previa"
+                class="vista-imagen respuesta-pequena"
+              />
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="8">
+              <ion-label class="ionLabel respuesta-pequena"
+                >{{selectedImage?.name}}</ion-label
+              >
+            </ion-col>
+            <ion-col size="4" style="text-align: right">
+              <ion-button
+                fill="clear"
+                color="danger"
+                (click)="eliminarImagen()"
+                class="respuesta-pequena"
+              >
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        }
+      </ion-col>
+
+      <ion-row class="ion-margin-top">
+        <ion-col size="6">
+          <ion-button
+            expand="block"
+            color="medium"
+            (click)="cancelarFormulario()"
+          >
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Cancelar
+          </ion-button>
+        </ion-col>
+        <ion-col size="6">
+          <ion-button
+            expand="block"
+            color="primary"
+            (click)="guardarObservacionPorBitacora()"
+          >
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            Guardar
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+    }
+  </ion-grid>
+</ion-content>

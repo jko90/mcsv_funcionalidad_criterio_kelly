@@ -1,23 +1,35 @@
 <?php
 
 require_once(__DIR__ . '/BaseCtrl.php');
-require_once(__DIR__ . '/../modelos/IndiceMdl.php');
 
 class IndiceCtrl extends BaseCtrl
 {
-    private $indiceMdl;
+    private $base_url = "https://financialmodelingprep.com/api/v3";
+    private string $apiKey;
 
     public function __construct()
     {
-        $this->indiceMdl = new IndiceMdl();
+        $this->apiKey = Configuracion::obtener('FMP_API_KEY');
     }
 
     public function getAllIndices()
     {
-        $data = $this->indiceMdl->obtenerIndices();
+        $url = $this->base_url . "/quotes/index?apikey=" . urlencode($this->apiKey);
+
+        $response = @file_get_contents($url);
+        if ($response === false) {
+            // manejo de error
+            return [];
+        }
+
+        $data = json_decode($response, true);
+        if (!is_array($data)) {
+            return [];
+        }
 
         $indices = [];
         foreach ($data as $item) {
+            // Fíjate cómo vienen los datos: “symbol”, “name”, “price”
             if (!isset($item['symbol']) || !isset($item['price'])) {
                 continue;
             }
@@ -25,6 +37,7 @@ class IndiceCtrl extends BaseCtrl
             $name = isset($item['name']) ? $item['name'] : $symbol;
             $price = $item['price'];
 
+            // Formatear precio como string con decimales
             $price_str = number_format((float)$price, 6, '.', '');
 
             $indices[] = [

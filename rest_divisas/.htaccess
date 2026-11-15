@@ -1,124 +1,33 @@
-# ================================
-# CONFIGURACIÓN BÁSICA
-# ================================
-Options -Indexes
+# Criterio Kelly · API REST · lista blanca: solo se ejecuta index.php (HU-001 E-02, E-05, E-10, E-11, E-12)
+Options -Indexes -MultiViews
 ServerSignature Off
+DirectoryIndex index.php
+DirectorySlash Off
 
-# ================================
-# HEADERS DE SEGURIDAD
-# ================================
+RewriteEngine On
+
+# E-05: la cabecera Authorization llega a PHP
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# E-10: TRACE y TRACK no llegan a PHP
+RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)$ [NC]
+RewriteRule ^ - [R=405,L]
+
+# E-02: index.php se ejecuta tal cual; cualquier otra ruta, exista o no, la resuelve index.php
+RewriteRule ^index\.php$ - [END]
+RewriteRule ^ index.php [END]
+
 <IfModule mod_headers.c>
-    # CORS se configura programáticamente en CorsConfig.php
-    
-    # Prevenir MIME type sniffing
-    Header always set X-Content-Type-Options "nosniff"
-    
-    # Protección contra clickjacking
-    Header always set X-Frame-Options "DENY"
-    
-    # Política de referrer
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    
-    # CSP se configura programáticamente en CorsConfig.php
-    
-    # HSTS (HTTPS Strict Transport Security)
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-    
-    # Remove server info
-    Header always unset Server
     Header always unset X-Powered-By
+    Header unset X-Powered-By
 </IfModule>
 
-# ================================
-# COMPRESIÓN GZIP
-# ================================
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/plain
-    AddOutputFilterByType DEFLATE text/html
-    AddOutputFilterByType DEFLATE text/xml
-    AddOutputFilterByType DEFLATE text/css
-    AddOutputFilterByType DEFLATE text/javascript
-    AddOutputFilterByType DEFLATE application/xml
-    AddOutputFilterByType DEFLATE application/xhtml+xml
-    AddOutputFilterByType DEFLATE application/rss+xml
-    AddOutputFilterByType DEFLATE application/javascript
-    AddOutputFilterByType DEFLATE application/x-javascript
-    AddOutputFilterByType DEFLATE application/json
-</IfModule>
-
-# ================================
-# CACHE CONTROL (solo JSON no cacheable)
-# ================================
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType application/json "access plus 0 seconds"
-</IfModule>
-
-# ================================
-# PROTECCIÓN DE ARCHIVOS SENSIBLES
-# ================================
-<Files ~ "^(\.htaccess|\.htpasswd|\.env|enlace\.php|global\.php)$">
-    Require all denied
-</Files>
-
-<FilesMatch "\.(inc|enlace|conf|config)$">
-    Require all denied
-</FilesMatch>
-
-# ================================
-# URL REWRITING PARA API REST
-# ================================
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    
-    # Manejo de CORS preflight
-    RewriteCond %{REQUEST_METHOD} OPTIONS
-    RewriteRule ^(.*)$ index.php [L,R=200]
-    
-    # Bloquear acceso directo a carpetas internas (403)
-    RewriteRule ^/?(configuracion|rutas|modelos|controladores|logs|vistas|cache)(/.*)?$ - [F,L]
-    
-    # Redirigir todas las peticiones que no sean archivos o directorios a index.php
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php [QSA,L]
-    
-    # Force HTTPS
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-    
-    # Trailing slash redirect
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_URI} !/$
-    RewriteCond %{REQUEST_URI} !^/rest_divisas/(cripto|forex|indice|sinteticos|otros)
-    RewriteRule ^(.*)$ $1/ [L,R=301]
-</IfModule>
-
-# ================================
-# PÁGINAS DE ERROR PERSONALIZADAS
-# ================================
-ErrorDocument 400 /rest_divisas/errors/400.html
-ErrorDocument 401 /rest_divisas/errors/401.html
-ErrorDocument 403 /rest_divisas/errors/403.html
-ErrorDocument 404 /rest_divisas/errors/404.html
-ErrorDocument 500 /rest_divisas/errors/500.html
-
-# ================================
-# CONFIGURACIÓN PHP
-# ================================
-<IfModule mod_php.c>
-    php_value upload_max_filesize 10M
-    php_value post_max_size 10M
-    php_value max_execution_time 300
-    php_value max_input_vars 3000
+# E-11 con mod_php (en PHP-FPM/CGI aplica .user.ini)
+<IfModule php_module>
     php_flag display_errors Off
     php_flag log_errors On
-    php_value error_log logs/php_errors.log
-</IfModule>
-
-# ================================
-# TIPOS MIME
-# ================================
-<IfModule mod_mime.c>
-    AddType application/json .json
+    php_value post_max_size 1M
+    php_value upload_max_filesize 1M
+    php_value max_execution_time 30
 </IfModule>

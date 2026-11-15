@@ -1,0 +1,16 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+<ion-content>
+  @switch (paso()) {
+    @case ('solicitar') {
+      <ion-card><ion-card-header><ion-card-title>Solicitar código</ion-card-title></ion-card-header><ion-card-content>
+        <app-formulario-solicitar-codigo [estaCargando]="estaCargando()" (solicitudEnviada)="alSolicitarCodigo($event)" />
+      </ion-card-content></ion-card>
+    }
+    @case ('restablecer') {
+      <ion-card><ion-card-header><ion-card-title>Restablecer contraseña</ion-card-title></ion-card-header><ion-card-content>
+        @if (mensajeSolicitud(); as mensaje) { <ion-note color="success">{{ mensaje }}</ion-note> }
+        <app-formulario-restablecer-clave [correo]="correo()" [estaCargando]="estaCargando()" (restablecimientoEnviado)="alRestablecerClave($event)" (solicitarOtroCodigo)="alSolicitarOtroCodigo()" />
+      </ion-card-content></ion-card>
+    }
+  }
+</ion-content>

@@ -1,51 +1,135 @@
 <?php
 
-include_once(__DIR__ . '/../configuracion/enlace.php');
+declare(strict_types=1);
+
+require_once __DIR__ . '/../configuracion/enlace.php';
 
 class ComentariosMdl
 {
-    private $conexion;
+    private Enlace $conexion;
 
-    public function __construct()
+    public function __construct(?Enlace $enlace = null)
     {
-        $this->conexion = new Enlace();
+        $this->conexion = $enlace ?? new Enlace();
     }
 
-    public function validarObservacion($obsTipoObserva, $idBitacora)
+    public function validarObservacion(string $tipoObservacion, int $idBitacora): ?array
     {
-        $sql = "SELECT * FROM scko_observacion WHERE obs_bitIdbitaco = ? AND obs_tipoObserva = ?";
-        return $this->conexion->ejecutarConsultaSimpleFila($sql, "is", $idBitacora, $obsTipoObserva);
+        $sqlObservacionPorTipo = 'SELECT obs_idObserva, obs_bitIdbitaco,
+                obs_comentario, obs_tipoObserva, obs_imagen, obs_fecha
+            FROM scko_observacion
+            WHERE obs_bitIdbitaco = ? AND obs_tipoObserva = ?';
+        return $this->conexion->ejecutarConsultaSimpleFila(
+            $sqlObservacionPorTipo,
+            'is',
+            $idBitacora,
+            $tipoObservacion
+        );
     }
 
-    public function sobreEscribirObservacion($idBitacora, $obsTipoObserva, $obsComentario, $obsImagen)
-    {
-        $sql = "UPDATE scko_observacion SET obs_comentario = ?, obs_imagen = ? WHERE obs_bitIdbitaco = ? AND obs_tipoObserva = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "ssis", $obsComentario, $obsImagen, $idBitacora, $obsTipoObserva);
+    public function obtenerObservacionDeBitacora(
+        int $idObservacion,
+        int $idBitacora,
+        bool $bloquear = false
+    ): ?array {
+        $sqlObservacionDeBitacora = 'SELECT obs_idObserva
+            FROM scko_observacion
+            WHERE obs_idObserva = ? AND obs_bitIdbitaco = ?';
+        $sqlObservacionDeBitacoraBloqueo = $sqlObservacionDeBitacora . ' FOR UPDATE';
+        return $this->conexion->ejecutarConsultaSimpleFila(
+            $bloquear ? $sqlObservacionDeBitacoraBloqueo : $sqlObservacionDeBitacora,
+            'ii',
+            $idObservacion,
+            $idBitacora
+        );
     }
 
-        public function crearComentariosPorBitacora($idBitacora, $obsComentario, $obsTipoObserva, $obsImagen)
-    {
-        $sqlObservacion = "INSERT INTO scko_observacion (obs_bitIdbitaco, obs_comentario, obs_tipoObserva, obs_imagen) VALUES (?, ?, ?, ?)";
-        return $this->conexion->ejecutarInsercionRetornaID($sqlObservacion, "isss", $idBitacora, $obsComentario, $obsTipoObserva, $obsImagen);
+    public function sobreEscribirObservacion(
+        int $idBitacora,
+        string $tipoObservacion,
+        string $comentario,
+        ?string $imagen
+    ): int {
+        $sqlActualizarObservacionPorTipo = 'UPDATE scko_observacion
+            SET obs_comentario = ?, obs_imagen = ?
+            WHERE obs_bitIdbitaco = ? AND obs_tipoObserva = ?';
+        return $this->conexion->ejecutarActualizacion(
+            $sqlActualizarObservacionPorTipo,
+            'ssis',
+            $comentario,
+            $imagen,
+            $idBitacora,
+            $tipoObservacion
+        );
     }
 
-
-    public function actualizarBitacoraTPBESL($idBitacora, $precioEntra, $precioSL, $precioTP)
-    {
-        $sql = "UPDATE sckb_bitacora SET bit_precioEntra = ?, bit_precioSL = ?, bit_precioTP = ? WHERE bit_idbitacora = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "dddi", $precioEntra, $precioSL, $precioTP, $idBitacora);
+    public function crearComentariosPorBitacora(
+        int $idBitacora,
+        string $comentario,
+        string $tipoObservacion,
+        ?string $imagen
+    ): int {
+        $sqlInsertarObservacion = 'INSERT INTO scko_observacion
+            (obs_bitIdbitaco, obs_comentario, obs_tipoObserva, obs_imagen)
+            VALUES (?, ?, ?, ?)';
+        return $this->conexion->ejecutarInsercionRetornaID(
+            $sqlInsertarObservacion,
+            'isss',
+            $idBitacora,
+            $comentario,
+            $tipoObservacion,
+            $imagen
+        );
     }
 
-    public function actualizarObservacion($idObservacion, $obsComentario, $obsImagen)
-    {
-        $sql = "UPDATE scko_observacion SET obs_comentario = ?, obs_imagen = ? WHERE obs_idObserva = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "ssi", $obsComentario, $obsImagen, $idObservacion);
+    public function actualizarBitacoraTPBESL(
+        int $idBitacora,
+        int $idUsuario,
+        ?float $precioEntrada,
+        ?float $precioStopLoss,
+        ?float $precioTakeProfit
+    ): int {
+        $sqlActualizarPreciosPropios = 'UPDATE sckb_bitacora
+            SET bit_precioEntra = COALESCE(?, bit_precioEntra),
+                bit_precioSL = COALESCE(?, bit_precioSL),
+                bit_precioTP = COALESCE(?, bit_precioTP)
+            WHERE bit_idbitacora = ? AND bit_usuarioId = ?';
+        return $this->conexion->ejecutarActualizacion(
+            $sqlActualizarPreciosPropios,
+            'dddii',
+            $precioEntrada,
+            $precioStopLoss,
+            $precioTakeProfit,
+            $idBitacora,
+            $idUsuario
+        );
     }
 
+    public function actualizarObservacion(
+        int $idObservacion,
+        int $idBitacora,
+        ?string $comentario,
+        ?string $imagen
+    ): int {
+        $sqlActualizarObservacion = 'UPDATE scko_observacion
+            SET obs_comentario = COALESCE(?, obs_comentario),
+                obs_imagen = COALESCE(?, obs_imagen)
+            WHERE obs_idObserva = ? AND obs_bitIdbitaco = ?';
+        return $this->conexion->ejecutarActualizacion(
+            $sqlActualizarObservacion,
+            'ssii',
+            $comentario,
+            $imagen,
+            $idObservacion,
+            $idBitacora
+        );
+    }
 
-    public function obtenerComentariosPorBitacora($idBitacora)
+    public function obtenerComentariosPorBitacora(int $idBitacora)
     {
-        $sql = " SELECT * FROM scko_observacion WHERE obs_bitIdbitaco = ? ORDER BY obs_fecha DESC";
-        return $this->conexion->ejecutarConsulta($sql, "i", $idBitacora);
+        $sqlObservacionesDeBitacora = 'SELECT obs_idObserva, obs_bitIdbitaco,
+                obs_comentario, obs_tipoObserva, obs_imagen, obs_fecha
+            FROM scko_observacion WHERE obs_bitIdbitaco = ? ORDER BY obs_fecha DESC';
+        return $this->conexion->ejecutarConsulta($sqlObservacionesDeBitacora, 'i', $idBitacora);
     }
 }

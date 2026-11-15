@@ -1,0 +1,16 @@
+.lista-pagos {
+  &__vacia {
+    text-align: center;
+    color: var(--ion-color-medium);
+    margin: 24px 0;
+  }
+
+  &__sin-comprobante {
+    color: var(--ion-color-warning-shade);
+    font-weight: 600;
+  }
+
+  &__mas {
+    margin: 12px 16px;
+  }
+}

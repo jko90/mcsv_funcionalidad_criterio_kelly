@@ -1,0 +1,10 @@
+<ion-alert
+  cssClass="alerta-ck"
+  [isOpen]="abierta()"
+  [header]="titulo()"
+  [message]="mensaje() ?? ''"
+  [inputs]="campos() ?? []"
+  [buttons]="botones()"
+  [backdropDismiss]="cierraAlTocarFuera()"
+  (didDismiss)="alCerrar($any($event))"
+/>

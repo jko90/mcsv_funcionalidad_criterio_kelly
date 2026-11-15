@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.datos-pago {
+  &__intro {
+    margin: 0 0 12px;
+    color: var(--ion-color-medium);
+  }
+
+  &__cargando {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  &__error,
+  &__aviso {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0 0 12px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  &__error {
+    color: var(--ion-color-danger-shade);
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+  }
+
+  &__aviso {
+    background: rgba(var(--ion-color-warning-rgb), 0.15);
+  }
+}

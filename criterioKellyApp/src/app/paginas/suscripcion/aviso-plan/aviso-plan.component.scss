@@ -1,0 +1,43 @@
+.aviso-plan {
+  margin: 8px 0 12px;
+
+  &__contenido {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__icono {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  &__texto {
+    font-size: 0.95rem;
+  }
+
+  &__acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  &--prueba {
+    --background: var(--ion-color-primary-tint, #eef3ff);
+  }
+
+  &--pendiente {
+    border-left: 4px solid var(--ion-color-warning);
+  }
+
+  &--cancelado {
+    border-left: 4px solid var(--ion-color-medium);
+  }
+
+  &--programado {
+    border-left: 4px solid var(--ion-color-success);
+  }
+}
+
+.aviso-plan__mensaje { margin: 0; }

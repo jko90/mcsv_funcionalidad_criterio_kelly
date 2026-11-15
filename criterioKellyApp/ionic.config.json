@@ -1,0 +1,7 @@
+{
+  "name": "criterioKellyApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

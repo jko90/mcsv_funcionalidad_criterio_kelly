@@ -1,267 +1,205 @@
 <?php
 
-require_once(__DIR__ . '/../modelos/ComentariosMdl.php');
-require_once(__DIR__ . '/BaseCtrl.php');
+declare(strict_types=1);
+
+require_once __DIR__ . '/../modelos/ComentariosMdl.php';
+require_once __DIR__ . '/../modelos/BitacoraMdl.php';
+require_once __DIR__ . '/BaseCtrl.php';
 
 class ComentariosCtrl extends BaseCtrl
 {
-    private $comentariosServicio;
+    private ComentariosMdl $comentariosModelo;
+    private BitacoraMdl $bitacoraModelo;
+    private Enlace $enlace;
+
+    private const TIPOS_OBSERVACION_PERMITIDOS = ['I', 'E', 'P', 'L', 'F'];
+    private const MAXIMO_COMENTARIOS_POR_SOLICITUD = 10;
+    private const PRECIO_MAXIMO = 999999.999999;
 
     public function __construct()
     {
-        $this->comentariosServicio = new ComentariosMdl();
+        $this->enlace = new Enlace();
+        $this->comentariosModelo = new ComentariosMdl($this->enlace);
+        $this->bitacoraModelo = new BitacoraMdl($this->enlace);
     }
 
-
-        /**
-     * Crea un comentario asociado a una bitácora.
-     *
-     * @param array $data Datos del comentario que deben contener 'obs_bitIdbitaco', 'obs_comentario' y 'obs_tipoObserva'.
-     */
-    public function crearComentarioPorBitacora($data)
+    public function crearComentarioPorBitacora(mixed $datos): void
     {
         try {
-            $resultados = [];
-            $errores = [];
-
-            // Si el input es un solo comentario, lo convertimos en array
-            if (!is_array($data) || (is_array($data) && isset($data['obs_bitIdbitaco']))) {
-                $data = [$data];
+            $comentarios = $this->normalizarListaComentarios($datos);
+            $comentariosValidados = [];
+            $idsBitacora = [];
+            foreach ($comentarios as $comentario) {
+                if (!is_array($comentario)) {
+                    $this->respuestaErrorSimple("El campo 'comentario' es inválido", 400);
+                }
+                $idBitacora = $this->leerEntero($comentario['obs_bitIdbitaco'] ?? null, 'obs_bitIdbitaco');
+                $texto = $this->leerTexto($comentario['obs_comentario'] ?? null, 'obs_comentario', 4096, true);
+                $tipo = $this->leerOpcion(
+                    $comentario['obs_tipoObserva'] ?? null,
+                    'obs_tipoObserva',
+                    self::TIPOS_OBSERVACION_PERMITIDOS
+                );
+                $imagen = $this->leerImagen($comentario['obs_imagen'] ?? null, 'obs_imagen');
+                $comentariosValidados[] = [$idBitacora, $texto, $tipo, $imagen];
+                $idsBitacora[$idBitacora] = $idBitacora;
             }
 
-            foreach ($data as $index => $comentario) {
-                // Validar campos requeridos
-                $camposRequeridos = ['obs_bitIdbitaco', 'obs_comentario', 'obs_tipoObserva'];
-                $erroresValidacion = $this->validarDatos($comentario, $camposRequeridos);
-                if (!empty($erroresValidacion)) {
-                    $errores[] = "Comentario #$index: " . implode(', ', $erroresValidacion);
-                    continue;
+            $idsBitacora = array_values($idsBitacora);
+            sort($idsBitacora, SORT_NUMERIC);
+            $idUsuario = $this->idUsuarioSesion();
+            $this->enlace->iniciarTransaccion();
+            try {
+                foreach ($idsBitacora as $idBitacora) {
+                    if ($this->bitacoraModelo->obtenerBitacoraDeUsuario($idBitacora, $idUsuario, true) === null) {
+                        $this->enlace->revertirTransaccion();
+                        $this->denegarAcceso("bitacora=$idBitacora comentarios/crearComentario");
+                    }
                 }
-
-                // Limpiar datos de entrada
-                $datosLimpios = $this->limpiarDatos($comentario);
-
-                // Validar longitud de comentario
-                $obsComentario = trim($datosLimpios['obs_comentario']);
-                if (strlen($obsComentario) > 4096) {
-                    $errores[] = "Comentario #$index: El comentario no puede exceder 4096 caracteres";
-                    continue;
+                $respuesta = [];
+                foreach ($comentariosValidados as [$idBitacora, $texto, $tipo, $imagen]) {
+                    $observacion = $this->comentariosModelo->validarObservacion($tipo, $idBitacora);
+                    if ($observacion !== null) {
+                        $this->comentariosModelo->sobreEscribirObservacion($idBitacora, $tipo, $texto, $imagen);
+                    } else {
+                        $this->comentariosModelo->crearComentariosPorBitacora($idBitacora, $texto, $tipo, $imagen);
+                    }
+                    $observacion = $this->comentariosModelo->validarObservacion($tipo, $idBitacora);
+                    if ($observacion === null) {
+                        throw new RuntimeException('No se pudo guardar la observación');
+                    }
+                    $respuesta[] = [
+                        'obs_idObserva' => (int) $observacion['obs_idObserva'],
+                        'obs_bitIdbitaco' => (int) $observacion['obs_bitIdbitaco'],
+                        'obs_comentario' => $observacion['obs_comentario'],
+                        'obs_tipoObserva' => $observacion['obs_tipoObserva'],
+                        'obs_imagen' => $observacion['obs_imagen'],
+                        'obs_fecha' => $observacion['obs_fecha'],
+                    ];
                 }
-
-                // Validar tipo de observación (ahora acepta cualquier valor, pero debe existir)
-                $obsTipoObserva = strtoupper(trim($datosLimpios['obs_tipoObserva']));
-                if (empty($obsTipoObserva)) {
-                    $errores[] = "Comentario #$index: El tipo de observación es requerido";
-                    continue;
-                }
-
-                $obsImagen = isset($datosLimpios['obs_imagen']) ? $datosLimpios['obs_imagen'] : null;
-
-                // Ejecutar inserción o actualización
-                $validarObservacion = $this->comentariosServicio->validarObservacion($obsTipoObserva, $datosLimpios['obs_bitIdbitaco']);
-                if ($validarObservacion) {
-                    $this->comentariosServicio->sobreEscribirObservacion(
-                        $datosLimpios['obs_bitIdbitaco'],
-                        $obsTipoObserva,
-                        $obsComentario,
-                        $obsImagen
-                    );
-                } else {
-                    $this->comentariosServicio->crearComentariosPorBitacora(
-                        $datosLimpios['obs_bitIdbitaco'],
-                        $obsComentario,
-                        $obsTipoObserva,
-                        $obsImagen
-                    );
-                }
-
-                // Consultar el registro (si existe, es éxito)
-                $comentarioObj = $this->comentariosServicio->validarObservacion($obsTipoObserva, $datosLimpios['obs_bitIdbitaco']);
-                if (!$comentarioObj) {
-                    $mensaje = 'No se pudo crear el registro de bitácora';
-                    $errores[] = "Comentario #$index: $mensaje";
-                    continue;
-                }
-
-                $resultados[] = [
-                    'obs_idObserva'    => isset($comentarioObj['obs_idObserva']) ? (int)$comentarioObj['obs_idObserva'] : null,
-                    'obs_bitIdbitaco'  => isset($comentarioObj['obs_bitIdbitaco']) ? (int)$comentarioObj['obs_bitIdbitaco'] : (int)$datosLimpios['obs_bitIdbitaco'],
-                    'obs_comentario'   => $comentarioObj['obs_comentario'] ?? $obsComentario,
-                    'obs_tipoObserva'  => $comentarioObj['obs_tipoObserva'] ?? $obsTipoObserva,
-                    'obs_imagen'       => $comentarioObj['obs_imagen'] ?? $obsImagen,
-                    'obs_fecha'        => $comentarioObj['obs_fecha'] ?? null
-                ];
+                $this->enlace->confirmarTransaccion();
+            } catch (Throwable $error) {
+                $this->enlace->revertirTransaccion();
+                throw $error;
             }
-
-            if (!empty($errores)) {
-                $this->respuestaErrorSimple(implode('; ', $errores), 400);
-                return;
-            }
-
-            $this->respuestaExitosaSimple($resultados);
-        } catch (Exception $e) {
-            error_log("Error en crearComentarioPorBitacora: " . $e->getMessage());
-            $this->respuestaErrorSimple('Error interno del servidor', 500);
-        }
-    }
-
-
-    /**
-     * Actualiza un comentario de una bitácora.
-     *
-     * @param array $data Datos de entrada que deben contener 'bit_idbitacora', 'obs_idObserva', 'obs_comentario', 'obs_imagen', 'bit_precioEntra', 'bit_precioSL', 'bit_precioTP'.
-     */
-    public function actualizarBitacoraComentario($data)
-    {
-        try {
-            // Validar campos requeridos
-            $errores = $this->validarDatos($data, ['bit_idbitacora', 'obs_idObserva']);
-            if (!empty($errores)) {
-                $this->respuestaErrorSimple(implode(', ', $errores), 400);
-            }
-
-            // Limpiar datos de entrada
-            $datosLimpios = $this->limpiarDatos($data);
-
-            // Validar que bit_idbitacora sea un entero válido
-            $idBitacora = (int)$datosLimpios['bit_idbitacora'];
-            if ($idBitacora <= 0) {
-                $this->respuestaErrorSimple('ID de bitácora inválido', 400);
-            }
-
-            // Validar que obs_idObserva sea un entero válido
-            $idObservacion = (int)$datosLimpios['obs_idObserva'];
-            if ($idObservacion <= 0) {
-                $this->respuestaErrorSimple('ID de observación inválido', 400);
-            }
-
-            // Validar precios si están presentes
-            $precioEntra = null;
-            if (isset($datosLimpios['bit_precioEntra'])) {
-                if (!is_numeric($datosLimpios['bit_precioEntra'])) {
-                    $this->respuestaErrorSimple('El precio de entrada debe ser un valor numérico', 400);
-                }
-                $precioEntra = (float)$datosLimpios['bit_precioEntra'];
-                if ($precioEntra <= 0) {
-                    $this->respuestaErrorSimple('El precio de entrada debe ser mayor a 0', 400);
-                }
-            }
-
-            $precioSL = null;
-            if (isset($datosLimpios['bit_precioSL'])) {
-                if (!is_numeric($datosLimpios['bit_precioSL'])) {
-                    $this->respuestaErrorSimple('El precio SL debe ser un valor numérico', 400);
-                }
-                $precioSL = (float)$datosLimpios['bit_precioSL'];
-            }
-
-            $precioTP = null;
-            if (isset($datosLimpios['bit_precioTP'])) {
-                if (!is_numeric($datosLimpios['bit_precioTP'])) {
-                    $this->respuestaErrorSimple('El precio TP debe ser un valor numérico', 400);
-                }
-                $precioTP = (float)$datosLimpios['bit_precioTP'];
-            }
-
-            // Validar campos de observación
-            $obsComentario = null;
-            if (isset($datosLimpios['obs_comentario'])) {
-                $obsComentario = trim($datosLimpios['obs_comentario']);
-                if (strlen($obsComentario) > 4096) {
-                    $this->respuestaErrorSimple('El comentario no puede exceder 4096 caracteres', 400);
-                }
-            }
-
-            $obsImagen = isset($datosLimpios['obs_imagen']) ? trim($datosLimpios['obs_imagen']) : null;
-
-            // Ejecutar actualización
-            $resultado = $this->comentariosServicio->actualizarBitacoraTPBESL(
-                $idBitacora,
-                $precioEntra,
-                $precioSL,
-                $precioTP,
-            );
-
-            $resultadoObservacion = $this->comentariosServicio->actualizarObservacion(
-                $idObservacion,
-                $obsComentario,
-                $obsImagen
-            );
-
-            // Corregir la lógica: usar OR en lugar de AND
-            if ((!$resultado || is_string($resultado)) || (!$resultadoObservacion || is_string($resultadoObservacion))) {
-                $mensaje = 'No se pudo actualizar el registro';
-                if (is_string($resultado)) {
-                    $mensaje = $resultado;
-                } elseif (is_string($resultadoObservacion)) {
-                    $mensaje = $resultadoObservacion;
-                }
-                $this->respuestaErrorSimple($mensaje, 500);
-                return;
-            }
-
-            $respuesta = [
-                'bit_idbitacora' => $idBitacora,
-                'bit_precioEntra' => $precioEntra,
-                'bit_precioSL' => $precioSL,
-                'bit_precioTP' => $precioTP,
-                'obs_comentario' => $obsComentario,
-                'obs_idObserva' => $idObservacion,
-                'obs_imagen' => $obsImagen
-            ];
-
             $this->respuestaExitosaSimple($respuesta);
-        } catch (Exception $e) {
-            error_log("Error en actualizarBitacoraComentario: " . $e->getMessage());
+        } catch (Throwable $error) {
+            error_log('[ComentariosCtrl::crearComentarioPorBitacora] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
     }
 
-
-
-
-    /**
-     * Obtiene las observaciones asociadas a una bitácora específica.
-     *
-     * @param int $id ID de la bitácora.
-     */
-    public function ObtenerObservacionesPorBitacora($id)
+    public function actualizarBitacoraComentario(array $datos): void
     {
         try {
-            // Validar que el idBitacora no esté vacío
-            if (empty(trim($id))) {
-                $this->respuestaErrorSimple('El ID de bitácora es requerido', 400);
+            $idBitacora = $this->leerEntero($datos['bit_idbitacora'] ?? null, 'bit_idbitacora');
+            $idObservacion = $this->leerEntero($datos['obs_idObserva'] ?? null, 'obs_idObserva');
+            $precioEntrada = array_key_exists('bit_precioEntra', $datos)
+                ? $this->leerDecimal($datos['bit_precioEntra'], 'bit_precioEntra', 0.000001, self::PRECIO_MAXIMO)
+                : null;
+            $precioStopLoss = array_key_exists('bit_precioSL', $datos)
+                ? $this->leerDecimal($datos['bit_precioSL'], 'bit_precioSL', 0, self::PRECIO_MAXIMO)
+                : null;
+            $precioTakeProfit = array_key_exists('bit_precioTP', $datos)
+                ? $this->leerDecimal($datos['bit_precioTP'], 'bit_precioTP', 0, self::PRECIO_MAXIMO)
+                : null;
+            $comentario = array_key_exists('obs_comentario', $datos)
+                ? $this->leerTexto($datos['obs_comentario'], 'obs_comentario', 4096, false)
+                : null;
+            $imagen = array_key_exists('obs_imagen', $datos)
+                ? $this->leerImagen($datos['obs_imagen'], 'obs_imagen')
+                : null;
+            $idUsuario = $this->idUsuarioSesion();
+
+            $this->enlace->iniciarTransaccion();
+            try {
+                if ($this->bitacoraModelo->obtenerBitacoraDeUsuario($idBitacora, $idUsuario, true) === null
+                    || $this->comentariosModelo->obtenerObservacionDeBitacora($idObservacion, $idBitacora, true) === null) {
+                    $this->enlace->revertirTransaccion();
+                    $this->denegarAcceso("bitacora=$idBitacora comentarios/comentarioBitacora");
+                }
+                $this->comentariosModelo->actualizarBitacoraTPBESL(
+                    $idBitacora,
+                    $idUsuario,
+                    $precioEntrada,
+                    $precioStopLoss,
+                    $precioTakeProfit
+                );
+                $this->comentariosModelo->actualizarObservacion(
+                    $idObservacion,
+                    $idBitacora,
+                    $comentario,
+                    $imagen
+                );
+                $this->enlace->confirmarTransaccion();
+            } catch (Throwable $error) {
+                $this->enlace->revertirTransaccion();
+                throw $error;
             }
-
-            $idBitacoraLimpio = htmlspecialchars(trim($id), ENT_QUOTES, 'UTF-8');
-
-            $idBitacora = (int)$idBitacoraLimpio;
-            if ($idBitacora <= 0) {
-                $this->respuestaErrorSimple('ID de bitácora inválido', 400);
-            }
-
-            $observaciones = $this->comentariosServicio->obtenerComentariosPorBitacora($idBitacora);
-
-            if (!$observaciones || empty($observaciones)) {
-                $this->respuestaErrorSimple('No se encontraron observaciones para la bitácora especificada', 404);
-            }
-
-            $datosObservaciones = [];
-            foreach ($observaciones as $registro) {
-                $datosObservaciones[] = [
-                    'obs_idObserva' => (int)$registro['obs_idObserva'],
-                    'obs_bitIdbitaco' => (int)$registro['obs_bitIdbitaco'],
-                    'obs_comentario' => $registro['obs_comentario'] ?? '',
-                    'obs_tipoObserva' => $registro['obs_tipoObserva'] ?? '',
-                    'obs_imagen' => $registro['obs_imagen'] ?? '',
-                    'obs_fecha' => $registro['obs_fecha'] ?? null
-                ];
-            }
-
-            $this->respuestaExitosaSimple($datosObservaciones);
-        } catch (Exception $e) {
-            error_log("Error en ObtenerObservacionesPorBitacora: " . $e->getMessage());
+            $this->respuestaExitosaSimple([
+                'bit_idbitacora' => $idBitacora,
+                'bit_precioEntra' => $precioEntrada,
+                'bit_precioSL' => $precioStopLoss,
+                'bit_precioTP' => $precioTakeProfit,
+                'obs_comentario' => $comentario,
+                'obs_idObserva' => $idObservacion,
+                'obs_imagen' => $imagen,
+            ]);
+        } catch (Throwable $error) {
+            error_log('[ComentariosCtrl::actualizarBitacoraComentario] ' . $error->getMessage());
             $this->respuestaErrorSimple('Error interno del servidor', 500);
         }
+    }
+
+    public function ObtenerObservacionesPorBitacora(mixed $id): void
+    {
+        try {
+            $idBitacora = $this->leerEntero($id, 'id');
+            $idUsuario = $this->idUsuarioSesion();
+            if ($this->bitacoraModelo->obtenerBitacoraDeUsuario($idBitacora, $idUsuario) === null) {
+                $this->denegarAcceso("bitacora=$idBitacora comentarios/observaciones");
+            }
+            $observaciones = $this->comentariosModelo->obtenerComentariosPorBitacora($idBitacora);
+            $respuesta = [];
+            foreach ($observaciones as $observacion) {
+                $respuesta[] = [
+                    'obs_idObserva' => (int) $observacion['obs_idObserva'],
+                    'obs_bitIdbitaco' => (int) $observacion['obs_bitIdbitaco'],
+                    'obs_comentario' => $observacion['obs_comentario'],
+                    'obs_tipoObserva' => $observacion['obs_tipoObserva'],
+                    'obs_imagen' => $observacion['obs_imagen'],
+                    'obs_fecha' => $observacion['obs_fecha'],
+                ];
+            }
+            $this->respuestaExitosaSimple($respuesta);
+        } catch (Throwable $error) {
+            error_log('[ComentariosCtrl::ObtenerObservacionesPorBitacora] ' . $error->getMessage());
+            $this->respuestaErrorSimple('Error interno del servidor', 500);
+        }
+    }
+
+    private function normalizarListaComentarios(mixed $datos): array
+    {
+        if (!is_array($datos)) {
+            $this->respuestaErrorSimple("El campo 'comentarios' es inválido", 400);
+        }
+        if (array_key_exists('obs_bitIdbitaco', $datos)) {
+            return [$datos];
+        }
+        if (!$this->esListaNumerica($datos) || count($datos) < 1 || count($datos) > self::MAXIMO_COMENTARIOS_POR_SOLICITUD) {
+            $this->respuestaErrorSimple("El campo 'comentarios' es inválido", 400);
+        }
+        return $datos;
+    }
+
+    private function esListaNumerica(array $datos): bool
+    {
+        $indice = 0;
+        foreach ($datos as $clave => $_valor) {
+            if ($clave !== $indice++) {
+                return false;
+            }
+        }
+        return true;
     }
 }

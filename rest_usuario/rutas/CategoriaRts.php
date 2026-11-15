@@ -1,28 +1,6 @@
 <?php
 require_once(__DIR__ . '/../controladores/CategoriaCtrl.php');
 
-function configurarCORS()
-{
-    if (!headers_sent()) {
-        header('Content-Type: application/json; charset=utf-8');
-        header('Access-Control-Allow-Origin: http://localhost:8100');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-        header('Access-Control-Max-Age: 3600');
-        header('X-Content-Type-Options: nosniff');
-        header('X-Frame-Options: DENY');
-        header('X-XSS-Protection: 1; mode=block');
-    }
-}
-
-configurarCORS();
-
-// Manejar preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
 $categoriaController = new CategoriaCtrl();
 
 // Parsear URI para obtener acción
@@ -60,26 +38,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 function manejarGet($controller, $action)
 {
-    if (!$action) {
-        // Health check del servicio
-        $healthData = [
-            "servicio" => "Categoria API",
-            "estado_servicio" => "activo",
-            "version" => "2.0",
-            "endpoints" => [
-                "GET /categoria/listCategorias" => "Listar categorías",
-                "GET /categoria/categoriaById?id={id}" => "Obtener por ID",
-                "POST /categoria" => "Crear categoría",
-                "PUT /categoria" => "Actualizar categoría",
-                "DELETE /categoria?id={id}" => "Eliminar categoría"
-            ]
-        ];
-
-        http_response_code(200);
-        echo json_encode($healthData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        return;
-    }
-
     switch ($action) {
         case 'listCategorias':
             $controller->listaCategorias();

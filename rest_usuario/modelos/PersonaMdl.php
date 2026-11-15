@@ -1,22 +1,38 @@
 <?php
 
-include_once(__DIR__ . '/../configuracion/enlace.php');
+declare(strict_types=1);
+
+require_once __DIR__ . '/../configuracion/enlace.php';
+require_once __DIR__ . '/VerificacionMdl.php';
 
 class PersonaMdl
 {
-    private $conexion;
+    public const ROL_VISITANTE = 4;
+    public const REGISTRO_CREADO = 'CREADO';
+    public const REGISTRO_CORREO_EXISTENTE = 'CORREO_EXISTENTE';
+    public const REGISTRO_DATOS_DUPLICADOS = 'DATOS_DUPLICADOS';
 
-    public function __construct()
+    private VerificacionMdl $verificacionModelo;
+
+    public function __construct(private Enlace $conexion)
     {
-        $this->conexion = new Enlace();
+        $this->verificacionModelo = new VerificacionMdl($conexion);
     }
 
-    public function actualizarPersonaNombresTelf($idUsuario, $nombres, $apellidos, $telefono)
-    {
-        $sql = "UPDATE sgen_persona SET per_nombres = ?, per_apellidos = ?, per_telefono = ? WHERE per_idPersona = (SELECT usu_perIdPerso FROM sgen_usuario WHERE usu_idUsuario = ? AND usu_estado = '1' AND usu_situacion = 'A')";
+    public function actualizarPersonaNombresTelf(
+        int $idUsuario,
+        string $nombres,
+        string $apellidos,
+        string $telefono
+    ): int {
+        $sqlActualizarPersona = "UPDATE sgen_persona p
+            INNER JOIN sgen_usuario u ON u.usu_perIdPerso = p.per_idPersona
+            SET p.per_nombres = ?, p.per_apellidos = ?, p.per_telefono = ?
+            WHERE u.usu_idUsuario = ? AND u.usu_estado = '1' AND u.usu_situacion = 'A'
+                AND p.per_estado = '1' AND p.per_situacion = 'A'";
         return $this->conexion->ejecutarActualizacion(
-            $sql,
-            "sssi",
+            $sqlActualizarPersona,
+            'sssi',
             $nombres,
             $apellidos,
             $telefono,
@@ -24,142 +40,97 @@ class PersonaMdl
         );
     }
 
-    /**
-     * Agregar persona completa con usuario y rol
-     * @param string $cedula Cédula de la persona
-     * @param string $nombres Nombres de la persona
-     * @param string $apellidos Apellidos de la persona
-     * @param string $correo Correo electrónico
-     * @param string $telefono Teléfono de la persona
-     * @param string $usuario Nombre de usuario
-     * @param string $clave Contraseña del usuario
-     * @return array|false Datos completos o false si falla
-     */
-    public function agregarPersona($cedula, $nombres, $apellidos, $correo, $telefono, $usuario, $clave)
-    {
+    public function registrarPersona(
+        ?string $cedula,
+        string $nombres,
+        string $apellidos,
+        string $correo,
+        string $telefono,
+        string $usuario,
+        string $hashClave,
+        string $hashCodigo,
+        string $ip,
+        ?string $agente
+    ): array {
         try {
-
-            if ($this->verificarDuplicados($usuario, $correo, $telefono)) {
-                return "El usuario, correo o teléfono ya están en uso.";
+            $this->conexion->iniciarTransaccion();
+            $sqlDuplicadoUsuarioTelefono = "SELECT u.usu_idUsuario
+                FROM sgen_usuario u
+                INNER JOIN sgen_persona p ON p.per_idPersona = u.usu_perIdPerso
+                WHERE (u.usu_usuario = ? OR p.per_telefono = ?)
+                    AND u.usu_estado = '1' AND p.per_estado = '1'
+                LIMIT 1 FOR UPDATE";
+            if ($this->conexion->ejecutarConsultaSimpleFila(
+                $sqlDuplicadoUsuarioTelefono,
+                'ss',
+                $usuario,
+                $telefono
+            ) !== null) {
+                $this->conexion->revertirTransaccion();
+                return ['resultado' => self::REGISTRO_DATOS_DUPLICADOS, 'idUsuario' => null];
             }
 
-            $sqlPersona = "INSERT INTO sgen_persona (per_cedula, per_nombres, per_apellidos, per_correo, per_telefono) VALUES (?, ?, ?, ?, ?)";
-            $idPersona = $this->conexion->ejecutarConsultaRetornarID(
-                $sqlPersona,
-                "sssss",
+            $sqlCorreoExistente = "SELECT p.per_idPersona
+                FROM sgen_persona p
+                WHERE p.per_correo = ? AND p.per_estado = '1' LIMIT 1 FOR UPDATE";
+            if ($this->conexion->ejecutarConsultaSimpleFila($sqlCorreoExistente, 's', $correo) !== null) {
+                $this->conexion->revertirTransaccion();
+                return ['resultado' => self::REGISTRO_CORREO_EXISTENTE, 'idUsuario' => null];
+            }
+
+            if ($cedula !== null) {
+                $cedulaNormalizada = preg_replace('/[ .\-]/', '', trim($cedula));
+                $sqlCedulaExistente = "SELECT p.per_idPersona
+                    FROM sgen_persona p
+                    WHERE REPLACE(REPLACE(REPLACE(TRIM(p.per_cedula), ' ', ''), '-', ''), '.', '') = ?
+                        AND p.per_estado = '1' LIMIT 1 FOR UPDATE";
+                if ($cedulaNormalizada !== '' && $this->conexion->ejecutarConsultaSimpleFila(
+                    $sqlCedulaExistente,
+                    's',
+                    $cedulaNormalizada
+                ) !== null) {
+                    $this->conexion->revertirTransaccion();
+                    return ['resultado' => self::REGISTRO_DATOS_DUPLICADOS, 'idUsuario' => null];
+                }
+            }
+
+            $sqlInsertarPersona = 'INSERT INTO sgen_persona
+                (per_cedula, per_nombres, per_apellidos, per_correo, per_telefono)
+                VALUES (?, ?, ?, ?, ?)';
+            $idPersona = $this->conexion->ejecutarInsercionRetornaID(
+                $sqlInsertarPersona,
+                'sssss',
                 $cedula,
                 $nombres,
                 $apellidos,
                 $correo,
                 $telefono
             );
-
-            if (!$idPersona) {
-                return false;
-            }
-
-            // 2. Hashear la contraseña
-            $claveHasheada = password_hash($clave, PASSWORD_DEFAULT);
-
-            $sqlUsuario = "INSERT INTO sgen_usuario (usu_perIdPerso, usu_usuario, usu_clave) VALUES (?, ?, ?)";
-            $idUsuario = $this->conexion->ejecutarConsultaRetornarID(
-                $sqlUsuario,
-                "iss",
+            $sqlInsertarUsuario = 'INSERT INTO sgen_usuario (usu_perIdPerso, usu_usuario, usu_clave)
+                VALUES (?, ?, ?)';
+            $idUsuario = $this->conexion->ejecutarInsercionRetornaID(
+                $sqlInsertarUsuario,
+                'iss',
                 $idPersona,
                 $usuario,
-                $claveHasheada
+                $hashClave
             );
-
-            if (!$idUsuario) {
-                $this->eliminarPersona($idPersona);
-                return false;
-            }
-
-            // 4. Asignar rol (ID = 4)
-            $sqlRol = "INSERT INTO sgen_rolusuario (rus_usuId, rus_rolId) VALUES (?, 4)";
-            $idRolUsuario = $this->conexion->ejecutarConsultaRetornarID(
-                $sqlRol,
-                "i",
-                $idUsuario
+            $sqlInsertarRol = 'INSERT INTO sgen_rolusuario (rus_usuId, rus_rolId) VALUES (?, ?)';
+            $this->conexion->ejecutarInsercionRetornaID(
+                $sqlInsertarRol,
+                'ii',
+                $idUsuario,
+                self::ROL_VISITANTE
             );
-
-            if (!$idRolUsuario) {
-                $this->eliminarUsuario($idUsuario);
-                $this->eliminarPersona($idPersona);
-                return false;
+            $this->verificacionModelo->insertarCodigoEnTransaccion($idUsuario, $hashCodigo, $ip, $agente);
+            $this->conexion->confirmarTransaccion();
+            return ['resultado' => self::REGISTRO_CREADO, 'idUsuario' => $idUsuario];
+        } catch (Throwable $error) {
+            $this->conexion->revertirTransaccion();
+            if ($error instanceof mysqli_sql_exception && $error->getCode() === 1062) {
+                return ['resultado' => self::REGISTRO_DATOS_DUPLICADOS, 'idUsuario' => null];
             }
-            return $idUsuario;
-        } catch (Exception $e) {
-
-            // Limpiar datos si se crearon parcialmente
-            if (isset($idUsuario) && $idUsuario) {
-                $this->eliminarUsuario($idUsuario);
-            }
-            if (isset($idPersona) && $idPersona) {
-                $this->eliminarPersona($idPersona);
-            }
-
-            return "Error al generar el registro: " . $e->getMessage();
+            throw $error;
         }
-    }
-
-
-    /**
-     * Verificar si ya existe usuario o correo
-     * @param string $usuario Nombre de usuario
-     * @param string $correo Correo electrónico
-     * @return bool true si existe, false si no
-     */
-    public function verificarDuplicados($usuario, $correo, $telefono)
-    {
-        // Verificar si ya existe un usuario o correo
-        $sql = "
-            SELECT COUNT(*) as total 
-            FROM sgen_persona p 
-            LEFT JOIN sgen_usuario u ON p.per_idPersona = u.usu_perIdPerso 
-            WHERE p.per_correo = ? OR u.usu_usuario = ? OR p.per_telefono = ? ";
-
-        $result = $this->conexion->ejecutarConsultaSimpleFila($sql, "sss", $correo, $usuario, $telefono);
-
-        if ($result && is_array($result)) {
-            return (int)$result['total'] > 0;
-        }
-
-        return false;
-    }
-
-    /**
-     * Eliminar persona (marcar como eliminada)
-     * @param int $idPersona ID de la persona
-     * @return bool
-     */
-    private function eliminarPersona($idPersona)
-    {
-        $sql = "UPDATE sgen_persona SET per_estado = '0' WHERE per_idPersona = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "i", $idPersona);
-    }
-
-    /**
-     * Eliminar usuario (marcar como eliminado)
-     * @param int $idUsuario ID del usuario
-     * @return bool
-     */
-    private function eliminarUsuario($idUsuario)
-    {
-        $sql = "UPDATE sgen_usuario SET usu_estado = '0' WHERE usu_idUsuario = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "i", $idUsuario);
-    }
-
-
-    /**
-     * Obtener persona por ID
-     * @param int $idPersona ID de la persona
-     * @return array|false Datos de la persona o false si no existe
-     */
-
-    public function obtenerPersonaPorCorreo($correo)
-    {
-        $sql = "SELECT * FROM sgen_persona WHERE per_correo = ? AND per_estado = '1'";
-        return $this->conexion->ejecutarConsultaSimpleFila($sql, "s", $correo);
     }
 }

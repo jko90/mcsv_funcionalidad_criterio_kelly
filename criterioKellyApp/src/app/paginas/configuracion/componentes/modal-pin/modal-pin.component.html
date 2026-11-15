@@ -1,0 +1,66 @@
+<ion-content fullscreen>
+  <ion-toolbar>
+    <ion-title class="ion-text-center ion-text-uppercase">{{ titulo }}</ion-title>
+  </ion-toolbar>
+
+  <ion-grid>
+    <ion-card-header class="ion-text-center">
+      <div class="ILS_label-row">
+        <b>Crear PIN de acceso</b>
+      </div>
+      <div class="ILS_label-row">Ingrese <b>6</b> dígitos!</div>
+    </ion-card-header>
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <form [formGroup]="formularioPin">
+          <ion-item fill="outline">
+            <ion-label position="floating">Ingresar <b>PIN</b></ion-label>
+            <ion-input
+              type="password"
+              maxlength="6"
+              formControlName="ingPin"
+              (ionInput)="alIngresarPin()"
+              required
+              autocomplete="off"
+              inputmode="numeric"
+            ></ion-input>
+          </ion-item>
+          <br />
+          <ion-item fill="outline">
+            <ion-label position="floating">Confirmar <b>PIN</b></ion-label>
+            <ion-input
+              type="password"
+              maxlength="6"
+              formControlName="confPin"
+              (ionInput)="alIngresarPin()"
+              required
+              autocomplete="off"
+              inputmode="numeric"
+            ></ion-input>
+          </ion-item>
+          <br />
+          <ion-button
+            style="width: 40%; margin-right: 3%"
+            shape="round"
+            (click)="alSolicitarOmitirPin()"
+            >OMITIR</ion-button
+          >
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </ion-grid>
+  @if (guardando()) {
+    <div class="image-overlay">
+      <img src="assets/contenidos.png" alt="Guardando el PIN" class="animated-image" />
+    </div>
+  }
+</ion-content>
+<app-alerta-ck
+  [abierta]="omitirPinPendiente()"
+  [titulo]="alertaOmitirPin.titulo"
+  [mensaje]="alertaOmitirPin.mensaje"
+  [textoConfirmar]="alertaOmitirPin.textoConfirmar"
+  tipo="confirmacion"
+  (confirmada)="alConfirmarOmitirPin()"
+  (cancelada)="alDescartarOmitirPin()"
+/>

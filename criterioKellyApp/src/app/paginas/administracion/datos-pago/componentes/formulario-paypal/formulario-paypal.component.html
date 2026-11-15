@@ -1,0 +1,54 @@
+<ion-card class="formulario-paypal">
+  <ion-card-header>
+    <ion-card-title class="formulario-paypal__titulo">
+      <ion-icon name="card-outline" aria-hidden="true"></ion-icon>
+      PayPal
+    </ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-item lines="none" class="formulario-paypal__metodo">
+      <ion-toggle
+        [checked]="estaMetodoActivo()"
+        [disabled]="estaGuardando() || metodo() === null"
+        (ionChange)="estadoMetodoCambiado.emit($event.detail.checked)"
+      >
+        Mostrar este método a los usuarios
+      </ion-toggle>
+    </ion-item>
+
+    <form [formGroup]="formulario" (ngSubmit)="alEnviar()">
+      <ion-item>
+        <ion-input
+          label="Correo de la cuenta PayPal"
+          labelPlacement="stacked"
+          type="email"
+          formControlName="mep_paypalCorreo"
+          [maxlength]="maximoCorreo"
+        ></ion-input>
+      </ion-item>
+      @if (controles.mep_paypalCorreo.touched && controles.mep_paypalCorreo.invalid) {
+      <ion-note color="danger" class="formulario-paypal__error">
+        {{ controles.mep_paypalCorreo.errors?.['formato'] }}
+      </ion-note>
+      }
+
+      <ion-item>
+        <ion-input
+          label="Enlace de pago (opcional)"
+          labelPlacement="stacked"
+          type="url"
+          formControlName="mep_paypalEnlace"
+          [maxlength]="maximoEnlace"
+        ></ion-input>
+      </ion-item>
+      @if (controles.mep_paypalEnlace.touched && controles.mep_paypalEnlace.invalid) {
+      <ion-note color="danger" class="formulario-paypal__error">
+        {{ controles.mep_paypalEnlace.errors?.['formato'] }}
+      </ion-note>
+      }
+      <p class="formulario-paypal__ayuda">Basta con completar el correo o el enlace.</p>
+
+      <ion-button type="submit" expand="block" [disabled]="!puedeEnviar()">Guardar PayPal</ion-button>
+    </form>
+  </ion-card-content>
+</ion-card>

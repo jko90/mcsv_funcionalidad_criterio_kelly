@@ -9,8 +9,6 @@ Respuesta:
     "endpoints": {
         "POST /autenticacion/autenticar": "Autenticar usuario",
         "GET /autenticacion/roles?id={id}": "Obtener roles por ID",
-        "POST /autenticacion/obtenerCodigo": "Obtener código de recuperación",
-        "POST /autenticacion/generarCodigo": "Generar código de recuperación",
         "PUT /autenticacion/actualizarClave": "Actualizar contraseña"
     }
 }
@@ -42,36 +40,6 @@ Respuesta:
         "id": 1,
         "nombres": "Wills",
         "apellidos": "WillsAp"
-    }
-}
-
-POST: http://localhost/rest_criteriokelly/autenticacion/generarCodigo
-Body:
-{
-    "id": 1
-}
-Respuesta:
-{
-    "estado": "Exito",
-    "mensaje": "Código de recuperación generado exitosamente",
-    "fecha": "2025-01-18T02:40:35+02:00",
-    "dato": {
-        "codigo_recuperacion": 123456
-    }
-}
-
-POST: http://localhost/rest_criteriokelly/autenticacion/obtenerCodigo
-Body:
-{
-    "usuario": "admin"
-}
-Respuesta:
-{
-    "estado": "Exito",
-    "mensaje": "Código de recuperación obtenido exitosamente",
-    "fecha": "2025-01-18T02:40:35+02:00",
-    "dato": {
-        "codigo_recuperacion": 123456
     }
 }
 

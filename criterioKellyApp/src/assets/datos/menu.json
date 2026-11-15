@@ -1,0 +1,69 @@
+[
+    {
+        "icon": "document-outline",
+        "name": "Abrir operación",
+        "redirectTo": "/bitacora"
+    },
+    {
+        "icon": "search-outline",
+        "name": "Seguimiento operación",
+        "redirectTo": "/bitacora-seguimiento"
+    },
+    {
+        "icon": "checkmark-done-outline",
+        "name": "Finalizar operación",
+        "redirectTo": "/bitacora-fin"
+    },
+    {
+        "icon": "calculator-outline",
+        "name": "Criterio Kelly",
+        "redirectTo": "/mostrar-criterio-kelly"
+    },
+    {
+        "icon": "document-text-outline",
+        "name": "Reporte Operativas",
+        "redirectTo": "/operativas"
+    },
+    {
+        "icon": "analytics-outline",
+        "name": "Análisis Operativas",
+        "redirectTo": "/analisis"
+    },
+    {
+        "icon": "card-outline",
+        "name": "Cuentas",
+        "redirectTo": "/cuentas"
+    },
+    {
+        "icon": "construct-outline",
+        "name": "Configuración Kelly",
+        "redirectTo": "/operativa-kelly"
+    },
+    {
+        "icon": "person-outline",
+        "name": "Perfil",
+        "redirectTo": "/perfil"
+    },
+    {
+        "icon": "shield-checkmark-outline",
+        "name": "Validar pagos",
+        "redirectTo": "/validar-pagos",
+        "roles": [1, 2]
+    },
+    {
+        "icon": "wallet-outline",
+        "name": "Datos de pago",
+        "redirectTo": "/datos-pago",
+        "roles": [1, 2]
+    },
+    {
+        "icon": "help-circle-outline",
+        "name": "Ayuda",
+        "redirectTo": "/ayuda"
+    },
+    {
+        "icon": "information-circle-outline",
+        "name": "Sobre App",
+        "redirectTo": "/acerca-d"
+    }
+]

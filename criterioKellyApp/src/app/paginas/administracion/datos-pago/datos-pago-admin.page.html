@@ -1,0 +1,118 @@
+<app-encabezado [titulo]="tituloPagina" />
+<ion-content class="ion-padding">
+  <p class="datos-pago__intro">
+    Aquí se administran los datos donde tus usuarios envían su dinero. Los cambios se ven al instante
+    en la pantalla de pago.
+  </p>
+
+  @if (estaCargando() && !haCargado()) {
+  <div class="datos-pago__cargando">
+    <ion-spinner name="dots"></ion-spinner>
+    <span>Cargando los datos de pago…</span>
+  </div>
+  }
+
+  @if (mensajeError(); as mensaje) {
+  <p class="datos-pago__error" role="alert">
+    <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
+    <span>{{ mensaje }}</span>
+  </p>
+  @if (!haCargado()) {
+  <ion-button expand="block" fill="outline" (click)="alReintentarCarga()">Reintentar</ion-button>
+  }
+  }
+
+  @if (estaSinDatos()) {
+  <p class="datos-pago__aviso" role="status">
+    <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
+    <span>
+      Aún no hay datos de pago. Mientras no cargues y actives al menos un método, tus usuarios verán
+      «Este método aún no está disponible».
+    </span>
+  </p>
+  }
+
+  @if (haCargado()) {
+  <app-lista-redes
+    [redes]="listaRedes()"
+    [metodo]="metodoCripto()"
+    [estaGuardando]="estaGuardando()"
+    (nuevaRedSolicitada)="alSolicitarNuevaRed()"
+    (edicionSolicitada)="alSolicitarEditarRed($event)"
+    (eliminacionSolicitada)="alSolicitarEliminarRed($event)"
+    (qrSolicitado)="alSolicitarQr($event)"
+    (estadoRedCambiado)="alCambiarEstadoRed($event)"
+    (estadoMetodoCambiado)="alCambiarEstadoCripto($event)"
+  />
+
+  <app-formulario-paypal
+    [metodo]="metodoPaypal()"
+    [estaGuardando]="estaGuardando()"
+    (paypalEnviado)="alGuardarPaypal($event)"
+    (estadoMetodoCambiado)="alCambiarEstadoPaypal($event)"
+  />
+
+  <app-formulario-banco
+    [metodo]="metodoBanco()"
+    [estaGuardando]="estaGuardando()"
+    (bancoEnviado)="alGuardarBanco($event)"
+    (estadoMetodoCambiado)="alCambiarEstadoBanco($event)"
+  />
+  }
+
+  <ion-modal [isOpen]="estaFormularioRedAbierto()" (didDismiss)="alCerrarFormularioRed()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ redEnEdicion() ? 'Editar red' : 'Agregar red' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="alCerrarFormularioRed()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <app-formulario-red
+          [red]="redEnEdicion()"
+          [estaGuardando]="estaGuardando()"
+          (redEnviada)="alEnviarRed($event)"
+          (cancelado)="alCerrarFormularioRed()"
+        />
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [isOpen]="estaQrAbierto()" (didDismiss)="alCerrarQr()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Código QR</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="alCerrarQr()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        @if (redQrSeleccionada(); as red) {
+        <app-subida-qr
+          [red]="red"
+          [vistaPrevia]="vistaPreviaQr()"
+          [puedeConfirmar]="puedeConfirmarQr()"
+          [estaGuardando]="estaGuardando()"
+          (archivoElegido)="alSeleccionarArchivoQr($event)"
+          (confirmarSolicitado)="alConfirmarSubidaQr()"
+          (descartarSolicitado)="alDescartarVistaPreviaQr()"
+          (quitarSolicitado)="alSolicitarQuitarQr(red)"
+        />
+        }
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>
+<app-alerta-ck
+  [abierta]="confirmacionPendiente() !== null"
+  [titulo]="confirmacionPendiente()?.encabezado ?? ''"
+  [mensaje]="confirmacionPendiente()?.mensaje ?? null"
+  [textoConfirmar]="confirmacionPendiente()?.textoConfirmar"
+  (confirmada)="alConfirmarCambioPendiente()"
+  (cancelada)="alDescartarCambioPendiente()"
+/>

@@ -1,0 +1,83 @@
+<form [formGroup]="formulario" (ngSubmit)="alEnviar()" class="formulario-red">
+  <ion-item>
+    <ion-input
+      label="Clave de la red"
+      labelPlacement="stacked"
+      placeholder="Ej. TRON"
+      formControlName="red_clave"
+      maxlength="16"
+      autocapitalize="characters"
+    ></ion-input>
+  </ion-item>
+  @if (esEdicion()) {
+  <ion-note class="formulario-red__ayuda">La clave no se puede cambiar.</ion-note>
+  } @else if (controles.red_clave.touched && controles.red_clave.invalid) {
+  <ion-note color="danger" class="formulario-red__error">
+    {{ controles.red_clave.errors?.['formato'] ?? 'Escribe la clave de la red' }}
+  </ion-note>
+  }
+
+  <ion-item>
+    <ion-input
+      label="Nombre"
+      labelPlacement="stacked"
+      placeholder="Ej. TRON"
+      formControlName="red_nombre"
+      [maxlength]="maximoNombre"
+    ></ion-input>
+  </ion-item>
+  @if (controles.red_nombre.touched && controles.red_nombre.invalid) {
+  <ion-note color="danger" class="formulario-red__error">Escribe el nombre (hasta 64 caracteres)</ion-note>
+  }
+
+  <ion-item>
+    <ion-input
+      label="Etiqueta"
+      labelPlacement="stacked"
+      placeholder="Ej. TRC20"
+      formControlName="red_etiqueta"
+      [maxlength]="maximoEtiqueta"
+    ></ion-input>
+  </ion-item>
+  @if (controles.red_etiqueta.touched && controles.red_etiqueta.invalid) {
+  <ion-note color="danger" class="formulario-red__error">Escribe la etiqueta (hasta 16 caracteres)</ion-note>
+  }
+
+  <ion-item>
+    <ion-input
+      label="Dirección de la billetera"
+      labelPlacement="stacked"
+      formControlName="red_direccion"
+      maxlength="128"
+    ></ion-input>
+  </ion-item>
+  @if (controles.red_direccion.touched && controles.red_direccion.invalid) {
+  <ion-note color="danger" class="formulario-red__error">
+    {{ controles.red_direccion.errors?.['formato'] ?? 'Escribe la dirección de la billetera' }}
+  </ion-note>
+  }
+
+  <ion-item>
+    <ion-input
+      label="Orden en la lista"
+      labelPlacement="stacked"
+      type="number"
+      min="0"
+      formControlName="red_orden"
+    ></ion-input>
+  </ion-item>
+  @if (controles.red_orden.touched && controles.red_orden.invalid) {
+  <ion-note color="danger" class="formulario-red__error">El orden es un número desde 0</ion-note>
+  }
+
+  <ion-item lines="none">
+    <ion-toggle formControlName="red_activo">Red activa (la ven los usuarios)</ion-toggle>
+  </ion-item>
+
+  <div class="formulario-red__acciones">
+    <ion-button type="submit" expand="block" [disabled]="!puedeEnviar()">
+      {{ esEdicion() ? 'Guardar cambios' : 'Agregar red' }}
+    </ion-button>
+    <ion-button type="button" expand="block" fill="clear" (click)="cancelado.emit()">Cancelar</ion-button>
+  </div>
+</form>

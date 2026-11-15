@@ -1,0 +1,120 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+
+<ion-content>
+  <ion-grid fixed>
+    <h5 class="subtitulo enunciado-negro">ANÁLISIS</h5>
+    <app-seleccionar-cuentas
+      [cuentas]="listaCuentas()"
+      (cuentaElegida)="alElegirCuenta($event)"
+    ></app-seleccionar-cuentas>
+    <app-filtro-fechas
+      [desde]="rangoFechas().desde"
+      [hasta]="rangoFechas().hasta"
+      [fechaMinima]="fechaMinima()"
+      [fechaMaxima]="rangoFechas().hasta"
+      [textoAviso]="avisoRangoPermitido()"
+      (rangoCambiado)="alCambiarRango($event)"
+    />
+    @if (avisoOperaciones(); as textoAvisoOperaciones) {
+      <ion-note class="aviso-operaciones">{{ textoAvisoOperaciones }}</ion-note>
+    }
+    <br />
+    @if(listaOperacionesPorCuentas().length > 0){
+    <ion-accordion-group>
+      <ion-row class="tabla-bitacora">
+        <ion-col size="2" class="ion-text-center"><strong></strong></ion-col>
+        <ion-col size="3.5" class="ion-text-center"
+          ><strong>Divisa</strong></ion-col
+        >
+        <ion-col size="3.5" class="ion-text-center"
+          ><strong>Resultado</strong></ion-col
+        >
+        <ion-col size="3" class="ion-text-center"
+          ><strong>Balance</strong></ion-col
+        >
+      </ion-row>
+      @for (item of listaOperacionesPorCuentas(); track item.id_bitacora) {
+      <ion-accordion
+        [value]="item.id_bitacora"
+        toggleIcon="caret-down-circle"
+        toggleIconSlot="start"
+        class="tabla-bitacora"
+      >
+        <ion-item
+          slot="header"
+          class="accordion-header"
+          (click)="bitacoraOperacionCapturada(item)"
+        >
+          <ion-col size="1" class="ion-text-left"></ion-col>
+          <ion-col size="4" class="ion-text-left">{{item.divisa}}</ion-col>
+          <ion-col size="4" class="ion-text-left">{{item.resultado}}</ion-col>
+          <ion-col size="3" class="balance-col"> $ {{item.balance}}</ion-col>
+        </ion-item>
+        <div class="ion-padding" slot="content">
+          @for (observacion of listaObservacionesPorBitacora(); let i = $index; track $index) { 
+            @if(i > 0) {
+              <hr style="border: 0px; border-top: 1px double" color="primary" />
+            }
+          <ion-row class="tabla-bitacora enunciado-negro">
+            <ion-col class="ion-text-center">
+              {{ observacion.tipo_observa === 'I' ? 'Inicio' :
+              observacion.tipo_observa === 'P' ? 'Proceso' :
+              observacion.tipo_observa === 'L' ? 'Lecciones aprendidas' :
+              observacion.tipo_observa === 'F' ? 'Finalizado' :
+              observacion.tipo_observa }}
+            </ion-col>
+          </ion-row>
+          <ion-row class="tabla-bitacora">
+            <h6 class="enunciado-negro">Observación</h6>
+          </ion-row>
+          <ion-row class="tabla-bitacora">
+            <ion-col class="comentario-justificado">
+              {{ observacion.comentario && observacion.comentario.trim() ?
+              observacion.comentario : 'Observación no registrada' }}
+            </ion-col>
+          </ion-row>
+          <ion-row class="tabla-bitacora">
+            <h6 class="enunciado-negro">Imágen</h6>
+          </ion-row>
+          <ion-row class="tabla-bitacora">
+            @if(observacion.imagen) {
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col size="12" style="text-align: center">
+                  <img
+                    [src]="observacion.imagen"
+                    alt="Vista previa"
+                    class="vista-imagen respuesta-pequena"
+                  />
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            } @else {
+            <ion-col class="ion-text-center">Sin imagen</ion-col>
+            }
+          </ion-row>
+          
+          } 
+        </div>
+      </ion-accordion>
+      }
+    </ion-accordion-group>
+      <ion-button 
+        expand="block" 
+        color="primary" 
+        (click)="exportarAExcel()" 
+        style="margin-top: 16px;"
+        [disabled]="listaOperacionesPorCuentas().length === 0">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Descargar Bitácora en Excel
+      </ion-button>
+    }
+  </ion-grid>
+  <app-alerta-limite-plan
+    [abierta]="mostrarModal()"
+    [mensaje]="textoFuncionNoIncluida"
+    (cerrado)="cerrarModal()"
+    (verPlanes)="alVerPlanes()"
+  />
+
+</ion-content>

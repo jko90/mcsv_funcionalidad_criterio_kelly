@@ -1,0 +1,17 @@
+{
+    "name": "criterio-kelly/rest-divisas",
+    "description": "Servicio REST rest_divisas de Criterio Kelly",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "config": {
+        "platform": { "php": "8.2.0" },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

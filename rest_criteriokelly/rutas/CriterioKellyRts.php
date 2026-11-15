@@ -40,20 +40,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 function manejarGet($controller, $action)
 {
-    if (!$action) {
-        // Health check del servicio
-        $healthData = [
-            'status' => 'ok',
-            'timestamp' => date('Y-m-d H:i:s'),
-            'version' => '1.0.0',
-            'service' => 'CriterioKellyRTs'
-        ];
-
-        http_response_code(200);
-        echo json_encode($healthData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        return;
-    }
-
     // Aquí puedes agregar más acciones GET según sea necesario
     http_response_code(404);
     echo json_encode(['error' => 'Acción no encontrada'], JSON_UNESCAPED_UNICODE);
@@ -70,13 +56,7 @@ function manejarPost($controller, $action)
 
     $rawInput = file_get_contents("php://input");
 
-    if (empty($rawInput)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Datos requeridos'], JSON_UNESCAPED_UNICODE);
-        return;
-    }
-
-    $data = json_decode($rawInput, true);
+    $data = $rawInput === '' ? [] : json_decode($rawInput, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
         http_response_code(400);
@@ -84,9 +64,14 @@ function manejarPost($controller, $action)
         return;
     }
 
-    if (empty($data)) {
+    if ($data === null && $rawInput !== '') {
         http_response_code(400);
-        echo json_encode(['error' => 'Los datos no pueden estar vacíos'], JSON_UNESCAPED_UNICODE);
+        echo json_encode(['error' => 'JSON inválido'], JSON_UNESCAPED_UNICODE);
+        return;
+    }
+    if (!is_array($data)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Los datos deben ser un objeto JSON'], JSON_UNESCAPED_UNICODE);
         return;
     }
 

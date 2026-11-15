@@ -1,0 +1,393 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+
+<ion-content>
+  <ion-grid fixed>
+    <ng-container>
+      <h5 class="subtitulo enunciado-negro">INGRESAR</h5>
+      <ion-col style="text-align: center">
+        <ion-item>
+          <ion-select
+            label="CUENTA"
+            (ionChange)="seleccionrCuenta($event)"
+            interface="action-sheet"
+            placeholder="Seleccionar"
+          >
+            @for(cuenta of listaObjCuentas(); track cuenta.cue_idCuentas) {
+            <ion-select-option [value]="cuenta" class="respuesta-pequena">
+              {{ cuenta.cue_nombre }}
+            </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        @if(cuentaSeleccionada && cuentaSeleccionada.cue_idCuentas &&
+        cuentaSeleccionada.cue_idCuentas !== 0) {
+        <ion-item>
+          <ion-grid class="ion-no-padding">
+            <ion-row>
+              <ion-col size="12">
+                <ion-segment
+                  value="forex"
+                  class="segment-wrap"
+                  (ionChange)="cambioSegmento($event)"
+                >
+                  <ion-segment-button value="forex">
+                    <ion-label class="ionLabel enunciado-negro"
+                      >FOREX</ion-label
+                    >
+                  </ion-segment-button>
+                  <ion-segment-button value="indices">
+                    <ion-label class="ionLabel enunciado-negro"
+                      >INDICES</ion-label
+                    >
+                  </ion-segment-button>
+                  <ion-segment-button value="sinteticos">
+                    <ion-label class="ionLabel enunciado-negro"
+                      >SINTÉTICOS</ion-label
+                    >
+                  </ion-segment-button>
+                </ion-segment>
+              </ion-col>
+            </ion-row>
+            <ion-item [button]="true" [detail]="false" id="seleccionarDivisa">
+              <ion-label class="enunciado-negro">DIVISA</ion-label>
+              <div slot="end" class="respuesta-pequena">
+                {{ divisaSeleccionado }}
+              </div>
+            </ion-item>
+          </ion-grid>
+        </ion-item>
+        @if(divisaSeleccionado !== 'seleccionar') {
+        <form [formGroup]="bitacoraForm">
+          <ion-item>
+            <ion-select
+              interface="action-sheet"
+              (ionChange)="seleccionaTipoOperacion($event)"
+              placeholder="Seleccionar"
+              label="TIPO DE OPERACIÓN"
+              class="ionLabel enunciado-negro respuesta-pequena"
+            >
+              <ion-select-option value="COMPRA" class="respuesta-pequena"
+                >COMPRA</ion-select-option
+              >
+              <ion-select-option value="VENTA" class="respuesta-pequena"
+                >VENTA</ion-select-option
+              >
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-input
+              label="PRECIO DE ENTRADA"
+              label-placement="stacked"
+              type="number"
+              placeholder="000.00"
+              class="ionLabel enunciado-negro respuesta-pequena"
+              formControlName="precioEntrada"
+            ></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input
+              label="PRECIO DE STOPLOST"
+              label-placement="stacked"
+              type="number"
+              placeholder="000.00"
+              class="ionLabel enunciado-negro respuesta-pequena"
+              formControlName="precioStopLost"
+            ></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input
+              label="PRECIO DE TAKEPROFIT"
+              label-placement="stacked"
+              type="number"
+              placeholder="000.00"
+              class="ionLabel enunciado-negro respuesta-pequena"
+              formControlName="precioTakeProfit"
+            ></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-textarea
+              label="DESCRIPCIÓN"
+              label-placement="stacked"
+              placeholder="Escriba una descripción"
+              class="ionLabel enunciado-negro respuesta-pequena"
+              formControlName="descripcion"
+            ></ion-textarea>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked" class="ionLabel enunciado-negro"
+              >IMAGEN</ion-label
+            >
+            <ion-input
+              label=""
+              label-placement="stacked"
+              placeholder="Inserte la URL de la imagen"
+              fill="outline"
+              class="ionLabel respuesta-pequena"
+              formControlName="urlImagen"
+            ></ion-input>
+            <ion-button
+              fill="outline"
+              color="medium"
+              (click)="fileInput.click()"
+              class="respuesta-pequena"
+            >
+              <ion-icon name="image-outline" slot="start"></ion-icon>Seleccionar
+              una imagen
+            </ion-button>
+            <input
+              #fileInput
+              type="file"
+              accept="image/*"
+              style="display: none"
+              (change)="seleccionarImagen($event)"
+            />
+          </ion-item>
+          <ion-item *ngIf="imagePreview">
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col size="12" style="text-align: center">
+                  <img
+                    [src]="imagePreview"
+                    alt="Vista previa"
+                    class="vista-imagen respuesta-pequena"
+                  />
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="8">
+                  <ion-label class="ionLabel respuesta-pequena"
+                    >{{selectedImage?.name}}</ion-label
+                  >
+                </ion-col>
+                <ion-col size="4" style="text-align: right">
+                  <ion-button
+                    fill="clear"
+                    color="danger"
+                    (click)="eliminarImagen()"
+                    class="respuesta-pequena"
+                  >
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+          <ion-button
+            expand="block"
+            class="ion-margin-top"
+            (click)="guardarBitacora()"
+          >
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            Guardar
+          </ion-button>
+        </form>
+        }
+        <ion-modal trigger="seleccionarDivisa" #modal>
+          <ng-template>
+            <app-modal-busca-divisa
+              class="ion-page"
+              titulo="Buscar divisa"
+              [listaObjeto]="listaObjDivisas"
+              (divisaElegida)="cambiarSeleccionDivisa($event)"
+              (cerrar)="modal.dismiss()"
+            ></app-modal-busca-divisa>
+          </ng-template>
+        </ion-modal>
+        }
+      </ion-col>
+    </ng-container>
+
+    <ion-grid class="tabla-bitacora">
+      <ion-row>
+        <ion-col size="4" class="ion-text-center"
+          ><strong>Divisa</strong></ion-col
+        >
+        <ion-col size="4" class="ion-text-center"
+          ><strong>Precios</strong></ion-col
+        >
+        <ion-col size="4" class="ion-text-center"
+          ><strong>Acción</strong></ion-col
+        >
+      </ion-row>
+      @for (item of nuevaListaObjBitacora(); track item.bit_idbitacora) {
+      <ion-row
+        [ngClass]="{
+              'row-compra': item.bit_tipoOperaci === 'COMPRA',
+              'row-venta': item.bit_tipoOperaci === 'VENTA'
+            }"
+      >
+        <ion-col size="4" class="ion-text-left">
+          {{ item.bit_divisa }} ({{ item.bit_tipoOperaci }})
+        </ion-col>
+        <ion-col size="4" class="ion-text-left">
+          <div>E: {{ item.bit_precioEntra }}</div>
+          <div>SL: {{ item.bit_precioSL }}</div>
+          <div>TP: {{ item.bit_precioTP }}</div>
+        </ion-col>
+        <ion-col
+          size="4"
+          class="ion-text-center accion-col"
+          [style.opacity]="habilitaEdicion() ? '1' : '0.5'"
+          [style.pointer-events]="habilitaEdicion() ? 'auto' : 'none'"
+        >
+          <ion-button fill="clear" (click)="editarPrecios(item)">
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+
+          <ion-button
+            fill="clear"
+            color="danger"
+            size="small"
+            (click)="solicitarEliminarRegistro(item.bit_idbitacora)"
+          >
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      }
+    </ion-grid>
+
+    <app-alerta-ck
+      [abierta]="idRegistroAEliminar() !== null"
+      [titulo]="alertaEliminar.titulo"
+      [mensaje]="alertaEliminar.mensaje"
+      [textoConfirmar]="alertaEliminar.textoConfirmar"
+      tipo="destructiva"
+      (confirmada)="confirmarEliminarRegistro()"
+      (cancelada)="cancelarEliminarRegistro()"
+    />
+
+    <ion-modal
+      [isOpen]="modalPreciosAbierto()"
+      (didDismiss)="modalPreciosAbierto.set(false)"
+    >
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Editar Precios</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="modalPreciosAbierto.set(false)">
+                <ion-icon name="close"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <form [formGroup]="bitacoraForm">
+            <ion-item>
+              <ion-input
+                label="PRECIO DE ENTRADA"
+                label-placement="stacked"
+                type="number"
+                placeholder="000.00"
+                class="ionLabel enunciado-negro respuesta-pequena"
+                formControlName="precioEntrada"
+              >
+              </ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                label="PRECIO DE STOPLOST"
+                label-placement="stacked"
+                type="number"
+                placeholder="000.00"
+                class="ionLabel enunciado-negro respuesta-pequena"
+                formControlName="precioStopLost"
+              >
+              </ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                label="PRECIO DE TAKEPROFIT"
+                label-placement="stacked"
+                type="number"
+                placeholder="000.00"
+                class="ionLabel enunciado-negro respuesta-pequena"
+                formControlName="precioTakeProfit"
+              >
+              </ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-textarea
+                label="DESCRIPCIÓN"
+                label-placement="stacked"
+                placeholder="Escriba una descripción"
+                class="ionLabel enunciado-negro respuesta-pequena"
+                formControlName="descripcion"
+              >
+              </ion-textarea>
+            </ion-item>
+            <ion-item>
+              <ion-label position="stacked" class="ionLabel enunciado-negro"
+                >GRÁFICA DE TRADING</ion-label
+              >
+              <ion-input
+                formControlName="urlImagen"
+                label=""
+                label-placement="stacked"
+                placeholder="Inserte la URL de la imagen"
+                fill="outline"
+                class="ionLabel respuesta-pequena"
+              >
+              </ion-input>
+              <ion-button
+                fill="outline"
+                color="medium"
+                (click)="fileInput.click()"
+                class="respuesta-pequena"
+              >
+                <ion-icon name="image-outline" slot="start"></ion-icon
+                >Seleccionar una imagen
+              </ion-button>
+              <input
+                #fileInput
+                type="file"
+                accept="image/*"
+                style="display: none"
+                (change)="seleccionarImagen($event)"
+              />
+            </ion-item>
+            <ng-container *ngIf="imagePreview">
+              <ion-grid class="ion-no-padding">
+                <ion-row>
+                  <ion-col size="12" style="text-align: center">
+                    <img
+                      [src]="imagePreview"
+                      alt="Vista previa"
+                      class="vista-imagen respuesta-pequena"
+                    />
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="8">
+                    <ion-label class="ionLabel respuesta-pequena"
+                      >{{selectedImage?.name}}</ion-label
+                    >
+                  </ion-col>
+                  <ion-col size="4" style="text-align: right">
+                    <ion-button
+                      fill="clear"
+                      color="danger"
+                      (click)="eliminarImagen()"
+                      class="respuesta-pequena"
+                    >
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </ion-button>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ng-container>
+            <ion-button
+              expand="block"
+              class="ion-margin-top"
+              (click)="ActualizarPreciosGuardado()"
+            >
+              <ion-icon name="save-outline" slot="start"></ion-icon>
+              Guardar
+            </ion-button>
+          </form>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  </ion-grid>
+</ion-content>

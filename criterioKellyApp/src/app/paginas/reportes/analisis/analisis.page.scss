@@ -1,0 +1,98 @@
+.subtitulo {
+  text-align: center;
+  margin-bottom: 0%;
+  margin-top: 0%;
+}
+
+.enunciado-negro {
+  color: var(--ion-text-color, #000) !important;
+  font-weight: bold !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: #fff !important;
+  }
+  @media (prefers-color-scheme: light) {
+    color: #000 !important;
+  }
+  :global(.dark) & {
+    color: #fff !important;
+  }
+}
+
+
+
+.tabla-bitacora ion-row,
+.tabla-bitacora .accordion-header {
+  display: flex;
+  align-items: center;
+}
+
+.tabla-bitacora ion-col {
+  padding: 8px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabla-bitacora .accordion-header ion-col {
+  justify-content: flex-start;
+}
+
+
+
+.accordion-header {
+  --padding-start: 10px;
+  --inner-padding-end: 0px;
+  color: var(--ion-color-dark);
+
+  @media (prefers-color-scheme: dark) {
+    color: #ffffff !important; 
+  }
+}
+
+
+ion-accordion {
+  margin: 0 auto;
+}
+
+ion-accordion.accordion-expanding,
+ion-accordion.accordion-expanded {
+  width: calc(100% - 15px);
+  margin: 16px auto;
+}
+
+ion-accordion.accordion-collapsing ion-item[slot="header"],
+ion-accordion.accordion-collapsed ion-item[slot="header"] {
+  --background: var(--ion-color-light-analisis);
+  --color: var(--ion-color-light-contrast);
+  
+  @media (prefers-color-scheme: dark) {
+    --background: var(--ion-color-light-analisis);
+    --color: var(--ion-color-medium-contrast);
+  }
+}
+
+ion-accordion.accordion-expanding ion-item[slot="header"],
+ion-accordion.accordion-expanded ion-item[slot="header"] {
+  --background: var(--ion-color-primary-analisis);
+  --color: var(--ion-color-primary-contrast);
+  
+  @media (prefers-color-scheme: dark) {
+    --background: var(--ion-color-primary-analisis);
+    --color: var(--ion-color-primary-contrast);
+  }
+}
+
+
+.balance-col {
+  justify-content: flex-end !important;
+  display: flex !important;
+  align-items: center;
+  text-align: right;
+  width: 90%;
+  padding-right: 5% !important;
+}
+
+.comentario-justificado {
+  text-align: justify;
+}

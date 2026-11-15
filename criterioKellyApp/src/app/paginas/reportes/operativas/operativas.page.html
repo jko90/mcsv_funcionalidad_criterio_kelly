@@ -1,0 +1,70 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+
+<ion-content>
+    <ion-grid fixed>
+    <h5 class="subtitulo enunciado-negro">SEGUIMIENTO</h5>
+    @if (avisoDiasReporte(); as textoAviso) {
+      <ion-item lines="none" color="light" class="aviso-plan">
+        <ion-icon name="information-circle-outline" slot="start" color="primary"></ion-icon>
+        <ion-label class="ion-text-wrap">{{ textoAviso }}</ion-label>
+        <ion-button fill="clear" size="small" slot="end" (click)="irAPlanes()">Ver planes</ion-button>
+      </ion-item>
+    }
+    <app-seleccionar-cuentas [cuentas]="listaCuentas()" (cuentaElegida)="alElegirCuenta($event)"></app-seleccionar-cuentas>
+
+    <ion-grid class="tabla-bitacora">
+      <ion-row>
+        <ion-col size="2" class="ion-text-center"><strong>Ord.</strong></ion-col>
+        <ion-col size="3.5" class="ion-text-center"><strong>Divisa</strong></ion-col>
+        <ion-col size="3.5" class="ion-text-center"><strong>Resultado</strong></ion-col>
+        <ion-col size="3" class="ion-text-center"><strong>Balance</strong></ion-col>
+      </ion-row>
+      @for (item of listaDOPorCuentas(); let i = $index; track item.fecha_fin) {
+        <ion-row
+          [ngClass]="{
+            'row-compra': item.resultado === 'GANADOR',
+            'row-venta': item.resultado === 'PERDEDOR'
+          }"
+        >
+          <ion-col size="2" class="ion-text-center respuesta-pequena">
+            {{ i + 1 }}
+          </ion-col>
+          <ion-col size="3.5" class="ion-text-left respuesta-pequena">
+            {{ item.divisa }} ({{ item.tipo_operacion }})
+          </ion-col>
+          <ion-col size="3.5" class="ion-text-left respuesta-pequena">
+            <div>{{ item.resultado }}</div>
+          </ion-col>
+          <ion-col size="3" class="ion-text-center respuesta-pequena">
+            {{ item.balance }}
+          </ion-col>
+        </ion-row>
+      }
+      @if(listaDOPorCuentas().length !== 0) {
+        <ion-button expand="block" color="primary" (click)="exportarAPDF()" style="margin-top: 16px;">
+          Descargar operaciones en PDF
+        </ion-button>
+      }
+    </ion-grid>
+    <br />
+    <hr style="border: 0px; border-top: 1px double" color="primary" />
+    <ion-grid fixed>
+      @if(listaDOPorCuentas().length !== 0) {
+        <ion-button expand="block" (click)="graficarOperacion()">Graficar operaciones</ion-button>
+      }
+      @if (habilitarGrafica()) {
+        <ion-card-header>
+          <ion-card-title>Gráfica de Operaciones</ion-card-title>
+        </ion-card-header>
+        <app-grafico-estadistico [datos]="listaDOPorCuentas()" [cuentaSeleccionada]="cuentaSeleccionada"></app-grafico-estadistico>
+      }
+    </ion-grid>
+
+  <app-alerta-limite-plan
+    [abierta]="mostrarModalPlan()"
+    [mensaje]="textoFuncionNoIncluida"
+    (cerrado)="cerrarModalPlan()"
+    (verPlanes)="alVerPlanes()"
+  />
+  </ion-grid>
+</ion-content>

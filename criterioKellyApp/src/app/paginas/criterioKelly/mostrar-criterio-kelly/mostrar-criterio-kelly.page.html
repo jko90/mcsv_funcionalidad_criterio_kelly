@@ -1,0 +1,163 @@
+<app-encabezado></app-encabezado>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refrescarPagina($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  <ion-grid fixed class="contenedor">
+    <h5 class="subtitulo enunciado-negro">RESULTADOS</h5>
+    <ion-item>
+      <ion-select
+        label="CUENTA"
+        (ionChange)="seleccionarCuenta($event)"
+        interface="action-sheet"
+        placeholder="Seleccionar"
+      >
+        @for(cuenta of listaObjCuentas(); track cuenta.cue_idCuentas) {
+        <ion-select-option [value]="cuenta" class="respuesta-pequena">
+          {{ cuenta.cue_nombre }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    <br />
+    @if(objCriterioKelly()) {
+    <h5 class="subtitulo enunciado-negro">MONTO</h5>
+    <ion-grid class="tabla-bitacora">
+      <ion-row class="centrado">
+        <ion-col size="6" size-sm="6" size-xs="6" class="ion-text-center"
+          ><strong>INICIAL</strong></ion-col
+        >
+        <ion-col size="6" size-sm="6" size-xs="6" class="ion-text-center"
+          ><strong>ACTUAL</strong></ion-col
+        >
+      </ion-row>
+      <ion-row class="centrado">
+        <ion-col size="6" size-sm="6" size-xs="6" class="ion-text-center"
+          ><strong>{{objCuentas()?.valor_cuenta}}</strong></ion-col
+        >
+        <ion-col size="6" size-sm="6" size-xs="6" class="ion-text-center"
+          ><strong>
+            {{ objResultadoFiltrado()?.ren_montoTotal }}</strong
+          ></ion-col
+        >
+      </ion-row>
+    </ion-grid>
+    }
+  </ion-grid>
+  @if(objCriterioKelly()) {
+  <hr style="border: 0px; border-top: 1px double" color="primary" />
+
+  <h5 class="subtitulo enunciado-negro">CALCULO PORCENTAJE</h5>
+  <ion-grid class="tabla-bitacora">
+    <ion-row class="centrado">
+      <ion-col size="7" class="enunciado-negro respuesta-pequena">
+        Porcentaje diario a emplear
+      </ion-col>
+      <ion-col size="5" class="ion-text-center">
+        {{ objCriterioKelly()?.cke_x100Operativo }} %
+      </ion-col>
+    </ion-row>
+    <ion-row class="centrado">
+      <ion-col size="7" class="enunciado-negro respuesta-pequena">
+        Operaciones diarias
+      </ion-col>
+      <ion-col
+        size="5"
+        class="ion-text-center"
+        [style.opacity]="habilitaEdicion() ? '1' : '0.5'"
+        [style.pointer-events]="habilitaEdicion() ? 'auto' : 'none'"
+      >
+        <ion-input
+          type="number"
+          min="1"
+          [max]="maximoOperacionesDiarias() ?? undefined"
+          [formControl]="numOperativasControl"
+          class="enunciado-negro"
+        ></ion-input>
+        @if (avisoOperacionesDiarias(); as textoAviso) {
+          <ion-note class="respuesta-pequena">{{ textoAviso }}</ion-note>
+        }
+      </ion-col>
+    </ion-row>
+    @if ((numOperativas() ?? 0) > 0) {
+    <ion-row class="centrado">
+      <ion-col size="7" class="enunciado-negro respuesta-pequena">
+        Porcentaje por operativa
+      </ion-col>
+      <ion-col
+        size="5"
+        class="enunciado-negro respuesta-pequena ion-text-center"
+      >
+        <b>{{ porcentajeOperativo().toFixed(2) }} %</b>
+      </ion-col>
+    </ion-row>
+    <ion-row class="centrado">
+      <ion-col size="7" class="enunciado-negro respuesta-pequena">
+        Monto por operativa
+      </ion-col>
+      <ion-col
+        size="5"
+        class="enunciado-negro respuesta-pequena ion-text-center"
+      >
+        <b>$ {{ montoPorOperativa().toFixed(2) }}</b>
+      </ion-col>
+    </ion-row>
+    }
+  </ion-grid>
+  <hr style="border: 0px; border-top: 1px double" color="primary" />
+  <h5 class="subtitulo enunciado-negro">RESUMEN OPERATIVAS</h5>
+  <ion-grid class="tabla-bitacora">
+    <ion-row class="centrado">
+      <ion-col size="4" size-sm="4" size-xs="4" class="ion-text-center"
+        ><strong>/</strong></ion-col
+      >
+      <ion-col size="2" size-sm="2" size-xs="2" class="ion-text-center"
+        ><strong>#</strong></ion-col
+      >
+      <ion-col size="3" size-sm="3" size-xs="3" class="ion-text-center"
+        ><strong>%</strong></ion-col
+      >
+      <ion-col size="3" size-sm="3" size-xs="3" class="ion-text-center"
+        ><strong>Promedio</strong></ion-col
+      >
+    </ion-row>
+    @for(fila of datosTablaResultados(); track fila.tipo) {
+    <ion-row class="centrado">
+      <ion-col
+        class="izquierda enunciado-negro respuesta-pequena"
+        size="4"
+        size-sm="4"
+        size-xs="4"
+      >
+        {{ fila.etiqueta }}
+      </ion-col>
+      <ion-col
+        class="respuesta-pequena ion-text-center"
+        size="2"
+        size-sm="2"
+        size-xs="2"
+      >
+        {{ fila.operaciones }}
+      </ion-col>
+      <ion-col
+        class="respuesta-pequena ion-text-center"
+        size="3"
+        size-sm="3"
+        size-xs="3"
+      >
+        {{ fila.porcentaje }}
+      </ion-col>
+      <ion-col
+        class="respuesta-pequena ion-text-center"
+        size="3"
+        size-sm="3"
+        size-xs="3"
+      >
+        {{ fila.promedio }}
+      </ion-col>
+    </ion-row>
+    }
+  </ion-grid>
+  }
+</ion-content>

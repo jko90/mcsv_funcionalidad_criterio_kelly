@@ -1,0 +1,17 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+<ion-content>
+  <ion-card>
+    <ion-card-header><ion-card-title>Activar cuenta</ion-card-title></ion-card-header>
+    <ion-card-content>
+      <app-formulario-verificar-correo
+        [correo]="correo()"
+        [estaCargando]="estaCargando()"
+        [segundosRestantes]="segundosRestantes()"
+        [mensajeReenvio]="mensajeReenvio()"
+        (activacionEnviada)="alActivar($event)"
+        (reenvioSolicitado)="alReenviar($event)"
+        (volverAlLogin)="alVolverAlLogin()"
+      />
+    </ion-card-content>
+  </ion-card>
+</ion-content>

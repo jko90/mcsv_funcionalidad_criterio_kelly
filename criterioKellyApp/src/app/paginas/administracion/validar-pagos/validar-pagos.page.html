@@ -1,0 +1,55 @@
+<app-encabezado [titulo]="tituloPagina" />
+<ion-content>
+  <app-lista-pagos-pendientes
+    [pagos]="listaPagos()"
+    [hayMas]="hayMasPagos()"
+    [estaCargando]="estaCargando()"
+    (pagoSeleccionado)="alSeleccionarPago($event)"
+    (cargarMasSolicitado)="alCargarMas()"
+  />
+
+  <ion-modal [isOpen]="pagoSeleccionado() !== null" (didDismiss)="alCerrarDetalle()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Detalle del pago</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="alCerrarDetalle()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        @if (pagoSeleccionado(); as pago) {
+        <app-detalle-pago
+          [pago]="pago"
+          [comprobante]="comprobante()"
+          [cargandoComprobante]="estaCargandoComprobante()"
+          [procesando]="estaProcesando()"
+          (aprobarSolicitado)="alSolicitarAprobar(pago)"
+          (rechazarSolicitado)="alSolicitarRechazar(pago)"
+        />
+        }
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>
+<app-alerta-ck
+  [abierta]="pagoPorAprobar() !== null"
+  [titulo]="alertaAprobarPago.titulo"
+  [mensaje]="mensajeAprobarPago()"
+  [textoConfirmar]="alertaAprobarPago.textoConfirmar"
+  (confirmada)="alConfirmarAprobar()"
+  (cancelada)="alDescartarAprobar()"
+/>
+<app-alerta-ck
+  [abierta]="pagoPorRechazar() !== null"
+  [titulo]="alertaRechazarPago.titulo"
+  [mensaje]="alertaRechazarPago.mensaje"
+  [textoConfirmar]="alertaRechazarPago.textoConfirmar"
+  [textoCancelar]="textoCancelarLargo"
+  tipo="destructiva"
+  [campos]="camposRechazo()"
+  [validador]="validarMotivoRechazo"
+  (confirmada)="alConfirmarRechazo($event)"
+  (cancelada)="alDescartarRechazo()"
+/>

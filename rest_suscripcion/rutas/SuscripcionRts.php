@@ -1,77 +1,52 @@
 <?php
 
-require_once(__DIR__ . '/../controladores/SuscripcionCtrl.php');
+declare(strict_types=1);
 
-// Los headers CORS ya están configurados centralmente
+require_once __DIR__ . '/../controladores/SuscripcionCtrl.php';
+
 if (!headers_sent()) {
     header('Content-Type: application/json; charset=utf-8');
 }
 
 $suscripcionCtrl = new SuscripcionCtrl();
-
-// Parsear URI para obtener acción
 $requestUri = $_SERVER['REQUEST_URI'];
 $uriParts = explode('/', trim(parse_url($requestUri, PHP_URL_PATH), '/'));
 $action = null;
+$actionParam = null;
 
-// Buscar posición de 'suscripcion' y obtener siguiente parte
 for ($i = 0; $i < count($uriParts); $i++) {
     if ($uriParts[$i] === 'suscripcion' && isset($uriParts[$i + 1])) {
         $action = $uriParts[$i + 1];
+        $actionParam = $uriParts[$i + 2] ?? null;
         break;
     }
 }
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        manejarGet($suscripcionCtrl, $action);
+        manejarGet($suscripcionCtrl, $action, $actionParam);
         break;
     case 'POST':
-        manejarPost($suscripcionCtrl, $action);
+        manejarPost($suscripcionCtrl, $action, $actionParam);
         break;
     default:
         http_response_code(405);
         echo json_encode([
             'error' => 'Método no permitido',
-            'metodos_permitidos' => ['GET', 'POST']
+            'metodos_permitidos' => ['GET', 'POST'],
         ], JSON_UNESCAPED_UNICODE);
         break;
 }
 
-
-function manejarGet($controller, $action)
+function manejarGet(SuscripcionCtrl $controller, ?string $action, ?string $actionParam): void
 {
-    if (!$action) {
-        // Health check del servicio
-        $healthData = [
-            'status' => 'ok',
-            'timestamp' => date('Y-m-d H:i:s'),
-            'version' => '1.0.0',
-            'service' => 'Suscripciones'
-        ];
-
-        http_response_code(200);
-        echo json_encode($healthData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        return;
-    }
-
     switch ($action) {
         case 'porUsuario':
-            $id = $_GET['id'] ?? null;
-            if (!$id) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Parámetro ID requerido'], JSON_UNESCAPED_UNICODE);
-                return;
-            }
-            if (!is_numeric($id) || (int)$id <= 0) {
-                http_response_code(400);
-                echo json_encode(['error' => 'ID debe ser un número entero positivo'], JSON_UNESCAPED_UNICODE);
-                return;
-            }
-            $controller->obtenerSuscripcionesPorUsuario($id);
-
+            $controller->obtenerSuscripcionesPorUsuario($_GET['id'] ?? null, $actionParam);
             break;
-
+        case 'planVigente':
+            $controller->obtenerPlanVigente($_GET['id'] ?? null, $actionParam);
+            break;
         default:
             http_response_code(400);
             echo json_encode(['error' => 'Acción no válida para método GET'], JSON_UNESCAPED_UNICODE);
@@ -79,31 +54,36 @@ function manejarGet($controller, $action)
     }
 }
 
-function manejarPost($controller, $action)
+function manejarPost(SuscripcionCtrl $controller, ?string $action, ?string $actionParam = null): void
 {
-    if (!$action) {
+    if ($action === null || $action === '') {
         http_response_code(400);
         echo json_encode(['error' => 'Acción requerida'], JSON_UNESCAPED_UNICODE);
         return;
     }
 
-    $rawInput = file_get_contents("php://input");
-
-    if (empty($rawInput)) {
+    $rawInput = file_get_contents('php://input');
+    if ($action === 'iniciarPrueba') {
+        manejarIniciarPrueba($controller, $rawInput);
+        return;
+    }
+    if ($action === 'cancelar') {
+        manejarCancelar($controller, $rawInput, $actionParam);
+        return;
+    }
+    if ($rawInput === false || trim($rawInput) === '') {
         http_response_code(400);
         echo json_encode(['error' => 'Datos requeridos'], JSON_UNESCAPED_UNICODE);
         return;
     }
 
-    $data = json_decode($rawInput, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
+    $datos = json_decode($rawInput, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($datos)) {
         http_response_code(400);
         echo json_encode(['error' => 'JSON inválido'], JSON_UNESCAPED_UNICODE);
         return;
     }
-
-    if (empty($data)) {
+    if ($datos === []) {
         http_response_code(400);
         echo json_encode(['error' => 'Los datos no pueden estar vacíos'], JSON_UNESCAPED_UNICODE);
         return;
@@ -111,17 +91,44 @@ function manejarPost($controller, $action)
 
     switch ($action) {
         case 'crearSinPago':
-            $controller->insertarSuscripcionSinPago($data);
+            $controller->insertarSuscripcionSinPago($datos);
             break;
         case 'crearConPago':
-            echo "Datos recibidos para crear suscripción con pago: " . json_encode($data, JSON_UNESCAPED_UNICODE) . "\n";
-            $controller->insertarSuscripcionConPago($data);
+            $controller->insertarSuscripcionConPago($datos);
             break;
         default:
             http_response_code(400);
-            echo json_encode([
-                'error' => 'Acción no válida para método POST'
-            ], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['error' => 'Acción no válida para método POST'], JSON_UNESCAPED_UNICODE);
             break;
     }
+}
+
+/** La concesión de la prueba acepta cuerpo vacío o {}; cualquier otra clave se rechaza en el controlador. */
+function manejarIniciarPrueba(SuscripcionCtrl $controller, string|false $rawInput): void
+{
+    $datos = [];
+    if ($rawInput !== false && trim($rawInput) !== '') {
+        $datos = json_decode($rawInput, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($datos)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'JSON inválido'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+    }
+    $controller->iniciarPrueba($datos);
+}
+
+/** La cancelación acepta cuerpo vacío o {}; el controlador rechaza cualquier clave no permitida. */
+function manejarCancelar(SuscripcionCtrl $controller, string|false $rawInput, ?string $actionParam): void
+{
+    $datos = [];
+    if ($rawInput !== false && trim($rawInput) !== '') {
+        $datos = json_decode($rawInput, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($datos)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'JSON inválido'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+    }
+    $controller->cancelarPlan($datos, $_GET['id'] ?? null, $actionParam);
 }

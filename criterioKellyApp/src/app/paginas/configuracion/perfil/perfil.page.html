@@ -1,0 +1,104 @@
+<app-encabezado [titulo]="titulo"></app-encabezado>
+
+<ion-content>
+  <ion-grid fixed>
+    <h5 class="subtitulo enunciado-negro">Información</h5>
+
+    <ion-card>
+      <form [formGroup]="perfilForm" (ngSubmit)="actualizarPerfil()">
+        <ion-item>
+          <ion-label position="stacked">Nombres *</ion-label>
+          <ion-input
+            formControlName="per_nombres"
+            placeholder="Ingrese sus nombres"
+            [class.ion-invalid]="esCampoInvalido(perfilForm, 'per_nombres')"
+          >
+          </ion-input>
+          <ion-note
+            slot="error"
+            *ngIf="esCampoInvalido(perfilForm, 'per_nombres')"
+          >
+            Los nombres son requeridos (mínimo 2 caracteres)
+          </ion-note>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Apellidos *</ion-label>
+          <ion-input
+            formControlName="per_apellidos"
+            placeholder="Ingrese sus apellidos"
+            [class.ion-invalid]="esCampoInvalido(perfilForm, 'per_apellidos')"
+          >
+          </ion-input>
+          <ion-note
+            slot="error"
+            *ngIf="esCampoInvalido(perfilForm, 'per_apellidos')"
+          >
+            Los apellidos son requeridos (mínimo 2 caracteres)
+          </ion-note>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Teléfono *</ion-label>
+          <ion-input
+            formControlName="per_telefono"
+            placeholder="0987654321"
+            type="tel"
+            [class.ion-invalid]="esCampoInvalido(perfilForm, 'per_telefono')"
+          >
+          </ion-input>
+          <ion-note
+            slot="error"
+            *ngIf="esCampoInvalido(perfilForm, 'per_telefono')"
+          >
+            Ingrese un teléfono válido (10 dígitos)
+          </ion-note>
+        </ion-item>
+
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="perfilForm.invalid || cargandoActualizacion()"
+        >
+          <ion-spinner
+            *ngIf="cargandoActualizacion()"
+            name="dots"
+          ></ion-spinner>
+          {{ cargandoActualizacion() ? 'Actualizando...' : 'Actualizar Perfil'
+          }}
+        </ion-button>
+      </form>
+    </ion-card>
+
+    <br />
+    <h5 class="subtitulo enunciado-negro">Cambiar contraseña</h5>
+    <ion-card>
+      <app-formulario-cambio-clave
+        [estaCargando]="cargandoCambioContrasena()"
+        [reinicioSolicitado]="reinicioFormularioClave()"
+        (cambioClaveEnviado)="alCambiarClave($event)"
+      />
+    </ion-card>
+
+    <br />
+    <h5 class="subtitulo enunciado-negro">Cambiar PIN</h5>
+    <ion-card>
+      <ion-button expand="block" (click)="irACambiarPin()"
+        >Cambiar PIN</ion-button
+      >
+    </ion-card>
+    <h5 class="subtitulo enunciado-negro">Sesiones</h5>
+    <ion-card>
+      <ion-button color="danger" expand="block" (click)="alSolicitarCerrarSesiones()">
+        Cerrar sesión en todos los dispositivos
+      </ion-button>
+    </ion-card>
+  </ion-grid>
+</ion-content>
+<app-alerta-ck
+  [abierta]="cerrarSesionesPendiente()"
+  [titulo]="alertaCerrarSesiones.titulo"
+  [mensaje]="alertaCerrarSesiones.mensaje"
+  [textoConfirmar]="alertaCerrarSesiones.textoConfirmar"
+  tipo="destructiva"
+  (confirmada)="alConfirmarCerrarSesiones()"
+  (cancelada)="alDescartarCerrarSesiones()"
+/>

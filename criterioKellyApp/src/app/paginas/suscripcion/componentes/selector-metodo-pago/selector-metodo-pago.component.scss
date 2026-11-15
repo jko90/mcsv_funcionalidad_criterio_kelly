@@ -1,0 +1,87 @@
+.selector-metodo {
+  &__titulo {
+    margin: 0 0 4px;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  &__plan {
+    margin: 0 0 12px;
+    color: var(--ion-color-medium);
+  }
+
+  &__estado,
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    color: var(--ion-color-medium);
+  }
+
+  &__error {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 12px 0 0;
+    text-align: center;
+  }
+
+  &__opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__tarjeta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 64px;
+    padding: 12px 14px;
+    text-align: left;
+    background: var(--ion-color-light);
+    border: 1px solid var(--ion-color-light-shade);
+    border-radius: 12px;
+    color: var(--ion-text-color);
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+      border-color: var(--ion-color-primary);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ion-color-primary);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+  }
+
+  &__icono {
+    flex: none;
+    font-size: 2rem;
+    color: var(--ion-color-primary);
+  }
+
+  &__texto {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__nombre {
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  &__descripcion {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+  }
+}

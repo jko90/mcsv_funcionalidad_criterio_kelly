@@ -1,0 +1,14 @@
+<ion-item>
+  <ion-select
+    label="CUENTA"
+    (ionChange)="alCambiarCuenta($event)"
+    interface="action-sheet"
+    placeholder="Seleccionar"
+  >
+    @for (cuenta of cuentas(); track cuenta.cue_idCuentas) {
+      <ion-select-option [value]="cuenta" class="respuesta-pequena">
+        {{ cuenta.cue_nombre }}
+      </ion-select-option>
+    }
+  </ion-select>
+</ion-item>

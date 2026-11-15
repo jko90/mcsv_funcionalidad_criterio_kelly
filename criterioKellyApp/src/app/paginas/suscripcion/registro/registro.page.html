@@ -1,0 +1,426 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/planes" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title" color="light">Crear Cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="registro-content">
+  <div class="registro-container">
+    <!-- Main Card -->
+    <ion-card class="registro-card">
+      <!-- Header -->
+      <div class="registro-header">
+        <div class="header-icon">
+          <ion-icon name="person-add-outline"></ion-icon>
+        </div>
+        <h1 class="registro-title">Nuevo Usuario</h1>
+        <p class="registro-subtitle">Completa tus datos para registrarte</p>
+      </div>
+
+      <div class="registro-body">
+        <!-- Selected Plan Banner -->
+        @if (planSeleccionado(); as plan) {
+        <div class="plan-banner">
+          <div class="plan-banner-content">
+            <ion-icon name="checkmark-circle" color="success"></ion-icon>
+            <div class="plan-banner-text">
+              <strong>{{ plan.ins_nombre }}</strong>
+              <span>${{ plan.pin_precioFinal }}</span>
+            </div>
+          </div>
+          <ion-button
+            fill="clear"
+            size="small"
+            color="medium"
+            routerLink="/planes"
+          >
+            Cambiar
+          </ion-button>
+        </div>
+        }
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          @for (step of pasos; track $index) {
+          <div
+            class="step-item"
+            [class.active]="pasoActual() === $index"
+            [class.completed]="pasoActual() > $index"
+          >
+            <div class="step-circle">
+              @if (pasoActual() > $index) {
+              <ion-icon name="checkmark"></ion-icon>
+              } @else {
+              <span>{{ $index + 1 }}</span>
+              }
+            </div>
+            <span class="step-label">{{ step }}</span>
+          </div>
+          }
+        </div>
+
+        <!-- Registration Form -->
+        <form [formGroup]="registroForm" (ngSubmit)="registrarUsuario()">
+          <!-- STEP 1: Personal Info -->
+          @if (pasoActual() === 0) {
+          <div class="form-step">
+            <div class="step-title">
+              <ion-icon name="person-outline" color="primary"></ion-icon>
+              <span>Datos Personales</span>
+            </div>
+
+            <ion-item class="custom-input" fill="outline">
+              <ion-icon
+                name="person-outline"
+                slot="start"
+                color="medium"
+              ></ion-icon>
+              <ion-label position="floating">Nombres *</ion-label>
+              <ion-input
+                type="text"
+                formControlName="nombres"
+                maxlength="50"
+              ></ion-input>
+            </ion-item>
+            @if (esCampoInvalido('nombres')) {
+            <ion-note color="danger" class="error-hint">
+              @if (getError('nombres', 'required')) { Los nombres son requeridos
+              } @if (getError('nombres', 'minlength')) { Mínimo 2 caracteres }
+            </ion-note>
+            }
+
+            <ion-item class="custom-input" fill="outline">
+              <ion-icon
+                name="people-outline"
+                slot="start"
+                color="medium"
+              ></ion-icon>
+              <ion-label position="floating">Apellidos *</ion-label>
+              <ion-input
+                type="text"
+                formControlName="apellidos"
+                maxlength="50"
+              ></ion-input>
+            </ion-item>
+            @if (esCampoInvalido('apellidos')) {
+            <ion-note color="danger" class="error-hint">
+              @if (getError('apellidos', 'required')) { Los apellidos son
+              requeridos } @if (getError('apellidos', 'minlength')) { Mínimo 2
+              caracteres }
+            </ion-note>
+            }
+
+            <ion-item class="custom-input" fill="outline">
+              <ion-icon
+                name="id-card-outline"
+                slot="start"
+                color="medium"
+              ></ion-icon>
+              <ion-label position="floating">Cédula (Opcional)</ion-label>
+              <ion-input
+                type="text"
+                formControlName="cedula"
+                maxlength="20"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item class="custom-input" fill="outline">
+              <ion-icon
+                name="call-outline"
+                slot="start"
+                color="medium"
+              ></ion-icon>
+              <ion-label position="floating">Teléfono *</ion-label>
+              <ion-input
+                type="tel"
+                formControlName="telefono"
+                maxlength="15"
+              ></ion-input>
+            </ion-item>
+            @if (esCampoInvalido('telefono')) {
+            <ion-note color="danger" class="error-hint">
+              @if (getError('telefono', 'required')) { El teléfono es requerido
+              } @if (getError('telefono', 'pattern')) { Formato inválido }
+            </ion-note>
+            }
+
+            <ion-item class="custom-input" fill="outline">
+              <ion-icon
+                name="mail-outline"
+                slot="start"
+                color="medium"
+              ></ion-icon>
+              <ion-label position="floating">Correo Electrónico *</ion-label>
+              <ion-input
+                type="email"
+                formControlName="correo"
+                maxlength="100"
+              ></ion-input>
+            </ion-item>
+            @if (esCampoInvalido('correo')) {
+            <ion-note color="danger" class="error-hint">
+              @if (getError('correo', 'required')) { El correo es requerido }
+              @if (getError('correo', 'email')) { Formato inválido }
+            </ion-note>
+            }
+
+            <div class="step-actions">
+              <ion-button
+                expand="block"
+                color="primary"
+                shape="round"
+                (click)="siguientePaso()"
+                [disabled]="!pasoPersonalValido()"
+              >
+                <span>Siguiente</span>
+                <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+          }
+
+          <!-- STEP 2: Account Details -->
+          @if (pasoActual() === 1) {
+          <div class="form-step">
+            <div class="step-title">
+              <ion-icon name="key-outline" color="secondary"></ion-icon>
+              <span>Datos de Acceso</span>
+            </div>
+
+            <ion-item class="custom-input" fill="outline">
+              <ion-icon
+                name="at-outline"
+                slot="start"
+                color="medium"
+              ></ion-icon>
+              <ion-label position="floating">Usuario *</ion-label>
+              <ion-input
+                type="text"
+                formControlName="usuario"
+                maxlength="20"
+                autocomplete="username"
+              ></ion-input>
+            </ion-item>
+            @if (esCampoInvalido('usuario')) {
+            <ion-note color="danger" class="error-hint">
+              @if (getError('usuario', 'required')) { El usuario es requerido }
+              @if (getError('usuario', 'minlength')) { Mínimo 4 caracteres }
+            </ion-note>
+            }
+
+            <ion-item class="custom-input" fill="outline">
+              <ion-icon
+                name="lock-closed-outline"
+                slot="start"
+                color="medium"
+              ></ion-icon>
+              <ion-label position="floating">Contraseña *</ion-label>
+              <ion-input
+                [type]="mostrarContrasena ? 'text' : 'password'"
+                formControlName="contrasena"
+                maxlength="50"
+                autocomplete="new-password"
+              ></ion-input>
+              <ion-button
+                fill="clear"
+                slot="end"
+                (click)="alternarMostrarContrasena()"
+                size="small"
+              >
+                <ion-icon
+                  [name]="mostrarContrasena ? 'eye-off-outline' : 'eye-outline'"
+                  color="medium"
+                ></ion-icon>
+              </ion-button>
+            </ion-item>
+            @if (esCampoInvalido('contrasena')) {
+            <ion-note color="danger" class="error-hint">
+              @if (getError('contrasena', 'required')) { La contraseña es requerida }
+              @if (getErrorPolitica('contrasena'); as errores) {
+                @if (errores['longitudMinima']) { {{ mensajesPoliticaClave.longitudMinima }} }
+                @if (errores['longitudMaxima']) { {{ mensajesPoliticaClave.longitudMaxima }} }
+                @if (errores['igualAUsuario']) { {{ mensajesPoliticaClave.igualAUsuario }} }
+                @if (errores['igualACorreo']) { {{ mensajesPoliticaClave.igualACorreo }} }
+              }
+            </ion-note>
+            }
+
+            <!-- Password Strength -->
+            <div
+              class="password-strength"
+              [class.visible]="registroForm.get('contrasena')?.value?.length > 0"
+            >
+              <div class="strength-bar">
+                <div
+                  class="strength-fill"
+                  [style.width.%]="fortalezaContrasena().porcentaje"
+                  [style.background]="fortalezaContrasena().color"
+                ></div>
+              </div>
+              <span
+                class="strength-label"
+                [style.color]="fortalezaContrasena().color"
+                >{{ fortalezaContrasena().etiqueta }}</span
+              >
+            </div>
+
+            <ion-item class="custom-input" fill="outline">
+              <ion-icon
+                name="lock-open-outline"
+                slot="start"
+                color="medium"
+              ></ion-icon>
+              <ion-label position="floating">Confirmar Contraseña *</ion-label>
+              <ion-input
+                [type]="mostrarConfirmarContrasena ? 'text' : 'password'"
+                formControlName="confirmarContrasena"
+                maxlength="50"
+                autocomplete="new-password"
+              ></ion-input>
+              <ion-button
+                fill="clear"
+                slot="end"
+                (click)="alternarMostrarConfirmarContrasena()"
+                size="small"
+              >
+                <ion-icon
+                  [name]="mostrarConfirmarContrasena ? 'eye-off-outline' : 'eye-outline'"
+                  color="medium"
+                ></ion-icon>
+              </ion-button>
+            </ion-item>
+            @if (esCampoInvalido('confirmarContrasena')) {
+            <ion-note color="danger" class="error-hint">
+              @if (getError('confirmarContrasena', 'required')) { La
+              confirmación es requerida } @if (getError('confirmarContrasena',
+              'noCoinciden')) { Las contraseñas no coinciden }
+            </ion-note>
+            }
+
+            <div class="step-actions">
+              <ion-button
+                fill="outline"
+                color="medium"
+                shape="round"
+                (click)="pasoAnterior()"
+              >
+                <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+                <span>Anterior</span>
+              </ion-button>
+              <ion-button
+                expand="block"
+                color="primary"
+                shape="round"
+                (click)="siguientePaso()"
+                [disabled]="!pasoCuentaValido()"
+              >
+                <span>Siguiente</span>
+                <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+          }
+
+          <!-- STEP 3: Confirmation -->
+          @if (pasoActual() === 2) {
+          <div class="form-step">
+            <div class="step-title">
+              <ion-icon
+                name="checkmark-done-outline"
+                color="success"
+              ></ion-icon>
+              <span>Confirmación</span>
+            </div>
+
+            <div class="confirmation-card">
+              <div class="confirmation-section">
+                <strong>Datos Personales</strong>
+                <p>
+                  {{ registroForm.value.nombres }} {{
+                  registroForm.value.apellidos }}
+                </p>
+                <p>{{ registroForm.value.correo }}</p>
+                <p>{{ registroForm.value.telefono }}</p>
+              </div>
+              <div class="confirmation-section">
+                <strong>Datos de Acceso</strong>
+                <p>Usuario: {{ registroForm.value.usuario }}</p>
+              </div>
+              @if (planSeleccionado(); as plan) {
+              <div class="confirmation-section">
+                <strong>Plan Seleccionado</strong>
+                <p>{{ plan.ins_nombre }} — ${{ plan.pin_precioFinal }}</p>
+              </div>
+              }
+            </div>
+
+            <!-- Error Display -->
+            @if (errorRegistro()) {
+            <ion-item color="danger" class="error-box">
+              <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
+              <ion-label>{{ errorRegistro() }}</ion-label>
+            </ion-item>
+            <ion-button fill="clear" type="button" (click)="irAVerificarCorreo()">
+              ¿Ya te registraste? Verifica tu correo
+            </ion-button>
+            }
+
+            <div class="step-actions">
+              <ion-button
+                fill="outline"
+                color="medium"
+                shape="round"
+                (click)="pasoAnterior()"
+              >
+                <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+                <span>Anterior</span>
+              </ion-button>
+              <ion-button
+                expand="block"
+                type="submit"
+                color="success"
+                shape="round"
+                class="register-button"
+                [disabled]="registroForm.invalid || isLoading()"
+              >
+                @if (isLoading()) {
+                <ion-spinner name="dots"></ion-spinner>
+                <span>&nbsp;Registrando...</span>
+                } @else {
+                <ion-icon name="person-add-outline" slot="start"></ion-icon>
+                <span>Crear Cuenta</span>
+                }
+              </ion-button>
+            </div>
+          </div>
+          }
+        </form>
+
+        <!-- Success State -->
+        @if (registroExitoso()) {
+        <div class="success-state">
+          <div class="success-animation">
+            <ion-icon name="checkmark-circle" class="success-icon"></ion-icon>
+          </div>
+          <h2>¡Registro Exitoso!</h2>
+          <p>Tu cuenta fue creada. Te enviamos un código a tu correo para activarla.</p>
+          @if (mensajePlanPendiente(); as mensajePlan) {
+          <p class="plan-pendiente"><strong>{{ mensajePlan }}</strong></p>
+          }
+        </div>
+        }
+      </div>
+    </ion-card>
+
+    <!-- Footer -->
+    <div class="registro-footer">
+      <ion-button fill="clear" color="light" size="small" (click)="irALogin()">
+        <ion-icon name="log-in-outline" slot="start"></ion-icon>
+        ¿Ya tienes una cuenta? Inicia sesión
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

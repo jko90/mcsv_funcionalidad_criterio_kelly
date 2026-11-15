@@ -48,35 +48,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 function manejarGet($controller, $action)
 {
-    if (!$action) {
-        // Health check del servicio
-        $healthData = [
-            'status' => 'ok',
-            'timestamp' => date('Y-m-d H:i:s'),
-            'version' => '1.0.0',
-            'service' => 'CuentasRTs'
-        ];
-
-        http_response_code(200);
-        echo json_encode($healthData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        return;
-    }
-
     switch ($action) {
         case 'obtener':
             $id = $_GET['id'] ?? null;
-            if (!$id) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Parámetro ID requerido'], JSON_UNESCAPED_UNICODE);
-                return;
-            }
-            if (!is_numeric($id) || (int)$id <= 0) {
-                http_response_code(400);
-                echo json_encode(['error' => 'ID debe ser un número entero positivo'], JSON_UNESCAPED_UNICODE);
-                return;
-            }
-
-            // El controlador maneja sus propias respuestas, no necesitamos código adicional aquí
             $controller->obtenerCuentasPorUsuario($id);
             break;
 

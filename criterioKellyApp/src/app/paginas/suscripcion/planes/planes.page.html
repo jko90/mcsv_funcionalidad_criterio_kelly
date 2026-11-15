@@ -1,0 +1,343 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title class="ion-text-center">Planes de Suscripción</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="planes-content">
+  <!-- Plan pendiente de pago o pago anticipado (HU-005) -->
+  <app-aviso-plan
+    [tituloPendiente]="planVigenteStore.tituloPendiente()"
+    [mensajePendiente]="planVigenteStore.mensajePendiente()"
+    [puedeSubirComprobante]="planVigenteStore.puedeSubirComprobante()"
+    [puedeVerEstadoPago]="planVigenteStore.puedeVerEstadoPago()"
+    [puedePagarAnticipado]="planVigenteStore.puedePagarAnticipado()"
+    (comprobanteSolicitado)="alSolicitarComprobante()"
+  />
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <ion-icon name="trending-up-outline" class="hero-icon"></ion-icon>
+      <h1 class="hero-title">Transforma tu estrategia de inversión</h1>
+      <p class="hero-subtitle">
+        Miles de inversores ya han descubierto el poder de tomar decisiones
+        informadas. No dejes que las oportunidades se escapen por falta de
+        información.
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+  <div class="loading-section">
+    <div class="section-header">
+      <h2>Cargando planes disponibles...</h2>
+    </div>
+    <ion-row>
+      @for (skeleton of [1,2,3]; track skeleton) {
+      <ion-col size="12" size-sm="6" size-md="4">
+        <ion-card class="skeleton-card">
+          <ion-card-header>
+            <div class="skeleton-icon">
+              <ion-skeleton-text
+                animated
+                style="width: 64px; height: 64px; border-radius: 50%"
+              ></ion-skeleton-text>
+            </div>
+            <ion-skeleton-text
+              animated
+              style="width: 60%; height: 24px; margin: 12px auto"
+            ></ion-skeleton-text>
+            <ion-skeleton-text
+              animated
+              style="width: 40%; height: 32px; margin: 8px auto"
+            ></ion-skeleton-text>
+          </ion-card-header>
+          <ion-card-content>
+            @for (item of [1,2]; track item) {
+            <ion-skeleton-text
+              animated
+              style="width: 80%; height: 16px; margin: 8px auto"
+            ></ion-skeleton-text>
+            }
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      }
+    </ion-row>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (isError() && !isLoading()) {
+  <div class="error-section ion-text-center">
+    <ion-icon name="cloud-offline-outline" class="error-icon"></ion-icon>
+    <h3>No pudimos cargar los planes</h3>
+    <p>{{ isError() }}</p>
+    <ion-button
+      color="primary"
+      fill="solid"
+      shape="round"
+      (click)="recargarPlanes()"
+    >
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Intentar de nuevo
+    </ion-button>
+  </div>
+  }
+
+  <!-- Plans Section -->
+  @if (!isLoading() && !isError()) {
+  <div class="plans-section" id="plans-section">
+    <div class="section-header">
+      <h2>Elige el plan perfecto para ti</h2>
+      <p>Cada plan está diseñado para diferentes niveles de experiencia</p>
+    </div>
+
+    <!-- Group Cards -->
+    @if (!grupoSeleccionado) {
+    <div class="groups-grid">
+      @for (grupo of planesAgrupados(); track $index) {
+      <ion-card
+        class="group-card"
+        button="true"
+        (click)="seleccionarTipoPlan(grupo)"
+      >
+        <div class="group-icon-wrapper">
+          <ion-icon [name]="mostrarIcono($index)" class="group-icon"></ion-icon>
+        </div>
+        <ion-card-header>
+          <ion-card-title>{{ grupo.ins_nombre }}</ion-card-title>
+          <div class="group-price">
+            <span class="currency">$</span>
+            <span class="amount">{{ grupo.pla_precioBase }}</span>
+            <span class="period">/mes</span>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          <p class="group-desc">{{ grupo.pla_descripcion }}</p>
+        </ion-card-content>
+      </ion-card>
+      }
+    </div>
+    }
+
+    <!-- Plan Cards (group selected) -->
+    @if (grupoSeleccionado) {
+    <div class="plans-grid">
+      <div class="back-to-groups">
+        <ion-button fill="clear" color="medium" (click)="volverAGrupos()">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+          {{ grupoSeleccionado }}
+        </ion-button>
+      </div>
+
+      <div class="plans-row">
+        @for (plan of listaPlanSeleccionado(); let i = $index; track
+        plan.pin_idPlanInterv) {
+        <ion-card
+          class="plan-card"
+          [class.featured]="i === 1"
+          button="true"
+          (click)="seleccionarPlanEspecifico(plan)"
+        >
+          @if (i === 1) {
+          <div class="featured-badge">
+            <ion-icon name="star"></ion-icon>
+            <span>Más Popular</span>
+          </div>
+          } @if (i === 0) {
+          <div class="plan-badge starter">
+            <span>Básico</span>
+          </div>
+          } @if (i === 2) {
+          <div class="plan-badge premium">
+            <span>Premium</span>
+          </div>
+          }
+          <ion-card-header>
+            <div class="plan-icon-wrapper">
+              <ion-icon [name]="mostrarIconoGrupo(i)"></ion-icon>
+            </div>
+            <ion-card-title>{{ plan.ins_nombre }}</ion-card-title>
+            <div class="plan-pricing">
+              <div class="plan-total">
+                <span class="currency">$</span>
+                <span class="amount">{{ plan.pin_precioFinal }}</span>
+              </div>
+              <div class="plan-monthly">
+                <span class="currency">$</span>
+                <span class="amount-sm"
+                  >{{ calcularPrecioMensual(plan) | number:'1.2-2' }}</span
+                >
+                <span class="period">/mes</span>
+              </div>
+            </div>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="plan-features">
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                <span>Análisis en tiempo real</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                <span>Alertas personalizadas</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                <span>Reportes detallados</span>
+              </div>
+              @if (plan.pin_idPlanInterv > 1) {
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                <span>Soporte prioritario</span>
+              </div>
+              } @if (plan.pin_idPlanInterv > 2) {
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                <span>Asesoría personalizada</span>
+              </div>
+              }
+            </div>
+            <div class="plan-limites">
+              @for (fila of limitesPorPlan().get(plan.pin_idPlanInterv); track fila.etiqueta) {
+              <div class="limite-item">
+                <span class="limite-etiqueta">{{ fila.etiqueta }}</span>
+                <strong class="limite-valor">{{ fila.valor }}</strong>
+              </div>
+              }
+            </div>
+          </ion-card-content>
+        </ion-card>
+        }
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- CTA Section -->
+  <div class="cta-section">
+    <div class="cta-content">
+      <h3>¿Listo para comenzar?</h3>
+      <p>Únete a la comunidad de inversores inteligentes hoy mismo</p>
+
+      @if (objPlanSeleccionado(); as planSeleccionado) {
+      <div class="selected-plan-card">
+        <div class="selected-plan-info">
+          <ion-icon name="checkmark-circle" color="success"></ion-icon>
+          <div class="selected-plan-text">
+            <strong>{{ planSeleccionado.ins_nombre }}</strong>
+            <span>${{ planSeleccionado.pin_precioFinal }}</span>
+          </div>
+        </div>
+        <ion-button
+          expand="block"
+          size="large"
+          color="success"
+          class="cta-button"
+          (click)="procederSuscripcion()"
+        >
+          <ion-icon name="card-outline" slot="start"></ion-icon>
+          Suscribirse ahora
+        </ion-button>
+      </div>
+      } @else {
+      <ion-button
+        expand="block"
+        size="large"
+        fill="outline"
+        color="primary"
+        class="cta-button"
+        (click)="desplazarPlanes()"
+      >
+        <ion-icon name="arrow-up-outline" slot="start"></ion-icon>
+        Selecciona un plan
+      </ion-button>
+      }
+
+      <div class="guarantee">
+        <ion-icon name="shield-checkmark-outline" color="success"></ion-icon>
+        <span>Garantía de 7 días — Sin compromiso</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testimonials-section">
+    <div class="section-header">
+      <h2>Lo que dicen nuestros usuarios</h2>
+    </div>
+
+    <div class="testimonials-grid">
+      <ion-card class="testimonial-card">
+        <ion-card-content>
+          <div class="testimonial-stars">
+            @for (star of [1,2,3,4,5]; track star) {
+            <ion-icon name="star" color="warning"></ion-icon>
+            }
+          </div>
+          <p>
+            "Desde que uso CriterioKelly, mis inversiones han mejorado un 300%.
+            Las alertas me han salvado de grandes pérdidas."
+          </p>
+          <div class="testimonial-author">
+            <ion-avatar class="author-avatar">
+              <ion-icon
+                name="person-circle-outline"
+                class="avatar-icon"
+              ></ion-icon>
+            </ion-avatar>
+            <div class="author-info">
+              <strong>María González</strong>
+              <span>Inversora desde 2022</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="testimonial-card">
+        <ion-card-content>
+          <div class="testimonial-stars">
+            @for (star of [1,2,3,4,5]; track star) {
+            <ion-icon name="star" color="warning"></ion-icon>
+            }
+          </div>
+          <p>
+            "La mejor decisión que he tomado. Los análisis son precisos y
+            fáciles de entender, perfecto para principiantes."
+          </p>
+          <div class="testimonial-author">
+            <ion-avatar class="author-avatar">
+              <ion-icon
+                name="person-circle-outline"
+                class="avatar-icon"
+              ></ion-icon>
+            </ion-avatar>
+            <div class="author-info">
+              <strong>Carlos Ruiz</strong>
+              <span>Nuevo inversor</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <div class="final-cta">
+      <h3>Tu éxito financiero está a un click de distancia</h3>
+      <p>
+        No esperes más. Cada día que pasa sin información es una oportunidad
+        perdida.
+      </p>
+    </div>
+
+    <div class="ion-text-center login-prompt">
+      <ion-button fill="clear" (click)="irALogin()">
+        <ion-icon name="log-in-outline" slot="start"></ion-icon>
+        ¿Ya tienes una cuenta? Inicia sesión
+      </ion-button>
+    </div>
+  </div>
+  }
+</ion-content>

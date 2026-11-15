@@ -1,0 +1,14 @@
+.formulario-red {
+  padding: 16px;
+
+  &__error,
+  &__ayuda {
+    display: block;
+    margin: 4px 16px 8px;
+    font-size: 0.85rem;
+  }
+
+  &__acciones {
+    margin-top: 16px;
+  }
+}

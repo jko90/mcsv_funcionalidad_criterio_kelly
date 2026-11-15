@@ -1,0 +1,17 @@
+{
+  "name": "Criterio Kelly",
+  "short_name": "Criterio Kelly",
+  "description": "Gestión de trading con el Criterio de Kelly",
+  "lang": "es",
+  "dir": "ltr",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "theme_color": "#3880ff",
+  "background_color": "#ffffff",
+  "icons": [
+    { "src": "assets/icons/icono-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icono-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icono-maskable-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

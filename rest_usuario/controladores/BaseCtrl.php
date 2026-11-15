@@ -1,13 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
+require_once __DIR__ . '/../configuracion/ContextoSesion.php';
+require_once __DIR__ . '/../configuracion/RegistroAuditoria.php';
+require_once __DIR__ . '/../configuracion/enlace.php';
+
 abstract class BaseCtrl
 {
-    protected function validarDatos($data, $requeridos = [])
+    protected const TIEMPO_MINIMO_RESPUESTA_MS = 2000;
+    protected const VARIACION_MAXIMA_MS = 250;
+
+    protected function validarDatos(array $data, array $requeridos = []): array
     {
         $errores = [];
 
         foreach ($requeridos as $campo) {
-            if (!isset($data[$campo]) || empty(trim($data[$campo]))) {
+            if (!array_key_exists($campo, $data) || !is_string($data[$campo]) || trim($data[$campo]) === '') {
                 $errores[] = "El campo '$campo' es requerido";
             }
         }
@@ -15,7 +24,7 @@ abstract class BaseCtrl
         return $errores;
     }
 
-    protected function limpiarDatos($data)
+    protected function limpiarDatos(array $data): array
     {
         $datosLimpios = [];
         foreach ($data as $key => $value) {
@@ -26,6 +35,44 @@ abstract class BaseCtrl
             }
         }
         return $datosLimpios;
+    }
+
+    protected function exigirCamposPermitidos(array $datos, array $camposPermitidos): void
+    {
+        foreach (array_keys($datos) as $campo) {
+            if (!in_array($campo, $camposPermitidos, true)) {
+                $this->respuestaErrorSimple('Solicitud inválida', 400);
+            }
+        }
+    }
+
+    protected function exigirIdDeSesion(array $datos): void
+    {
+        if (!array_key_exists('id', $datos)) {
+            return;
+        }
+
+        $idRecibido = filter_var($datos['id'], FILTER_VALIDATE_INT);
+        if ($idRecibido === false || (int) $idRecibido !== ContextoSesion::idUsuario()) {
+            $enlace = new Enlace();
+            $auditoria = new RegistroAuditoria($enlace, defined('SERVICIO_ACTUAL') ? SERVICIO_ACTUAL : 'rest_usuario');
+            $auditoria->registrar('ACCESO_DENEGADO', ContextoSesion::idUsuario(), ContextoSesion::familia(), 'usuario distinto');
+            $this->respuestaErrorSimple('Acceso denegado', 403);
+        }
+    }
+    protected function esperarTiempoMinimo(int $inicio): void
+    {
+        $milisegundosObjetivo = self::TIEMPO_MINIMO_RESPUESTA_MS + random_int(0, self::VARIACION_MAXIMA_MS);
+        $transcurridos = intdiv(hrtime(true) - $inicio, 1000000);
+        if ($transcurridos < $milisegundosObjetivo) {
+            usleep(($milisegundosObjetivo - $transcurridos) * 1000);
+        }
+    }
+
+    protected function obtenerAgente(): ?string
+    {
+        $agente = preg_replace('/[\x00-\x1F\x7F]/', '', (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+        return mb_substr((string) $agente, 0, 255);
     }
 /*
     protected function respuestaJson($estado, $mensaje, $dato = null, $httpCode = 200)

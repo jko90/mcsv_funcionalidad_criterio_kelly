@@ -1,0 +1,109 @@
+/* Animations*/
+@keyframes ILS_shake {
+  from,
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translate3d(-10px, 0, 0);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translate3d(10px, 0, 0);
+  }
+}
+
+.ILS_label-row {
+  height: 50px;
+  width: 100%;
+  text-align: center;
+  font-size: 23px;
+  padding-top: 10px;
+}
+
+.ILS_circles-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+}
+
+.ILS_circle {
+  background-color: var(--ion-color-primary-contrast);
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  margin: 0 15px;
+}
+
+.ILS_numbers-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 100px;
+}
+
+.ILS_digit {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 clamp(8px, 4vw, 20px);
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  font-size: 44px;
+  //Color de los numeros
+  color: var(--ion-color-primary-contrast);
+  //Fondo de las letras
+  // background-color: var(--ion-color-propio);
+  background-color: var(--ion-color-primary);
+}
+
+.ILS_ac {
+  //Fondo del boton izquierdo
+  background-color: var(--ion-color-primary);
+  font-size: 30px;
+}
+
+.ILS_del {
+  //Fondo del boton dell
+  background-color: var(--ion-color-primary);
+  font-size: 30px;
+}
+
+.ILS_full {
+  //  Color de los puntos
+  background-color: var(--ion-color-primary) !important;
+}
+
+.ILS_shake {
+  -webkit-animation-name: ILS_shake;
+  animation-name: ILS_shake;
+  -webkit-animation-duration: 0.5s;
+  animation-duration: 0.5s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.custom-color {
+  background-color: var(
+    --ion-color-primary-tint
+  ); // Cambia esto al color deseado
+  color: var(
+    --ion-color-primary-contrast
+  ); // Cambia el color del texto si es necesario
+}

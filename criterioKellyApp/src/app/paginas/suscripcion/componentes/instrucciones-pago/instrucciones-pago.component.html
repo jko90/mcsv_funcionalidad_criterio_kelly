@@ -1,0 +1,116 @@
+<section class="instrucciones">
+  @if (!disponible()) {
+  <p class="instrucciones__aviso">{{ mensajeNoDisponible }}</p>
+  } @else {
+  @if (descripcionPlan(); as plan) {
+  <p class="instrucciones__plan">Vas a pagar el plan <strong>{{ plan }}</strong></p>
+  }
+
+  @switch (metodo()) {
+  @case ('CRIPTOMONEDA') {
+  <h2 class="instrucciones__titulo">Paga con USDT</h2>
+  @if (monto(); as valor) {
+  <p class="instrucciones__monto">Monto del plan: <strong>{{ valor }}</strong></p>
+  }
+  <p class="instrucciones__alerta" role="alert">
+    <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
+    <span>
+      Envía solo USDT y por la red que elijas abajo. Si usas otra moneda u otra red, el dinero
+      se puede perder.
+    </span>
+  </p>
+  @for (red of redesUsdt(); track red.clave) {
+  <div class="instrucciones__red">
+    <p class="instrucciones__red-nombre">Red {{ red.nombre }} ({{ red.etiqueta }})</p>
+    @if (urlsQr()[red.clave]; as urlQr) {
+    <button
+      type="button"
+      class="instrucciones__qr"
+      [class.instrucciones__qr--ampliado]="claveQrAmpliado() === red.clave"
+      (click)="alternarQrAmpliado(red.clave)"
+    >
+      <img [src]="urlQr" [alt]="'Código QR de la red ' + red.nombre" />
+    </button>
+    <span class="instrucciones__qr-ayuda">Toca el código para ampliarlo o reducirlo</span>
+    }
+    <code class="instrucciones__dato">{{ red.direccion }}</code>
+    <ion-button size="small" fill="outline" (click)="copiarSolicitado.emit(red.direccion)">
+      <ion-icon name="copy-outline" slot="start"></ion-icon>
+      Copiar dirección
+    </ion-button>
+  </div>
+  }
+  }
+  @case ('PAYPAL') {
+  <h2 class="instrucciones__titulo">Paga con PayPal</h2>
+  @if (monto(); as valor) {
+  <p class="instrucciones__monto">Monto del plan: <strong>{{ valor }}</strong></p>
+  }
+  @if (correoPaypal(); as correo) {
+  <div class="instrucciones__red">
+    <p class="instrucciones__red-nombre">Cuenta de PayPal</p>
+    <code class="instrucciones__dato">{{ correo }}</code>
+    <ion-button size="small" fill="outline" (click)="copiarSolicitado.emit(correo)">
+      <ion-icon name="copy-outline" slot="start"></ion-icon>
+      Copiar correo
+    </ion-button>
+  </div>
+  }
+  @if (enlacePaypal(); as enlace) {
+  <div class="instrucciones__red">
+    <p class="instrucciones__red-nombre">Enlace de pago</p>
+    <code class="instrucciones__dato">{{ enlace }}</code>
+    <ion-button size="small" fill="outline" (click)="copiarSolicitado.emit(enlace)">
+      <ion-icon name="copy-outline" slot="start"></ion-icon>
+      Copiar enlace
+    </ion-button>
+  </div>
+  }
+  }
+  @case ('BANCO') {
+  <h2 class="instrucciones__titulo">Transferencia bancaria</h2>
+  @switch (etapaBanco()) {
+  @case ('PENDIENTE') {
+  <p class="instrucciones__texto">
+    Te enviaremos los datos de la cuenta por WhatsApp.
+  </p>
+  <ion-button expand="block" color="success" (click)="whatsappSolicitado.emit()">
+    <ion-icon name="logo-whatsapp" slot="start"></ion-icon>
+    Pedir datos por WhatsApp
+  </ion-button>
+  }
+  @case ('WHATSAPP_ABIERTO') {
+  <p class="instrucciones__aviso instrucciones__aviso--info">
+    <ion-icon name="chatbubbles-outline" aria-hidden="true"></ion-icon>
+    <span>
+      Ya enviaste la solicitud por WhatsApp. Cuando termines de enviar el mensaje, vuelve aquí y
+      confirma. Te responderemos con los datos de la cuenta.
+    </span>
+  </p>
+  <ion-button expand="block" (click)="solicitudConfirmada.emit()">Ya envié la solicitud</ion-button>
+  <ion-button expand="block" fill="clear" (click)="whatsappSolicitado.emit()">
+    Abrir WhatsApp otra vez
+  </ion-button>
+  }
+  @case ('SOLICITUD_CONFIRMADA') {
+  <p class="instrucciones__aviso instrucciones__aviso--ok">
+    <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+    <span>
+      Listo. Cuando recibas los datos, haz la transferencia y ten a mano tu comprobante.
+    </span>
+  </p>
+  }
+  }
+  }
+  }
+  }
+
+  @if (puedeContinuar()) {
+  <ion-button expand="block" (click)="comprobanteSolicitado.emit()">
+    Ahora necesito subir el comprobante
+  </ion-button>
+  }
+  <ion-button expand="block" fill="clear" (click)="cambiarMetodoSolicitado.emit()">
+    Cambiar método
+  </ion-button>
+</section>

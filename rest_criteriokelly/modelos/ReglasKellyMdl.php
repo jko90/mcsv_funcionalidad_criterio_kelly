@@ -4,24 +4,34 @@ include_once(__DIR__ . '/../configuracion/enlace.php');
 
 class ReglasKellyMdl
 {
-    private $conexion;
+    private Enlace $conexion;
 
-    public function __construct()
+    public function __construct(?Enlace $enlace = null)
     {
-        $this->conexion = new Enlace();
+        $this->conexion = $enlace ?? new Enlace();
     }
 
 
-    public function insertarResultadoOperativas($idCuenta, $usuarioId, $operacionesGanadoras, $operacionesPerdedoras, $operacionesBreakEven, $enOperacion, $totalOperaciones, $identificadorUnico)
+    /**
+     * Resultados de las operativas de la cuenta, calculados en SQL (consulta original de
+     * anexos/procedimientos.sql). Cuenta solo las operaciones activas (bit_estado = '1');
+     * una operación sin resultado (NULL o '') cuenta como abierta.
+     */
+    public function insertarResultadoOperativas($idCuenta, $usuarioId, $identificadorUnico)
     {
-        $divisorOperaciones = (!empty($totalOperaciones) || $totalOperaciones > 0) ? $totalOperaciones : 1;
-        $porcentajeGanador = ($operacionesGanadoras / $divisorOperaciones) * 100;
-        $porcentajePerdedor   = ($operacionesPerdedoras / $divisorOperaciones) * 100 ;
-        $porcentajeBreakEven  = ($operacionesBreakEven / $divisorOperaciones) * 100 ;
-        $porcentajeAbierta    =  ($enOperacion / $divisorOperaciones) * 100 ;
-
-        $sql = "INSERT INTO sckr_resultado(res_cueIdCuentas, res_opeGanador, res_x100Ganador, res_opePerdedor, res_x100Perdedor, res_opeBreakEven, res_x100BreakEven, res_operAbierta, res_x100Abierta, res_totalOperac, res_x100Total, res_identifica) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        return $this->conexion->ejecutarInsercionRetornaID($sql, "iididididids", $idCuenta, $operacionesGanadoras, $porcentajeGanador, $operacionesPerdedoras, $porcentajePerdedor, $operacionesBreakEven, $porcentajeBreakEven, $enOperacion, $porcentajeAbierta, $totalOperaciones, 100, $identificadorUnico);
+        $sql = "INSERT INTO sckr_resultado(res_cueIdCuentas, res_opeGanador, res_x100Ganador, res_opePerdedor, res_x100Perdedor, res_opeBreakEven, res_x100BreakEven, res_operAbierta, res_x100Abierta, res_totalOperac, res_x100Total, res_identifica)
+                SELECT bta.bit_cueIdCuentas AS cuenta_id,
+                SUM(CASE WHEN bta.bit_resultado = 'GANADOR' THEN 1 ELSE 0 END) AS operaciones_ganadoras,
+                ROUND((SUM(CASE WHEN bta.bit_resultado = 'GANADOR' THEN 1 ELSE 0 END) * 100.0) / COUNT(*), 3) AS porcentaje_ganador,
+                SUM(CASE WHEN bta.bit_resultado = 'PERDEDOR' THEN 1 ELSE 0 END) AS operaciones_perdedoras,
+                ROUND((SUM(CASE WHEN bta.bit_resultado = 'PERDEDOR' THEN 1 ELSE 0 END) * 100.0) / COUNT(*), 3) AS porcentaje_perdedor,
+                SUM(CASE WHEN bta.bit_resultado = 'BREAK EVEN' THEN 1 ELSE 0 END) AS operaciones_break_even,
+                ROUND((SUM(CASE WHEN bta.bit_resultado = 'BREAK EVEN' THEN 1 ELSE 0 END) * 100.0) / COUNT(*), 3) AS porcentaje_break_even,
+                SUM(CASE WHEN bta.bit_resultado IS NULL OR bta.bit_resultado = '' THEN 1 ELSE 0 END) AS en_operacion,
+                ROUND((SUM(CASE WHEN bta.bit_resultado IS NULL OR bta.bit_resultado = '' THEN 1 ELSE 0 END) * 100.0) / COUNT(*), 3) AS porcentaje_en_operacion,
+                COUNT(*) AS total_operaciones, 100 AS x100total, ?
+            FROM sckb_bitacora bta WHERE bta.bit_cueIdCuentas = ? AND bta.bit_usuarioId = ? AND bta.bit_estado = '1' GROUP BY bta.bit_cueIdCuentas";
+        return $this->conexion->ejecutarInsercionRetornaID($sql, "sii", $identificadorUnico, $idCuenta, $usuarioId);
     }
 
     public function obtenerResultadoPorId($idResultado)
@@ -30,36 +40,41 @@ class ReglasKellyMdl
         return $this->conexion->ejecutarConsultaSimpleFila($sql, "i", $idResultado);
     }
 
-    public function eliminarResultadoOperativas($idResultadoOperativo)
+    /**
+     * Riesgo/beneficio de la cuenta, calculado en SQL (consulta original de
+     * anexos/procedimientos.sql): monto promedio ganado y perdido, su relación y la
+     * esperanza matemática con los porcentajes como fracción (0 a 1).
+     * Solo cuenta las operaciones activas (bit_estado = '1').
+     */
+    public function insertarRiesgoBeneficio($idCuenta, $usuarioId, $identificadorUnico)
     {
-        $sql = "DELETE FROM sckr_resultado WHERE res_idResultado = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "i", $idResultadoOperativo);
-    }
-
-
-
-    public function insertarRiesgoBeneficio($idCuenta, $usuarioId,  $res_opeGanador, $res_opePerdedor, $res_x100Ganador, $res_x100Perdedor, $identificadorUnico)
-    {
-        $sql = "SELECT SUM(CASE WHEN bit_resultado = 'GANADOR' THEN bit_montoResult ELSE 0 END) AS total_ganador,
-                SUM(CASE WHEN bit_resultado = 'PERDEDOR' THEN bit_montoResult ELSE 0 END) AS total_perdedor FROM sckb_bitacora WHERE bit_usuarioId = ? AND bit_cueIdCuentas = ?";
-        $resultado = $this->conexion->ejecutarConsultaSimpleFila($sql, "ii", $usuarioId, $idCuenta);
-        $suma_total_ganador = isset($resultado['total_ganador']) ? (float)$resultado['total_ganador'] : 0;
-        $suma_total_perdedor = isset($resultado['total_perdedor']) ? (float)$resultado['total_perdedor'] : 0;
-
-        $res_opeGanadorSeguro = (!empty($res_opeGanador) || $res_opeGanador > 0) ? $res_opeGanador : 1;
-        $res_opePerdedorSeguro = (!empty($res_opePerdedor) || $res_opePerdedor > 0) ? $res_opePerdedor : 1;
-        $montoGanan = $suma_total_ganador / $res_opeGanadorSeguro;
-        $montoPierde =  $suma_total_perdedor / $res_opePerdedorSeguro;
-
-        $montoPierdeSeguro = ($montoPierde <= 0) ? $montoPierde : 1;
-        $ratioGananPerdedor = $montoGanan / $montoPierdeSeguro;
-
-        $montoEspeMate = ($suma_total_ganador * $res_x100Ganador) - ($suma_total_perdedor * $res_x100Perdedor);
-        $relacionEspeMate = ($ratioGananPerdedor * $res_x100Ganador) - (1 * $res_x100Perdedor);
-
-        $sql = "INSERT INTO sckr_riesgobeneficio(rib_cueIdCuentas, rib_montoGanan, rib_relacionGanan, rib_montoRiesgo, rib_relacionRiesgo, rib_mtoEspeMatem, rib_relaEspeMate, rib_identifica) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        return $this->conexion->ejecutarInsercionRetornaID($sql, "idddidds", $idCuenta, $montoGanan, $ratioGananPerdedor, $montoPierde, 1, $montoEspeMate, $relacionEspeMate, $identificadorUnico);
+        $sql = "INSERT INTO sckr_riesgobeneficio(rib_cueIdCuentas, rib_montoGanan, rib_relacionGanan, rib_montoRiesgo, rib_relacionRiesgo, rib_mtoEspeMatem, rib_relaEspeMate, rib_identifica)
+                WITH estadisticas_base AS (
+                    SELECT  bta.bit_cueIdCuentas AS idCuenta, bta.bit_usuarioId,
+                        SUM(CASE WHEN bta.bit_resultado = 'GANADOR' THEN 1 ELSE 0 END) AS ops_ganadoras,
+                        SUM(CASE WHEN bta.bit_resultado = 'GANADOR' THEN bta.bit_montoResult ELSE 0 END) AS monto_ganado_total,
+                        SUM(CASE WHEN bta.bit_resultado = 'PERDEDOR' THEN 1 ELSE 0 END) AS ops_perdedoras,
+                        SUM(CASE WHEN bta.bit_resultado = 'PERDEDOR' THEN bta.bit_montoResult ELSE 0 END) AS monto_perdido_total,
+                        COUNT(*) AS total_operaciones
+                    FROM sckb_bitacora bta WHERE bta.bit_cueIdCuentas = ? AND bta.bit_usuarioId = ? AND bta.bit_estado = '1'
+                    GROUP BY bta.bit_cueIdCuentas, bta.bit_usuarioId
+                ),
+                metricas_calculadas AS (
+                    SELECT *,
+                        CASE WHEN ops_ganadoras > 0 THEN monto_ganado_total / ops_ganadoras ELSE 1 END AS monto_ganador,
+                        CASE WHEN ops_perdedoras > 0 THEN monto_perdido_total / ops_perdedoras ELSE 1 END AS monto_perdedor,
+                        CASE WHEN total_operaciones > 0 THEN ROUND((ops_ganadoras) / total_operaciones, 3) ELSE 0 END AS porcentaje_ganador,
+                        CASE WHEN total_operaciones > 0 THEN ROUND((ops_perdedoras) / total_operaciones, 3) ELSE 0 END AS porcentaje_perdedor
+                    FROM estadisticas_base
+                )
+                SELECT idCuenta, monto_ganador AS monto_promedio_ganador,
+                    CASE WHEN monto_perdedor > 0 THEN monto_ganador / monto_perdedor ELSE 0 END AS ratio_ganador_perdedor,
+                    monto_perdedor AS monto_promedio_perdedor, 1,
+                    (monto_ganador * porcentaje_ganador) - (monto_perdedor * porcentaje_perdedor) AS monto_espe_matematica,
+                    CASE WHEN monto_perdedor > 0 THEN ((monto_ganador / monto_perdedor) * porcentaje_ganador) - (1 * (porcentaje_perdedor)) ELSE 0 END AS relacion_espe_matematica,
+                    ?
+                FROM metricas_calculadas";
+        return $this->conexion->ejecutarInsercionRetornaID($sql, "iis", $idCuenta, $usuarioId, $identificadorUnico);
     }
 
 
@@ -67,14 +82,6 @@ class ReglasKellyMdl
     {
         $sql = "SELECT rib_relacionGanan FROM sckr_riesgobeneficio WHERE rib_idRiesBenef = ?";
         return $this->conexion->ejecutarConsultaSimpleFila($sql, "i", $idRiesgoBeneficio);
-    }
-
-
-
-    public function eliminarRiesgoBeneficio($idRiesBeneficio)
-    {
-        $sql = "DELETE FROM sckr_riesgobeneficio WHERE rib_idRiesBenef = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "i", $idRiesBeneficio);
     }
 
 
@@ -96,13 +103,6 @@ class ReglasKellyMdl
         return $this->conexion->ejecutarConsultaSimpleFila($sql, "i", $idFactorTotal);
     }
 
-    public function eliminarFactorTotal($idFactorTotal)
-    {
-        $sql = "DELETE FROM sckt_factortotal WHERE fat_idFactotal = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "i", $idFactorTotal);
-    }
-
-
     public function insertarRentabilidad($idCuenta, $montoGanan, $montoPierde, $montoCapital, $montoBalanceInicial, $identificadorUnico)
     {
         $montoNeto = $montoGanan - $montoPierde;
@@ -117,13 +117,6 @@ class ReglasKellyMdl
         $sql = "SELECT ren_montoTotal FROM sckr_rentabilidad WHERE ren_idRentabili = ?";
         return $this->conexion->ejecutarConsultaSimpleFila($sql, "i", $idRentabilidad);
     }
-
-    public function eliminarRentabilidad($idRentabilidad)
-    {
-        $sql = "DELETE FROM sckr_rentabilidad WHERE ren_idRentabili = ?";
-        return $this->conexion->ejecutarActualizacion($sql, "i", $idRentabilidad);
-    }
-
 
     public function insertarCriterioKelly($idCuenta, $usuarioId, $res_x100Ganador, $divisor, $relGananciamedia, $capitalFinal, $identificadorUnico)
     {

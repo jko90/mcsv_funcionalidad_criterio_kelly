@@ -1,0 +1,53 @@
+Manejando con nvm
+Instalar la versionde nonde: nvm install 18.16.0
+Utilizamos la versionde node: nvm use 18.16.0 
+
+Instalamos: npm install @ionic-native/core@5.36.0 --legacy-peer-deps
+Nuevo: npm install @capacitor-community/sqlite
+(Verificamos la instalacion: npm list @ionic-native/core
+                            npm list @ionic-native/sqlite)
+
+Ejecutamos: npx ionic serv
+
+
+Actualizar:
+Primero actualizar versionde ionic: npm install @ionic/cli@latest --save-dev --legacy-peer-deps
+Verifica actualizaciones: npm install -g npm-check-updates , npx ncu
+actualizar pakage.json: npx npm-check-updates -u
+Instalar nuevas dependencias: npm install --legacy-peer-deps
+
+/** REPORTE DE PDF */
+npm install pdfmake
+npm install --save-dev @types/pdfmake
+
+
+/** Habilitar permisos de terminal */
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+
+
+/** EJECUTAR CUANDO YA ESTA ACTUALIZADO */
+1. Instalar nvm
+2. Instalar Nodejs: nvm install 20
+3. Utilizar node: nvm use 20.19.4
+4. Instalar node: npx npm install
+5. Ejecutar: npx ionic serve
+
+
+/** MOSTRAR GRAFICOS */
+npm install chart.js
+
+/** DESCARGAR EN pdf */
+npm install jspdf
+npm install core-js
+
+/** EXPORTAR TABLAS EN PDF */
+npm install jspdf-autotable
+
+/** EXPORTAR EN EXCEL */
+npm install xlsx
+
+/** DESCARGAR EN ARCHIVO RAR O ZIP */
+npm install jszip
+npm install file-saver
+npm install jszip file-saver
+si las anteriores no funcionan: npm install --save-dev @types/file-saver

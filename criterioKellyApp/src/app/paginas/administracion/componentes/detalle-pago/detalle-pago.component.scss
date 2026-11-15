@@ -1,0 +1,45 @@
+.detalle-pago {
+  padding: 16px;
+
+  &__usuario {
+    margin: 0 0 4px;
+  }
+
+  &__periodo {
+    font-weight: 600;
+
+    &--anticipado {
+      color: var(--ion-color-primary);
+    }
+  }
+
+  &__aviso {
+    color: var(--ion-color-danger);
+    font-weight: 600;
+  }
+
+  &__sin-comprobante {
+    color: var(--ion-color-warning-shade);
+    font-weight: 600;
+  }
+
+  &__imagen {
+    display: block;
+    max-width: 100%;
+    max-height: 260px;
+    margin: 8px auto;
+    cursor: zoom-in;
+  }
+
+  &__imagen-ampliada {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  &__acciones {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+}

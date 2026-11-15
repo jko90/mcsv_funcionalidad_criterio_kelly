@@ -1,0 +1,101 @@
+<form [formGroup]="formulario" (ngSubmit)="alEnviar()" class="formulario-comprobante">
+  @if (textoPeriodo(); as texto) {
+  <p class="formulario-comprobante__periodo">
+    <ion-icon name="information-circle-outline"></ion-icon>
+    <span>{{ texto }}</span>
+  </p>
+  }
+
+  @if (metodoElegido(); as elegido) {
+  <p class="formulario-comprobante__metodo">
+    <ion-icon name="checkmark-circle-outline"></ion-icon>
+    <span>Método de pago: <strong>{{ etiquetaMetodo(elegido) }}</strong></span>
+  </p>
+  } @else {
+  <ion-item>
+    <ion-select
+      label="Método de pago"
+      labelPlacement="stacked"
+      placeholder="Elige cómo pagaste"
+      formControlName="metodoPago"
+      (ionChange)="alCambiarMetodoPago($event.detail.value)"
+    >
+      @for (metodo of metodosPago; track metodo.valor) {
+      <ion-select-option [value]="metodo.valor">{{ metodo.etiqueta }}</ion-select-option>
+      }
+    </ion-select>
+  </ion-item>
+  @if (formulario.controls.metodoPago.touched && formulario.controls.metodoPago.invalid) {
+  <ion-note color="danger" class="formulario-comprobante__error">Elige el método de pago</ion-note>
+  }
+
+  }
+
+  <ion-item>
+    <ion-input
+      label="Número de transacción"
+      labelPlacement="stacked"
+      placeholder="Ej. 8H123456AB"
+      formControlName="idTransaccion"
+      maxlength="254"
+    ></ion-input>
+  </ion-item>
+  @if (formulario.controls.idTransaccion.touched && formulario.controls.idTransaccion.invalid) {
+  <ion-note color="danger" class="formulario-comprobante__error">
+    Escribe el número de transacción (solo letras, números y . _ : -)
+  </ion-note>
+  }
+
+  @if (formulario.controls.metodoPago.value === 'PAYPAL') {
+  <ion-item>
+    <ion-input
+      label="Correo de PayPal"
+      labelPlacement="stacked"
+      type="email"
+      placeholder="correo con el que pagaste"
+      formControlName="correoTransaccion"
+    ></ion-input>
+  </ion-item>
+  @if (formulario.controls.correoTransaccion.touched && formulario.controls.correoTransaccion.invalid) {
+  <ion-note color="danger" class="formulario-comprobante__error">Escribe un correo válido</ion-note>
+  } }
+
+  @if (formulario.controls.metodoPago.value === 'CRIPTOMONEDA' && !metodoElegido()) {
+  <ion-item>
+    <ion-input
+      label="Criptomoneda"
+      labelPlacement="stacked"
+      placeholder="Ej. USDT"
+      formControlName="criptomoneda"
+      maxlength="16"
+    ></ion-input>
+  </ion-item>
+  @if (formulario.controls.criptomoneda.touched && formulario.controls.criptomoneda.invalid) {
+  <ion-note color="danger" class="formulario-comprobante__error">Indica la criptomoneda usada</ion-note>
+  } }
+
+  <div class="formulario-comprobante__imagen">
+    <input
+      #selectorImagen
+      type="file"
+      accept="image/jpeg,image/png,image/gif,image/webp"
+      hidden
+      (change)="alElegirImagen($event)"
+    />
+    <ion-button type="button" fill="outline" (click)="selectorImagen.click()">
+      <ion-icon name="camera-outline" slot="start"></ion-icon>
+      {{ vistaPrevia() ? 'Cambiar imagen' : 'Elegir imagen del comprobante' }}
+    </ion-button>
+    <ion-note>Foto o captura de tu pago. Máximo 512 KB.</ion-note>
+    @if (vistaPrevia(); as vista) {
+    <img [src]="vista" alt="Vista previa del comprobante" class="formulario-comprobante__vista" />
+    }
+  </div>
+
+  <ion-button type="submit" expand="block" [disabled]="enviando() || !vistaPrevia()">
+    @if (enviando()) {
+    <ion-spinner name="crescent" slot="start"></ion-spinner>
+    }
+    {{ tituloEnvio() }}
+  </ion-button>
+</form>

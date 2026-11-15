@@ -1,0 +1,19 @@
+.subtitulo {
+  text-align: center;
+  margin-bottom: 0%;
+  margin-top: 0%;
+}
+
+.tabla-personalizada ion-row,
+.tabla-personalizada ion-col {
+  border: 1px solid var(--ion-color-primary);
+}
+
+.acciones-cuenta ion-button {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.acciones-cuenta ion-icon {
+  font-size: 2rem !important;
+}

@@ -1,0 +1,64 @@
+<ion-app>
+  <ion-split-pane when="md" contentId="menuNombre">
+    <ion-menu
+      *ngIf="mostrarMenu()"
+      contentId="menuNombre"
+      side="start"
+      menuId="menuId"
+      type="push"
+      auto-hide="TRUE"
+    >
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="end">
+            <ion-avatar>
+              <img src="assets/contenidos.png" />
+            </ion-avatar>
+          </ion-buttons>
+          <ion-title>MENÚ</ion-title>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <ion-list>
+          @for (grupo of gruposMenu(); track $index) {
+            <ion-list>
+              @for (menu of grupo; track $index) {
+                <ion-menu-toggle autoHide="false">
+                  <ion-item
+                    detail-icon="caret-forward-outline"
+                    [routerLink]="menu.redirectTo"
+                    detail
+                  >
+                    <ion-icon slot="start" [name]="menu.icon"></ion-icon>
+                    <ion-label> {{ menu.name }} </ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+              }
+            </ion-list>
+            @if (!$last) {
+              <br />
+            }
+          }
+          <ion-menu-toggle>
+            <ion-button expand="block" (click)="salir()">SALIR</ion-button>
+          </ion-menu-toggle>
+        </ion-list>
+      </ion-content>
+    </ion-menu>
+
+    <ion-router-outlet id="menuNombre"></ion-router-outlet>
+  </ion-split-pane>
+</ion-app>
+<app-aviso-sin-conexion [estaSinConexion]="!estadoAplicacion.estaEnLinea()" />
+<app-alerta-ck
+  [abierta]="hayVersionNueva()"
+  [titulo]="alertaNuevaVersion.titulo"
+  [mensaje]="alertaNuevaVersion.mensaje"
+  [textoConfirmar]="alertaNuevaVersion.textoConfirmar"
+  [textoCancelar]="textoMasTarde"
+  [cerrarAlTocarFuera]="false"
+  tipo="confirmacion"
+  (confirmada)="alActualizarVersion()"
+  (cancelada)="alPosponerActualizacion()"
+/>

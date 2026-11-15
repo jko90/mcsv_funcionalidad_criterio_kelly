@@ -1,0 +1,136 @@
+.aviso-bloqueo {
+  &__texto {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  &__ayuda {
+    margin: 0 0 12px;
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+  }
+
+  &__grupo {
+    margin-bottom: 18px;
+  }
+
+  &__plan {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ion-color-primary);
+  }
+
+  &__opciones {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+
+  &__tarjeta {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 12px;
+    text-align: left;
+    background: var(--ion-color-light);
+    border: 1px solid var(--ion-color-light-shade);
+    border-radius: 12px;
+    color: var(--ion-text-color);
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+
+    &:active {
+      transform: scale(0.97);
+      border-color: var(--ion-color-primary);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+
+    &-intervalo {
+      font-size: 0.85rem;
+      color: var(--ion-color-medium);
+    }
+
+    &-precio {
+      font-size: 1.25rem;
+      font-weight: 700;
+
+      small {
+        font-size: 0.75rem;
+        font-weight: 400;
+      }
+    }
+
+    &-descuento {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--ion-color-success-contrast);
+      background: var(--ion-color-success);
+      border-radius: 8px;
+    }
+  }
+
+  &__resumen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    &-icono {
+      font-size: 3rem;
+      color: var(--ion-color-primary);
+    }
+
+    &-pregunta {
+      margin: 8px 0 0;
+      color: var(--ion-color-medium);
+    }
+
+    &-plan {
+      margin: 4px 0 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    &-intervalo {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    &-precio {
+      margin: 8px 0;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--ion-color-primary);
+
+      small {
+        font-size: 0.9rem;
+        font-weight: 400;
+      }
+    }
+
+    &-detalle {
+      margin: 2px 0;
+      font-size: 0.9rem;
+    }
+
+    &-nota {
+      margin: 12px 0 16px;
+      padding: 10px;
+      font-size: 0.85rem;
+      color: var(--ion-color-medium);
+      background: var(--ion-color-light);
+      border-radius: 8px;
+    }
+  }
+}

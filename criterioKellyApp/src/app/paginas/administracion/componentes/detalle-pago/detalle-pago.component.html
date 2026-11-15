@@ -1,0 +1,68 @@
+<div class="detalle-pago">
+  <h2 class="detalle-pago__usuario">{{ pago().usuario }}</h2>
+  <p>{{ pago().pla_nombre }} · {{ pago().ins_nombre }}</p>
+  <p>{{ monto() }} · {{ pago().pag_metodoPago }}</p>
+  @if (pago().pag_idTransac) {
+  <p>Transacción: {{ pago().pag_idTransac }}</p>
+  }
+  <p>Subido el {{ fechaSubida() }}</p>
+
+  @if (textoPeriodo(); as periodo) {
+  <p class="detalle-pago__periodo" [class.detalle-pago__periodo--anticipado]="pago().esAnticipado">
+    {{ periodo }}
+  </p>
+  }
+  @if (faltanFechas()) {
+  <p class="detalle-pago__aviso">{{ textoOtroPlanActivo }}</p>
+  }
+  @if (pago().esAntiguo) {
+  <p class="detalle-pago__aviso">{{ textoComprobanteAntiguo }}</p>
+  }
+
+  @if (cargandoComprobante()) {
+  <ion-spinner name="dots"></ion-spinner>
+  } @else if (estaSinComprobante()) {
+  <p class="detalle-pago__sin-comprobante">{{ textoSinComprobante }}</p>
+  } @else {
+  @if (comprobante(); as imagen) {
+  <img
+    class="detalle-pago__imagen"
+    alt="Comprobante de pago"
+    [src]="imagen"
+    (click)="ampliarImagen()"
+  />
+  <ion-button fill="clear" size="small" (click)="ampliarImagen()">Ampliar imagen</ion-button>
+  }
+  }
+
+  @if (puedeValidar()) {
+  <div class="detalle-pago__acciones">
+    <ion-button color="success" [disabled]="!puedeAprobar()" (click)="aprobarSolicitado.emit()">
+      Aprobar
+    </ion-button>
+    <ion-button color="danger" fill="outline" [disabled]="procesando()" (click)="rechazarSolicitado.emit()">
+      Rechazar
+    </ion-button>
+  </div>
+  } @else {
+  <p class="detalle-pago__aviso">{{ textoPagoPropio }}</p>
+  }
+</div>
+
+<ion-modal [isOpen]="estaImagenAmpliada()" (didDismiss)="cerrarImagen()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Comprobante</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="cerrarImagen()">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      @if (comprobante(); as imagen) {
+      <img class="detalle-pago__imagen-ampliada" alt="Comprobante de pago ampliado" [src]="imagen" />
+      }
+    </ion-content>
+  </ng-template>
+</ion-modal>

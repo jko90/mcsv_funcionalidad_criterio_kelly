@@ -1,0 +1,139 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title class="header-title">Sistema de Gestión</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-row class="login-row">
+    <ion-col
+      class="login-col"
+      size-sm="8"
+      offset-sm="2"
+      size-md="6"
+      offset-md="3"
+      size-xl="4"
+      offset-xl="4"
+    >
+      <ion-card>
+        <ion-card-header class="card-header ion-text-center">
+          <img height="250px" src="assets/contenidos.png" />
+        </ion-card-header>
+
+        <ion-card-content class="login-content-card">
+          <form [formGroup]="loginForm" (ngSubmit)="iniciarValidacion()">
+            <div class="form-group">
+              <ion-item class="custom-input" fill="outline">
+                <ion-label position="floating">
+                  <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                  Usuario
+                </ion-label>
+                <ion-input
+                  type="text"
+                  formControlName="usuario"
+                  [class.ion-invalid]="campoInvalido('usuario')"
+                  (ionBlur)="marcarCampoTocado('usuario')"
+                >
+                </ion-input>
+                <ion-note slot="error" *ngIf="campoInvalido('usuario')">
+                  El usuario es requerido
+                </ion-note>
+              </ion-item>
+            </div>
+
+            <div class="form-group">
+              <ion-item class="custom-input" fill="outline">
+                <ion-label position="floating">
+                  <ion-icon
+                    name="lock-closed-outline"
+                    class="input-icon"
+                  ></ion-icon>
+                  Contraseña
+                </ion-label>
+                <ion-input
+                  [type]="mostrarClave() ? 'text' : 'password'"
+                  formControlName="contrasenia"
+                  [class.ion-invalid]="campoInvalido('contrasenia')"
+                  (ionBlur)="marcarCampoTocado('contrasenia')"
+                >
+                </ion-input>
+                <ion-button
+                  slot="end"
+                  fill="clear"
+                  size="small"
+                  (click)="alternarMostrarClave()"
+                >
+                  <ion-icon
+                    [name]="mostrarClave() ? 'eye-off-outline' : 'eye-outline'"
+                  ></ion-icon>
+                </ion-button>
+                <ion-note slot="error" *ngIf="campoInvalido('contrasenia')">
+                  La contraseña es requerida
+                </ion-note>
+              </ion-item>
+            </div>
+
+            <!-- Login Button -->
+            <div class="button-container">
+              <ion-button
+                expand="block"
+                shape="round"
+                type="submit"
+                [disabled]="loginForm.invalid || isLoading()"
+                class="login-button"
+              >
+                <span *ngIf="!isLoading()">
+                  <ion-icon name="log-in-outline" slot="start"></ion-icon>
+                  Iniciar Sesión
+                </span>
+                <span *ngIf="isLoading()" class="loading-content">
+                  <ion-spinner
+                    name="crescent"
+                    class="login-spinner"
+                  ></ion-spinner>
+                  Verificando...
+                </span>
+              </ion-button>
+            </div>
+
+            <!-- Additional Options -->
+            <div class="ion-text-center">
+              <ion-button fill="clear" type="button" (click)="irARecuperarClave()">
+                ¿Olvidaste tu contraseña?
+              </ion-button>
+              <ion-button fill="clear" type="button" (click)="irAVerificarCorreo()">
+                ¿Ya te registraste? Verifica tu correo
+              </ion-button>
+            </div>
+          </form>
+          <div class="divider-container">
+            <div class="divider-line"></div>
+          </div>
+          <h3 class="header-title">¿No tienes una cuenta?</h3>
+          <div class="ion-text-center">
+            <ion-button fill="clear" (click)="irACrearCuenta()">
+              ¿Primera vez aquí? Regístrate
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-content>
+
+<ion-modal
+  #modalPin
+  [isOpen]="estaModalPinAbierto()"
+  [breakpoints]="puntosRupturaModalPin"
+  [initialBreakpoint]="puntoInicialModalPin"
+  (willDismiss)="alCerrarModalPin($event)"
+>
+  <ng-template>
+    <app-modal-pin
+      [guardando]="guardandoPin()"
+      (pinConfirmado)="alConfirmarPin($event, modalPin)"
+      (pinDistinto)="alMostrarPinDistinto()"
+      (omitido)="alOmitirPin(modalPin)"
+    />
+  </ng-template>
+</ion-modal>

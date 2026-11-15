@@ -1,0 +1,223 @@
+.login-content {
+  --background: linear-gradient(
+    135deg,
+    var(--ion-color-primary) 0%,
+    var(--ion-color-secondary) 100%
+  );
+
+  .login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+.header-title {
+  font-weight: 600;
+  text-align: center;
+}
+
+.login-card {
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-header {
+  text-align: center;
+  padding: 2rem 1.5rem 1rem;
+  background: linear-gradient(
+    135deg,
+    var(--ion-color-primary-tint) 0%,
+    var(--ion-color-primary) 100%
+  );
+  color: var(--ion-color-primary-tint);
+}
+
+.logo-container {
+  margin-bottom: 1rem;
+
+  .company-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: var(--ion-color-light, #fff);
+    padding: 8px;
+    object-fit: contain;
+  }
+}
+
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--ion-color-primary-tint);
+}
+
+.login-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  color: var(--ion-color-primary-tint);
+}
+
+.login-content-card {
+  padding: 2rem 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.custom-input {
+  --border-radius: 12px;
+  --border-width: 2px;
+  --border-color: var(--ion-color-medium);
+  --highlight-color-focused: var(--ion-color-primary);
+
+  ion-label {
+    font-weight: 500;
+
+    .input-icon {
+      margin-right: 8px;
+      font-size: 1.1rem;
+    }
+  }
+
+  ion-input {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    font-size: 1rem;
+  }
+
+  &.ion-focused {
+    --border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.2);
+  }
+
+  &.item-has-error {
+    --border-color: var(--ion-color-danger);
+  }
+}
+
+.error-container {
+  margin-bottom: 1rem;
+
+  .error-item {
+    --border-radius: 8px;
+    font-size: 0.85rem;
+  }
+}
+
+.button-container {
+  margin: 2rem 0 1rem;
+}
+
+.login-button {
+  --border-radius: 25px;
+  height: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.4);
+
+  .loading-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .login-spinner {
+    --color: var(--ion-color-primary-tint);
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (hover: hover) {
+    &:not([disabled]):hover {
+      --box-shadow: 0 6px 16px rgba(var(--ion-color-primary-rgb), 0.5);
+      transform: translateY(-1px);
+      transition: all 0.3s ease;
+    }
+  }
+}
+
+.additional-options {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.forgot-password {
+  --color: var(--ion-color-medium-shade);
+  font-size: 0.9rem;
+  text-decoration: none;
+
+  @media (hover: hover) {
+    &:hover {
+      --color: var(--ion-color-primary);
+    }
+  }
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 2rem;
+
+  .footer-text {
+    color: var(--ion-color-primary-tint);
+    font-size: 0.8rem;
+    margin: 0;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .login-content-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .login-header {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .company-logo {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .login-title {
+    font-size: 1.3rem;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .login-card {
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .custom-input {
+    --border-color: var(--ion-color-medium-shade);
+  }
+}
+
+.divider-container {
+  padding: 10px 15px;
+
+  .divider-line {
+    height: 1.5px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--ion-color-medium-shade) 10%,
+      var(--ion-color-medium-shade) 90%,
+      transparent
+    );
+    opacity: 0.5;
+  }
+}

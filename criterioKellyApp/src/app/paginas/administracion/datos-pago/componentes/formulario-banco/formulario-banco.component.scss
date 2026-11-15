@@ -1,0 +1,30 @@
+.formulario-banco {
+  &__titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+  }
+
+  &__metodo {
+    --padding-start: 0;
+    margin-bottom: 8px;
+  }
+
+  &__seccion {
+    margin: 16px 0 4px;
+    font-size: 1rem;
+  }
+
+  &__error {
+    display: block;
+    margin: 4px 16px 8px;
+    font-size: 0.85rem;
+  }
+
+  &__ayuda {
+    margin: 4px 0 8px;
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+  }
+}
