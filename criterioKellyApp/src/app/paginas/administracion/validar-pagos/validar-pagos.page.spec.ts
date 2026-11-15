@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ServicioInactividad } from 'src/app/compartidos/seguridades/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { MOTIVO_COMPROBANTE_ANTIGUO } from '../configuracion/textos-validacion';
 import { PagoPendiente, ResultadoValidacion } from '../modelos/PagoPendiente.modelo';

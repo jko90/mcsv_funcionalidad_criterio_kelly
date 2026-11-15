@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { IonicComponentes } from '../IonicComponentes';
+import { IonicComponentes } from '../../IonicComponentes';
 
 @Component({
   selector: 'app-aviso-sin-conexion',

@@ -30,9 +30,9 @@ Crear el dominio `src/app/configuracion/` con sus subdominios `cuentas`, `perfil
 | `paginas/configuracion/cuentas/`, `modelos/{Cuentas,Capital}.modelo.ts`, `servicios/cuentas.service.ts`, `store/cuentaStore.ts` | `configuracion/cuentas/{paginas/cuentas,modelos,servicios,store}/` |
 | `paginas/configuracion/perfil/`, `componentes/formulario-cambio-clave/`, `modelos/Perfil.modelo.ts`, `servicios/perfil.service.ts`, `store/perfilStore.*` | `configuracion/perfil/{paginas/perfil,componentes,modelos,servicios,store}/` |
 | `paginas/configuracion/{bloqueo,cambiar-pin}/`, `componentes/modal-pin/`, `store/pin-formulario.store.*` | `configuracion/bloqueo-pin/{paginas,componentes,store}/` |
-| `compartidos/seguridades/hash-pin.*`, `compartidos/store/{dbPIN-app,dbPIN-web}.store.ts`, `pin-bloqueo.feature.*`, `compartidos/modelos/pin-bloqueo.modelo.ts` | `configuracion/bloqueo-pin/{servicios,store,modelos}/` **si el mapa de HLT-41 confirma que solo los usa `configuracion`**; si los usa también `general/autenticacion` (login), **se quedan en `compartidos/`** (RN-01 de HLT-41) |
+| `compartidos/store/{dbPIN-*,dbkelly-*}`, `pin-bloqueo.feature.*`, `modelos/pin-bloqueo.modelo.ts`, `seguridad/hash-pin.ts` | **No se mueven**: los usan varios dominios (`dbPIN-*`: `configuracion` y login; `dbkelly-*`: `configuracion` y `bitacora-fin`); siguen en `compartidos/` |
 | `paginas/configuracion/operativa-kelly/` | `configuracion/operativa-kelly/paginas/operativa-kelly/` |
-| `compartidos/store/{dbkelly-app,dbkelly-web}.store.ts` | `configuracion/compartido/store/` (los usan `cuentas` y `operativa-kelly`); si el mapa muestra uso desde otro dominio (`bitacora-fin`), se documenta la dependencia permitida o se queda en `compartidos/` según RN-01 |
+| `compartidos/seleccionar-cuentas/` | `configuracion/cuentas/componentes/seleccionar-cuentas/` (componente de cuentas; lo usan `analisis` y `operativas`: dependencia permitida) |
 
 ---
 

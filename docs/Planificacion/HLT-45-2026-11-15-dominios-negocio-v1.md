@@ -31,6 +31,7 @@ Crear `src/app/negocio/` con los subdominios `criterio-kelly`, `bitacora` y `sus
 | `paginas/suscripcion/{aviso-bloqueo,aviso-plan,componentes/*}` | `negocio/suscripcion/componentes/<nombre>/` |
 | `paginas/suscripcion/{modelos,servicios,store,configuracion}` | `negocio/suscripcion/{modelos,servicios,store,configuracion}/` |
 | `paginas/suscripcion/registro/` | **Se queda para HLT-46** (va a `general/autenticacion`); en esta oleada no se mueve |
+| `compartidos/servicios/acciones-externas.service.ts` | `negocio/suscripcion/servicios/` (solo lo usa `comprobante`) |
 
 ---
 

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { IonicComponentes } from '../IonicComponentes';
-import { ServicioInactividad } from '../seguridades/ServicioInactividad';
+import { IonicComponentes } from '../../IonicComponentes';
+import { ServicioInactividad } from '../../seguridad/ServicioInactividad';
 
 @Component({
   selector: 'app-encabezado',

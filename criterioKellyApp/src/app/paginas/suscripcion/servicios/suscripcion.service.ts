@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { OMITIR_MANEJO_ERROR } from 'src/app/compartidos/interceptors/sesion-http';
+import { OMITIR_MANEJO_ERROR } from 'src/app/compartidos/seguridad/interceptores/sesion-http';
 import { SolicitudCrearConPago } from '../modelos/EstadoPago.modelo';
 import { PlanVigente } from '../modelos/PlanVigente.modelo';
 import {

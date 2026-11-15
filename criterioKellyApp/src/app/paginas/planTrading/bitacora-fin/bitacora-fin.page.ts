@@ -9,13 +9,13 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import {
   ActualizarBitacoraFinalModelo,
   BitacoraModelo,
 } from '../modelos/Bitacora.modelo';
 import { ComentarioModelo } from '../modelos/Comentario.modelo';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { CuentaResponse } from '../../configuracion/modelos/Cuentas.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';

@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { throwError } from 'rxjs';
-import { UtilitariosService } from '../servicios/utilitarios.service';
+import { UtilitariosService } from '../../servicios/utilitarios.service';
 import { errorInterceptor } from './error.interceptor';
 
 describe('errorInterceptor', () => {

@@ -1,8 +1,8 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { UtilitariosService } from '../servicios/utilitarios.service';
+import { UtilitariosService } from '../../servicios/utilitarios.service';
 import { catchError, throwError } from 'rxjs';
-import { ErrorApi } from '../modelos/error-api';
+import { ErrorApi } from '../../modelos/error-api';
 import { OMITIR_MANEJO_ERROR } from './sesion-http';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {

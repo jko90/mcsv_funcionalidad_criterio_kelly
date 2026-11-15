@@ -8,7 +8,7 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ModalBuscaDivisaComponent } from '../componentes/modal-busca-divisa/modal-busca-divisa.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -21,10 +21,10 @@ import {
 import { listDivisas } from '../modelos/listaDivisas';
 import { DivisasModelo } from '../modelos/Divisas.modelo';
 import { ComentarioModelo } from '../modelos/Comentario.modelo';
-import { AlertaCkComponent } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_ELIMINAR_REGISTRO } from 'src/app/compartidos/textos-alertas';
 import { CuentasModelo } from '../../configuracion/modelos/Cuentas.modelo';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { BitacoraStore } from '../store/bitacoraStore';
 import { CuentaStore } from '../../configuracion/store/cuentaStore';
 import { ComentariosStore } from '../store/comentariosStore';

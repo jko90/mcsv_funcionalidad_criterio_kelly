@@ -1,22 +1,22 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { Router } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import {
   ActualizarPerfilRequest,
   CambiarClaveRequest,
   VALIDACIONES,
 } from '../modelos/Perfil.modelo';
-import { UsuarioApp } from '../../util/modelos/Login.modelo';
+import { UsuarioApp } from '../../../compartidos/modelos/Login.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { PerfilStore } from '../store/perfilStore';
-import { AlertaCkComponent } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_CERRAR_SESIONES } from 'src/app/compartidos/textos-alertas';
-import { ServicioInactividad } from 'src/app/compartidos/seguridades/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
 import { FormularioCambioClaveComponent } from '../componentes/formulario-cambio-clave/formulario-cambio-clave.component';
 
 @Component({

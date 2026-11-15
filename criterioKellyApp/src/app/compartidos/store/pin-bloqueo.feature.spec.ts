@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signalStore } from '@ngrx/signals';
 import { AccesoPinBloqueo, PinBloqueo } from '../modelos/pin-bloqueo.modelo';
-import { generarHashPin, esHashPin } from '../seguridades/hash-pin';
+import { generarHashPin, esHashPin } from '../seguridad/hash-pin';
 import { conPinBloqueo } from './pin-bloqueo.feature';
 
 class AccesoPinEnMemoria implements AccesoPinBloqueo {

@@ -3,7 +3,7 @@ import { IonicComponentes } from './compartidos/IonicComponentes';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MenuController, Platform } from '@ionic/angular';
-import { ServicioInactividad } from './compartidos/seguridades/ServicioInactividad';
+import { ServicioInactividad } from './compartidos/seguridad/ServicioInactividad';
 import { SesionStore } from './compartidos/store/sesion.store';
 import { MenuStore } from './compartidos/store/menu.store';
 import { DataBaseWebService } from './compartidos/servicios/data-base-web.service';
@@ -11,9 +11,9 @@ import { DataBaseService } from './compartidos/servicios/data-base.service';
 import { Capacitor } from '@capacitor/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EstadoAplicacionStore } from './compartidos/store/estado-aplicacion.store';
-import { AvisoSinConexionComponent } from './compartidos/aviso-sin-conexion/aviso-sin-conexion.component';
+import { AvisoSinConexionComponent } from './compartidos/componentes/aviso-sin-conexion/aviso-sin-conexion.component';
 import { UtilitariosService } from './compartidos/servicios/utilitarios.service';
-import { AlertaCkComponent } from './compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent } from './compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_NUEVA_VERSION, TEXTO_MAS_TARDE } from './compartidos/textos-alertas';
 
 @Component({

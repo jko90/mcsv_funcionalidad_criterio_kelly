@@ -10,7 +10,7 @@ import {
 } from 'src/app/paginas/suscripcion/configuracion/permisos-plan.config';
 import { PlanVigente } from 'src/app/paginas/suscripcion/modelos/PlanVigente.modelo';
 import { PlanVigenteStore } from 'src/app/paginas/suscripcion/store/plan-vigente.store';
-import { SesionStore } from '../store/sesion.store';
+import { SesionStore } from '../../store/sesion.store';
 
 const RUTA_INICIO = '/inicio';
 

@@ -3,22 +3,22 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AlertInput } from '@ionic/angular';
-import { AlertaCkComponent, ValoresCamposAlerta } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent, ValoresCamposAlerta } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import {
   ALERTA_CONFIRMAR_DIVISOR,
   TEXTO_ACTUALIZAR,
   TEXTO_CANCELAR_LARGO,
 } from 'src/app/compartidos/textos-alertas';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { CuentaResponse, CuentasModelo } from '../modelos/Cuentas.modelo';
 import { Capacitor } from '@capacitor/core';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentaStore } from '../store/cuentaStore';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
-import { AlertaLimitePlanComponent } from 'src/app/compartidos/alerta-limite-plan/alerta-limite-plan.component';
+import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
 import { RUTA_PLANES } from '../../suscripcion/configuracion/permisos-plan.config';
 import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
 import {

@@ -8,7 +8,7 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';

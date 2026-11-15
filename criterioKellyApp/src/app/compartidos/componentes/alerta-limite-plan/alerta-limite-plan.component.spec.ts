@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular/standalone';
-import { ALERTA_LIMITE_PLAN } from '../textos-alertas';
+import { ALERTA_LIMITE_PLAN } from '../../textos-alertas';
 import { AlertaLimitePlanComponent } from './alerta-limite-plan.component';
 
 describe('AlertaLimitePlanComponent', () => {

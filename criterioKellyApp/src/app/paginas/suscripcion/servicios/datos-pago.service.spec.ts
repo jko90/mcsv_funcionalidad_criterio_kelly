@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { OMITIR_MANEJO_ERROR } from 'src/app/compartidos/interceptors/sesion-http';
+import { OMITIR_MANEJO_ERROR } from 'src/app/compartidos/seguridad/interceptores/sesion-http';
 import { environment } from 'src/environments/environment';
 import { DatosPagoService } from './datos-pago.service';
 

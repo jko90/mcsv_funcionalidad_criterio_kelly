@@ -5,10 +5,10 @@ import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@an
 import { inject, isDevMode, provideAppInitializer } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
 import { Capacitor } from '@capacitor/core';
-import { errorInterceptor } from './app/compartidos/interceptors/error.interceptor';
-import { autenticacionInterceptor } from './app/compartidos/interceptors/autenticacion.interceptor';
+import { errorInterceptor } from './app/compartidos/seguridad/interceptores/error.interceptor';
+import { autenticacionInterceptor } from './app/compartidos/seguridad/interceptores/autenticacion.interceptor';
 import { SesionStore } from './app/compartidos/store/sesion.store';
-import { ServicioAutenticacion } from './app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from './app/compartidos/seguridad/ServicioAutenticacion';
 
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';

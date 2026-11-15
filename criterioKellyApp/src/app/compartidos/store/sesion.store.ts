@@ -26,8 +26,8 @@ import {
   tap,
   throwError,
 } from 'rxjs';
-import { Rol } from 'src/app/paginas/util/modelos/Rol.modelo';
-import { UsuarioApp } from 'src/app/paginas/util/modelos/Login.modelo';
+import { Rol } from 'src/app/compartidos/modelos/Rol.modelo';
+import { UsuarioApp } from 'src/app/compartidos/modelos/Login.modelo';
 import { AlmacenSeguroService } from '../servicios/almacen-seguro.service';
 import {
   CoordinadorPestanasService,

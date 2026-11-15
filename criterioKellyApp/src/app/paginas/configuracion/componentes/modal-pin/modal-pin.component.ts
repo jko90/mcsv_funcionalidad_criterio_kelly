@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AlertaCkComponent } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ALERTA_OMITIR_PIN } from 'src/app/compartidos/textos-alertas';
 

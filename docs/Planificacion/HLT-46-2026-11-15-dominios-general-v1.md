@@ -28,7 +28,7 @@ Crear `src/app/general/` con los subdominios `autenticacion`, `inicio` e `inform
 | `paginas/util/{login,recuperar-clave,verificar-correo}/` | `general/autenticacion/paginas/<nombre>/` |
 | `paginas/suscripcion/registro/` | `general/autenticacion/paginas/registro/` |
 | `paginas/util/componentes/{formulario-restablecer-clave,formulario-solicitar-codigo,formulario-verificar-correo}/` | `general/autenticacion/componentes/<nombre>/` |
-| `paginas/util/{modelos,servicios,store}/*` | `general/autenticacion/{modelos,servicios,store}/` (`login.store`, `personaStore`, `recuperacion-clave.store`, `verificacion-correo.store`; modelos `Login`, `Persona`, `RecuperacionClave`, `Rol`, `VerificacionCorreo`; servicios `persona`, `recuperacion-clave`, `verificacion-correo`). Si `Rol.modelo.ts` o `Login.modelo.ts` los usa `compartidos/` (sesión), el mapa de HLT-41 decide su sitio y se documenta la dependencia |
+| `paginas/util/{modelos,servicios,store}/*` | `general/autenticacion/{modelos,servicios,store}/` (`login.store`, `personaStore`, `recuperacion-clave.store`, `verificacion-correo.store`; modelos `Login`, `Persona`, `RecuperacionClave`, `Rol`, `VerificacionCorreo`; servicios `persona`, `recuperacion-clave`, `verificacion-correo`). `Rol.modelo.ts` y `Login.modelo.ts` ya se movieron a `compartidos/modelos/` en HLT-42 (los usa la sesión); aquí no se mueven |
 | `paginas/util/{ayuda,acerca-d}/` | `general/informacion/paginas/<nombre>/` (el nombre `acerca-d` no cambia) |
 | `paginas/inicio/*` | `general/inicio/paginas/inicio/` |
 

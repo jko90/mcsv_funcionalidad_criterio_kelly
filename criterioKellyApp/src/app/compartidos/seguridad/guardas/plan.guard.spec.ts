@@ -7,7 +7,7 @@ import {
   PlanVigente,
 } from 'src/app/paginas/suscripcion/modelos/PlanVigente.modelo';
 import { PlanVigenteStore } from 'src/app/paginas/suscripcion/store/plan-vigente.store';
-import { SesionStore } from '../store/sesion.store';
+import { SesionStore } from '../../store/sesion.store';
 import { planGuard } from './plan.guard';
 
 const ID_USUARIO = 7;

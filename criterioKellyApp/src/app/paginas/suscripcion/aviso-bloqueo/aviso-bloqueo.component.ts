@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import { AlertaCkComponent } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ALERTA_PLAN_PENDIENTE, TEXTO_ENTENDIDO, TEXTO_SUBIR_COMPROBANTE } from 'src/app/compartidos/textos-alertas';
 import { BloqueoPlan } from '../configuracion/permisos-plan.config';

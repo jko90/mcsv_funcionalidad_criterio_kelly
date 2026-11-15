@@ -27,9 +27,9 @@ Mover `paginas/administracion/` a `src/app/administracion/` (subdominios `pagos`
 |--------|---------|
 | `paginas/administracion/validar-pagos/`, `componentes/{detalle-pago,lista-pagos-pendientes}`, `servicios/administracion-pagos.service.*`, `store/validacion-pagos.store.*`, `modelos/PagoPendiente.modelo.ts`, `configuracion/textos-validacion.ts` | `administracion/pagos/{paginas/validar-pagos,componentes,servicios,store,modelos,configuracion}/` |
 | `paginas/administracion/datos-pago/` (página, `componentes/`, `modelos/`, `servicios/`, `store/`, `configuracion/`) | `administracion/datos-pago/{paginas/datos-pago,componentes,modelos,servicios,store,configuracion}/` |
-| `paginas/reportes/analisis/` | `reportes/analisis/paginas/analisis/` |
+| `paginas/reportes/analisis/`, `componentes/filtro-fechas/`, `servicios/exportarExcel.service.ts` | `reportes/analisis/{paginas/analisis,componentes,servicios}/` (el filtro y la exportación solo los usa `analisis`) |
 | `paginas/reportes/operativas/`, `componentes/grafico-estadistico/` | `reportes/operativas/{paginas/operativas,componentes}/` |
-| `paginas/reportes/componentes/filtro-fechas/`, `modelos/DetalleOperacion.modelo.ts`, `servicios/{exportarExcel,reportes}.service.ts`, `store/reportesStore.ts` | `reportes/compartido/{componentes,modelos,servicios,store}/` si los usan `analisis` y `operativas`; si algo lo usa un solo subdominio, va a ese (RN-01 de HLT-41) |
+| `paginas/reportes/modelos/DetalleOperacion.modelo.ts`, `servicios/reportes.service.ts`, `store/reportesStore.ts` | `reportes/compartido/{modelos,servicios,store}/` |
 
 ---
 

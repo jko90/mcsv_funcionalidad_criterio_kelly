@@ -2,13 +2,13 @@ import { Component, computed, effect, inject, OnInit, signal, untracked } from '
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { CuentasModelo } from '../../configuracion/modelos/Cuentas.modelo';
 import { SeleccionarCuentasComponent } from 'src/app/compartidos/seleccionar-cuentas/seleccionar-cuentas.component';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { CuentaStore } from '../../configuracion/store/cuentaStore';
 import { ReportesStore } from '../store/reportesStore';
-import { AlertaLimitePlanComponent } from 'src/app/compartidos/alerta-limite-plan/alerta-limite-plan.component';
+import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
 import { ExportarExcelService } from '../servicios/exportarExcel.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { FiltroFechasComponent } from '../componentes/filtro-fechas/filtro-fechas.component';

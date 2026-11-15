@@ -13,7 +13,7 @@ import {
   URL_CERRAR_SESION,
   URL_CERRAR_TODAS,
   URL_RENOVAR,
-} from '../interceptors/sesion-http';
+} from '../seguridad/interceptores/sesion-http';
 
 @Injectable({ providedIn: 'root' })
 export class SesionService {

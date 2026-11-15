@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { SesionStore } from '../store/sesion.store';
-import { Rol } from 'src/app/paginas/util/modelos/Rol.modelo';
-import { UsuarioApp } from 'src/app/paginas/util/modelos/Login.modelo';
+import { Rol } from 'src/app/compartidos/modelos/Rol.modelo';
+import { UsuarioApp } from 'src/app/compartidos/modelos/Login.modelo';
 
 const CLAVES_HEREDADAS = ['usuario', 'roles', 'autenticado', 'planSeleccionado'] as const;
 

@@ -8,9 +8,9 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, catchError, of, Observable, switchMap, throwError } from 'rxjs';
-import { UtilitariosService } from '../servicios/utilitarios.service';
-import { SesionStore } from '../store/sesion.store';
-import { ES_PLATAFORMA_NATIVA } from '../servicios/plataforma';
+import { UtilitariosService } from '../../servicios/utilitarios.service';
+import { SesionStore } from '../../store/sesion.store';
+import { ES_PLATAFORMA_NATIVA } from '../../servicios/plataforma';
 import {
   ES_REINTENTO_AUTENTICACION,
   URL_AUTENTICAR,

@@ -27,7 +27,10 @@ Reorganizar `src/app/compartidos/` en carpetas por tipo —`componentes`, `model
 
 | Origen | Destino |
 |--------|---------|
-| `compartidos/{encabezado,aviso-sin-conexion,alerta-ck,alerta-limite-plan,seleccionar-cuentas}/` | `compartidos/componentes/<nombre>/` (el nombre de la carpeta no cambia) |
+| `compartidos/{encabezado,aviso-sin-conexion,alerta-ck,alerta-limite-plan}/` | `compartidos/componentes/<nombre>/` (el nombre de la carpeta no cambia) |
+| `compartidos/seleccionar-cuentas/` | **No se mueve aquí**: va a `configuracion/cuentas/componentes/` en HLT-43 (es un componente de cuentas; lo usan `analisis` y `operativas`) |
+| `paginas/util/modelos/{Rol,Login}.modelo.ts` | `compartidos/modelos/` (los usa la sesión; resuelve la dependencia invertida sin cambiar código) |
+| `compartidos/seguridades/hash-pin.ts` | `compartidos/seguridad/hash-pin.ts` |
 | `compartidos/interceptors/*` | `compartidos/seguridad/interceptores/` |
 | `compartidos/seguridades/{GuardAutenticacion,GuardRoles,plan.guard}.*` | `compartidos/seguridad/guardas/` |
 | `compartidos/seguridades/{ServicioAutenticacion,ServicioInactividad,NombreUsuarioSesion}.ts` | `compartidos/seguridad/` |
@@ -35,7 +38,8 @@ Reorganizar `src/app/compartidos/` en carpetas por tipo —`componentes`, `model
 | `compartidos/servicios/*` | `compartidos/servicios/` (sin cambio de carpeta) |
 | `compartidos/store/{sesion,menu,estado-aplicacion}.store.*` | `compartidos/store/` (sin cambio) |
 | `compartidos/validadores/*`, `IonicComponentes.ts`, `textos-alertas.*` | sin cambio |
-| `compartidos/seguridades/hash-pin.*`, `store/dbPIN-*`, `pin-bloqueo.feature.*`, `store/dbkelly-*`, `modelos/pin-bloqueo.modelo.ts` | **No se mueven aquí**: el mapa de HLT-41 decide su destino y se mueven en HLT-43 (o se quedan en `compartidos/` si los usan varios dominios) |
+| `compartidos/store/dbPIN-*`, `pin-bloqueo.feature.*`, `store/dbkelly-*`, `modelos/pin-bloqueo.modelo.ts` | **Se quedan en `compartidos/`**: los usan varios dominios (HU-002, Anexo A) |
+| `compartidos/servicios/acciones-externas.service.ts` | **No se mueve aquí**: va a `negocio/suscripcion/servicios/` en HLT-45 |
 
 ---
 

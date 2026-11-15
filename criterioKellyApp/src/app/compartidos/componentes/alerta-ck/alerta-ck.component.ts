@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { AlertButton, AlertInput } from '@ionic/angular/standalone';
-import { IonicComponentes } from '../IonicComponentes';
+import { IonicComponentes } from '../../IonicComponentes';
 import {
   TEXTO_CANCELAR_POR_DEFECTO,
   TEXTO_CONFIRMAR_DESTRUCTIVA_POR_DEFECTO,
   TEXTO_CONFIRMAR_POR_DEFECTO,
   TEXTO_ENTENDIDO,
-} from '../textos-alertas';
+} from '../../textos-alertas';
 
 export type TipoAlertaCk = 'informativa' | 'confirmacion' | 'destructiva';
 export type ValoresCamposAlerta = Record<string, string | number | boolean | undefined>;

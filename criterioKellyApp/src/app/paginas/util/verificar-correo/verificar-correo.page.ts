@@ -9,7 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { interval, map } from 'rxjs';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { FormularioVerificarCorreoComponent } from '../componentes/formulario-verificar-correo/formulario-verificar-correo.component';
 import { ActivacionCuenta } from '../modelos/VerificacionCorreo.modelo';

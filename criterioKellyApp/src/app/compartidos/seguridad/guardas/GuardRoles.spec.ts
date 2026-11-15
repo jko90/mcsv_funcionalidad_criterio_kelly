@@ -2,8 +2,8 @@ import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { Rol } from 'src/app/paginas/util/modelos/Rol.modelo';
-import { SesionStore } from '../store/sesion.store';
+import { Rol } from 'src/app/compartidos/modelos/Rol.modelo';
+import { SesionStore } from '../../store/sesion.store';
 import { GuardRoles } from './GuardRoles';
 
 function rol(id: number): Rol {

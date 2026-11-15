@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { PlanesModelo } from '../modelos/Planes.modelo';
 import { PlanesStore } from '../store/PlanesStore';

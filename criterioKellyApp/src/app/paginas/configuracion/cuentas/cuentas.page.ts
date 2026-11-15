@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { AlertInput } from '@ionic/angular';
-import { AlertaCkComponent, TipoAlertaCk, ValoresCamposAlerta } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent, TipoAlertaCk, ValoresCamposAlerta } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import {
   ALERTA_AUMENTAR_CAPITAL,
   ALERTA_CREAR_CUENTA,
@@ -14,7 +14,7 @@ import {
   TextoAlerta,
   mensajeEliminarCuenta,
 } from 'src/app/compartidos/textos-alertas';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import {
   ActualizarNombreCuenta,
   CrearCuenta,
@@ -30,12 +30,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentaStore } from '../store/cuentaStore';
 import { Capacitor } from '@capacitor/core';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
-import { AlertaLimitePlanComponent } from 'src/app/compartidos/alerta-limite-plan/alerta-limite-plan.component';
+import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
 import { RUTA_PLANES } from '../../suscripcion/configuracion/permisos-plan.config';
 import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
 import {

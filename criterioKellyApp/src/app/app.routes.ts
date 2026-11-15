@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { GuardAutenticacion } from './compartidos/seguridades/GuardAutenticacion';
-import { planGuard } from './compartidos/seguridades/plan.guard';
-import { GuardRoles } from './compartidos/seguridades/GuardRoles';
+import { GuardAutenticacion } from './compartidos/seguridad/guardas/GuardAutenticacion';
+import { planGuard } from './compartidos/seguridad/guardas/plan.guard';
+import { GuardRoles } from './compartidos/seguridad/guardas/GuardRoles';
 
 export const routes: Routes = [
   {

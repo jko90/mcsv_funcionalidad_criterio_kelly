@@ -12,9 +12,9 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { UtilitariosService } from '../servicios/utilitarios.service';
-import { SesionStore } from '../store/sesion.store';
-import { ES_PLATAFORMA_NATIVA } from '../servicios/plataforma';
+import { UtilitariosService } from '../../servicios/utilitarios.service';
+import { SesionStore } from '../../store/sesion.store';
+import { ES_PLATAFORMA_NATIVA } from '../../servicios/plataforma';
 import { autenticacionInterceptor } from './autenticacion.interceptor';
 
 describe('autenticacionInterceptor', () => {

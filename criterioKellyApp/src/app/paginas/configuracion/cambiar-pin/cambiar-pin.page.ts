@@ -1,14 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { NavController } from '@ionic/angular';
-import { AlertaCkComponent } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_OLVIDE_PIN } from 'src/app/compartidos/textos-alertas';
 import { ModalPinComponent } from '../componentes/modal-pin/modal-pin.component';
 import { PinFormularioStore } from '../store/pin-formulario.store';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
-import { ServicioInactividad } from 'src/app/compartidos/seguridades/ServicioInactividad';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
 import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';

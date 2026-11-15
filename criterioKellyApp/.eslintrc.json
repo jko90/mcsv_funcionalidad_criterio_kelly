@@ -12,6 +12,15 @@
         "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
+      "plugins": ["import"],
+      "settings": {
+        "import/resolver": {
+          "node": {
+            "extensions": [".ts", ".js", ".json"],
+            "paths": ["."]
+          }
+        }
+      },
       "rules": {
         "no-console": "error",
         "@angular-eslint/component-class-suffix": [
@@ -35,6 +44,35 @@
             "prefix": "app",
             "style": "camelCase"
           }
+        ],
+        "import/no-restricted-paths": [
+          "warn",
+          {
+            "basePath": ".",
+            "zones": [
+              { "target": "./src/app/compartidos", "from": ["./src/app"], "except": ["./compartidos", "./negocio/suscripcion"], "message": "HU-002: compartidos/ no puede depender de un dominio; la única excepción es negocio/suscripcion (DN-04)." },
+              { "target": "./src/app/administracion", "from": ["./src/app"], "except": ["./administracion", "./compartidos", "./negocio/suscripcion"], "message": "HU-002: administracion/ solo puede importar compartidos/, su propio dominio y las APIs documentadas; no puede importar paginas/ ni otros dominios." },
+              { "target": "./src/app/configuracion", "from": ["./src/app"], "except": ["./configuracion", "./compartidos", "./negocio/suscripcion"], "message": "HU-002: configuracion/ solo puede importar compartidos/, su propio dominio y las APIs documentadas; no puede importar paginas/ ni otros dominios." },
+              { "target": "./src/app/general", "from": ["./src/app"], "except": ["./general", "./compartidos", "./negocio/suscripcion"], "message": "HU-002: general/ solo puede importar compartidos/, su propio dominio y las APIs documentadas; no puede importar paginas/ ni otros dominios." },
+              { "target": "./src/app/negocio", "from": ["./src/app"], "except": ["./negocio", "./compartidos", "./configuracion/cuentas"], "message": "HU-002: negocio/ solo puede importar compartidos/, su propio dominio y las APIs documentadas; no puede importar paginas/ ni otros dominios." },
+              { "target": "./src/app/reportes", "from": ["./src/app"], "except": ["./reportes", "./compartidos", "./negocio/suscripcion", "./configuracion/cuentas"], "message": "HU-002: reportes/ solo puede importar compartidos/, su propio dominio y las APIs documentadas; no puede importar paginas/ ni otros dominios." },
+              { "target": "./src/app/administracion/datos-pago", "from": ["./src/app/administracion"], "except": ["./datos-pago"], "message": "HU-002: administracion/datos-pago/ no puede importar otro subdominio de administracion/; usa administracion/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/administracion/pagos", "from": ["./src/app/administracion"], "except": ["./pagos"], "message": "HU-002: administracion/pagos/ no puede importar otro subdominio de administracion/; usa administracion/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/configuracion/bloqueo-pin", "from": ["./src/app/configuracion"], "except": ["./bloqueo-pin"], "message": "HU-002: configuracion/bloqueo-pin/ no puede importar otro subdominio de configuracion/; usa configuracion/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/configuracion/cuentas", "from": ["./src/app/configuracion"], "except": ["./cuentas"], "message": "HU-002: configuracion/cuentas/ no puede importar otro subdominio de configuracion/; usa configuracion/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/configuracion/operativa-kelly", "from": ["./src/app/configuracion"], "except": ["./operativa-kelly", "./cuentas"], "message": "HU-002: configuracion/operativa-kelly/ no puede importar otro subdominio de configuracion/; usa configuracion/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/configuracion/perfil", "from": ["./src/app/configuracion"], "except": ["./perfil"], "message": "HU-002: configuracion/perfil/ no puede importar otro subdominio de configuracion/; usa configuracion/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/general/autenticacion", "from": ["./src/app/general"], "except": ["./autenticacion"], "message": "HU-002: general/autenticacion/ no puede importar otro subdominio de general/; usa general/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/general/informacion", "from": ["./src/app/general"], "except": ["./informacion"], "message": "HU-002: general/informacion/ no puede importar otro subdominio de general/; usa general/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/general/inicio", "from": ["./src/app/general"], "except": ["./inicio"], "message": "HU-002: general/inicio/ no puede importar otro subdominio de general/; usa general/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/negocio/bitacora", "from": ["./src/app/negocio"], "except": ["./bitacora", "./suscripcion"], "message": "HU-002: negocio/bitacora/ no puede importar otro subdominio de negocio/; usa negocio/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/negocio/criterio-kelly", "from": ["./src/app/negocio"], "except": ["./criterio-kelly", "./suscripcion"], "message": "HU-002: negocio/criterio-kelly/ no puede importar otro subdominio de negocio/; usa negocio/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/negocio/suscripcion", "from": ["./src/app/negocio"], "except": ["./suscripcion"], "message": "HU-002: negocio/suscripcion/ no puede importar otro subdominio de negocio/; usa negocio/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/reportes/analisis", "from": ["./src/app/reportes"], "except": ["./analisis", "./compartido"], "message": "HU-002: reportes/analisis/ no puede importar otro subdominio de reportes/; usa reportes/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/reportes/operativas", "from": ["./src/app/reportes"], "except": ["./operativas", "./compartido"], "message": "HU-002: reportes/operativas/ no puede importar otro subdominio de reportes/; usa reportes/compartido/ o las APIs documentadas." },
+              { "target": "./src/app/reportes/compartido", "from": ["./src/app/reportes"], "except": ["./compartido"], "message": "HU-002: reportes/compartido/ no puede importar otro subdominio de reportes/; usa reportes/compartido/ o las APIs documentadas." }
+            ]
+          }
         ]
       }
     },
@@ -42,6 +80,12 @@
       "files": ["*.html"],
       "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {}
+    },
+    {
+      "files": ["**/*.spec.ts"],
+      "rules": {
+        "import/no-restricted-paths": "off"
+      }
     }
   ]
 }

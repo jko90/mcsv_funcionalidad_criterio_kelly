@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/cor
 import { Router } from '@angular/router';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { RecuperacionClaveStore } from '../store/recuperacion-clave.store';
 import { FormularioSolicitarCodigoComponent } from '../componentes/formulario-solicitar-codigo/formulario-solicitar-codigo.component';
 import { FormularioRestablecerClaveComponent } from '../componentes/formulario-restablecer-clave/formulario-restablecer-clave.component';

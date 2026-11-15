@@ -2,14 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { RefresherCustomEvent } from '@ionic/angular';
-import { AlertaCkComponent } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import {
   ALERTA_CANCELAR_PLAN,
   ALERTA_CONFIRMAR_PLAN,
   ALERTA_CONFLICTO_PLAN,
   mensajeConfirmarPlan,
 } from 'src/app/compartidos/textos-alertas';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { MenuStore } from 'src/app/compartidos/store/menu.store';

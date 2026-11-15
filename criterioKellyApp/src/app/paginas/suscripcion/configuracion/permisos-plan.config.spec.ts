@@ -1,6 +1,6 @@
 import { routes } from 'src/app/app.routes';
-import { GuardAutenticacion } from 'src/app/compartidos/seguridades/GuardAutenticacion';
-import { planGuard } from 'src/app/compartidos/seguridades/plan.guard';
+import { GuardAutenticacion } from 'src/app/compartidos/seguridad/guardas/GuardAutenticacion';
+import { planGuard } from 'src/app/compartidos/seguridad/guardas/plan.guard';
 import { PlanesModelo } from '../modelos/Planes.modelo';
 import {
   EstadoPlan,

@@ -3,15 +3,15 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentasModelo } from '../../configuracion/modelos/Cuentas.modelo';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { GraficoEstadisticoComponent } from '../componentes/grafico-estadistico/grafico-estadistico.component';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ReportesStore } from '../store/reportesStore';
-import { AlertaLimitePlanComponent } from 'src/app/compartidos/alerta-limite-plan/alerta-limite-plan.component';
+import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
 import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
 import {
   RUTA_PLANES,

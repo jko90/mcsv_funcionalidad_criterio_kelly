@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { AlertaCkComponent } from '../alerta-ck/alerta-ck.component';
-import { ALERTA_LIMITE_PLAN, TEXTO_AHORA_NO } from '../textos-alertas';
+import { ALERTA_LIMITE_PLAN, TEXTO_AHORA_NO } from '../../textos-alertas';
 
 @Component({
   selector: 'app-alerta-limite-plan',

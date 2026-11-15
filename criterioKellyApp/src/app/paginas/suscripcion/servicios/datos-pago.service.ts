@@ -1,7 +1,7 @@
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { OMITIR_MANEJO_ERROR } from 'src/app/compartidos/interceptors/sesion-http';
+import { OMITIR_MANEJO_ERROR } from 'src/app/compartidos/seguridad/interceptores/sesion-http';
 import { environment } from 'src/environments/environment';
 import { DatosPagoDisponibles } from '../modelos/DatosPago.modelo';
 

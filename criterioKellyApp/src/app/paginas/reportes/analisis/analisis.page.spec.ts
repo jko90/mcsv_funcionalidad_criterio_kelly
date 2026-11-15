@@ -7,7 +7,7 @@ import { LimitesPlan } from '../../suscripcion/modelos/PlanVigente.modelo';
 import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
 import { ExportarExcelService } from '../servicios/exportarExcel.service';
 import { ReportesStore } from '../store/reportesStore';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { CuentaStore } from '../../configuracion/store/cuentaStore';
 import { CuentasModelo } from '../../configuracion/modelos/Cuentas.modelo';
 import { AnalisisPage } from './analisis.page';

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { AlertInput } from '@ionic/angular/standalone';
-import { AlertaCkComponent, ValoresCamposAlerta } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent, ValoresCamposAlerta } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_APROBAR_PAGO, ALERTA_RECHAZAR_PAGO, PLACEHOLDER_MOTIVO_RECHAZO, TEXTO_CANCELAR_LARGO } from 'src/app/compartidos/textos-alertas';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DetallePagoComponent } from '../componentes/detalle-pago/detalle-pago.component';

@@ -1,20 +1,20 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { NavController } from '@ionic/angular';
 import { AlertInput } from '@ionic/angular/standalone';
-import { AlertaCkComponent, ValoresCamposAlerta } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
+import { AlertaCkComponent, ValoresCamposAlerta } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_BLOQUEO_SIN_PIN, TEXTO_SALIR } from 'src/app/compartidos/textos-alertas';
 import { firstValueFrom } from 'rxjs';
-import { NombreUsuarioSesion } from 'src/app/compartidos/seguridades/NombreUsuarioSesion';
+import { NombreUsuarioSesion } from 'src/app/compartidos/seguridad/NombreUsuarioSesion';
 import { SesionService } from 'src/app/compartidos/servicios/sesion.service';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridades/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
 import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { Capacitor } from '@capacitor/core';
-import { ServicioInactividad } from 'src/app/compartidos/seguridades/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
 
 const MAX_INTENTOS_CLAVE = 3;
 

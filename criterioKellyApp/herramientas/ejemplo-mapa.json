@@ -1,0 +1,6 @@
+{
+  "_nota": "Mapa de ejemplo de la reorganización (HLT-41). Son tres movimientos reales de HU-002 para probar herramientas/reubicar.mjs en una copia temporal, nunca en el repositorio: primero --simular y después --aplicar --verificar. El *.spec.ts de un archivo movido viaja con él sin listarlo.",
+  "src/app/paginas/util/modelos/Rol.modelo.ts": "src/app/compartidos/modelos/Rol.modelo.ts",
+  "src/app/paginas/configuracion/modelos/Cuentas.modelo.ts": "src/app/configuracion/cuentas/modelos/Cuentas.modelo.ts",
+  "src/app/compartidos/seleccionar-cuentas/": "src/app/configuracion/cuentas/componentes/seleccionar-cuentas/"
+}

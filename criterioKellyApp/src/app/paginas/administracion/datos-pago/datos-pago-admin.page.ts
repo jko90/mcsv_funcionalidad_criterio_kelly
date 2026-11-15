@@ -8,8 +8,8 @@ import {
   untracked,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertaCkComponent } from 'src/app/compartidos/alerta-ck/alerta-ck.component';
-import { EncabezadoComponent } from 'src/app/compartidos/encabezado/encabezado.component';
+import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
+import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
