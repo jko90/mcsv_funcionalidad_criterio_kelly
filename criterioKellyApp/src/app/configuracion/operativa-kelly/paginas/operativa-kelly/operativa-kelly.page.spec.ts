@@ -5,11 +5,11 @@ import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAut
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
-import { CuentaResponse } from '../modelos/Cuentas.modelo';
-import { LIMITES_SIN_RESTRICCION } from '../../suscripcion/configuracion/permisos-plan.config';
-import { LimitesPlan } from '../../suscripcion/modelos/PlanVigente.modelo';
-import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
-import { CuentaStore } from '../store/cuentaStore';
+import { CuentaResponse } from '../../../cuentas/modelos/Cuentas.modelo';
+import { LIMITES_SIN_RESTRICCION } from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
+import { LimitesPlan } from '../../../../paginas/suscripcion/modelos/PlanVigente.modelo';
+import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { CuentaStore } from '../../../cuentas/store/cuentaStore';
 import { OperativaKellyPage } from './operativa-kelly.page';
 
 describe('OperativaKellyPage · divisor según el plan', () => {

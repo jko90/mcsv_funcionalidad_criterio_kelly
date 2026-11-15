@@ -7,8 +7,8 @@ import { LIMITES_SIN_RESTRICCION } from '../../suscripcion/configuracion/permiso
 import { LimitesPlan } from '../../suscripcion/modelos/PlanVigente.modelo';
 import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
 import { ReportesStore } from '../store/reportesStore';
-import { CuentaStore } from '../../configuracion/store/cuentaStore';
-import { CuentasModelo } from '../../configuracion/modelos/Cuentas.modelo';
+import { CuentaStore } from '../../../configuracion/cuentas/store/cuentaStore';
+import { CuentasModelo } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { OperativasPage } from './operativas.page';
 
 const BASICO: LimitesPlan = {

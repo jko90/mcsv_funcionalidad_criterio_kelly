@@ -82,7 +82,7 @@ export const routes: Routes = [
   {
     path: 'cuentas',
     loadComponent: () =>
-      import('./paginas/configuracion/cuentas/cuentas.page').then(
+      import('./configuracion/cuentas/paginas/cuentas/cuentas.page').then(
         (m) => m.CuentasPage,
       ),
     canActivate: [GuardAutenticacion, planGuard],
@@ -90,7 +90,7 @@ export const routes: Routes = [
   {
     path: 'perfil',
     loadComponent: () =>
-      import('./paginas/configuracion/perfil/perfil.page').then(
+      import('./configuracion/perfil/paginas/perfil/perfil.page').then(
         (m) => m.PerfilPage,
       ),
     canActivate: [GuardAutenticacion],
@@ -98,7 +98,7 @@ export const routes: Routes = [
   {
     path: 'operativa-kelly',
     loadComponent: () =>
-      import('./paginas/configuracion/operativa-kelly/operativa-kelly.page').then(
+      import('./configuracion/operativa-kelly/paginas/operativa-kelly/operativa-kelly.page').then(
         (m) => m.OperativaKellyPage,
       ),
     canActivate: [GuardAutenticacion, planGuard],
@@ -106,7 +106,7 @@ export const routes: Routes = [
   {
     path: 'cambiar-pin',
     loadComponent: () =>
-      import('./paginas/configuracion/cambiar-pin/cambiar-pin.page').then(
+      import('./configuracion/bloqueo-pin/paginas/cambiar-pin/cambiar-pin.page').then(
         (m) => m.CambiarPinPage,
       ),
     canActivate: [GuardAutenticacion],
@@ -114,7 +114,7 @@ export const routes: Routes = [
   {
     path: 'bloqueo',
     loadComponent: () =>
-      import('./paginas/configuracion/bloqueo/bloqueo.page').then(
+      import('./configuracion/bloqueo-pin/paginas/bloqueo/bloqueo.page').then(
         (m) => m.BloqueoPage,
       ),
     canActivate: [GuardAutenticacion],

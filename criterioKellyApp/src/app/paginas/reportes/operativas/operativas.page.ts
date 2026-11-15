@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { CuentasModelo } from '../../configuracion/modelos/Cuentas.modelo';
+import { CuentasModelo } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { GraficoEstadisticoComponent } from '../componentes/grafico-estadistico/grafico-estadistico.component';
 import jsPDF from 'jspdf';
@@ -18,8 +18,8 @@ import {
   TEXTO_FUNCION_NO_INCLUIDA,
   textoAvisoDiasReporte,
 } from '../../suscripcion/configuracion/permisos-plan.config';
-import { SeleccionarCuentasComponent } from 'src/app/compartidos/seleccionar-cuentas/seleccionar-cuentas.component';
-import { CuentaStore } from '../../configuracion/store/cuentaStore';
+import { SeleccionarCuentasComponent } from 'src/app/configuracion/cuentas/componentes/seleccionar-cuentas/seleccionar-cuentas.component';
+import { CuentaStore } from '../../../configuracion/cuentas/store/cuentaStore';
 
 @Component({
   selector: 'app-operativas',

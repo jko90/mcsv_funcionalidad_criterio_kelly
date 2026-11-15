@@ -8,7 +8,7 @@ import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInact
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
-import { PinFormularioStore } from '../store/pin-formulario.store';
+import { PinFormularioStore } from '../../store/pin-formulario.store';
 import { CambiarPinPage } from './cambiar-pin.page';
 
 // Valor de prueba obvio: ningún PIN real aparece en este archivo.

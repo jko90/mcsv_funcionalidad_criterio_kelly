@@ -5,11 +5,11 @@ import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAut
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
-import { LIMITES_SIN_RESTRICCION } from '../../suscripcion/configuracion/permisos-plan.config';
-import { LimitesPlan } from '../../suscripcion/modelos/PlanVigente.modelo';
-import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
-import { CuentaResponse } from '../modelos/Cuentas.modelo';
-import { CuentaStore } from '../store/cuentaStore';
+import { LIMITES_SIN_RESTRICCION } from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
+import { LimitesPlan } from '../../../../paginas/suscripcion/modelos/PlanVigente.modelo';
+import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { CuentaResponse } from '../../modelos/Cuentas.modelo';
+import { CuentaStore } from '../../store/cuentaStore';
 import { CuentasPage } from './cuentas.page';
 
 describe('CuentasPage · tope de cuentas del plan', () => {

@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CuentasModelo } from 'src/app/paginas/configuracion/modelos/Cuentas.modelo';
+import { CuentasModelo } from 'src/app/configuracion/cuentas/modelos/Cuentas.modelo';
 import { SeleccionarCuentasComponent } from './seleccionar-cuentas.component';
 
 const CUENTA_A = { cue_idCuentas: 1, cue_nombre: 'Cuenta A' } as CuentasModelo;

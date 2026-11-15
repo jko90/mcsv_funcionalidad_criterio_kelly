@@ -10,14 +10,14 @@ import {
   ActualizarPerfilRequest,
   CambiarClaveRequest,
   VALIDACIONES,
-} from '../modelos/Perfil.modelo';
-import { UsuarioApp } from '../../../compartidos/modelos/Login.modelo';
+} from '../../modelos/Perfil.modelo';
+import { UsuarioApp } from '../../../../compartidos/modelos/Login.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { PerfilStore } from '../store/perfilStore';
+import { PerfilStore } from '../../store/perfilStore';
 import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_CERRAR_SESIONES } from 'src/app/compartidos/textos-alertas';
 import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
-import { FormularioCambioClaveComponent } from '../componentes/formulario-cambio-clave/formulario-cambio-clave.component';
+import { FormularioCambioClaveComponent } from '../../componentes/formulario-cambio-clave/formulario-cambio-clave.component';
 
 @Component({
   selector: 'app-perfil',

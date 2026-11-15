@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { IonicComponentes } from '../IonicComponentes';
-import { CuentasModelo } from 'src/app/paginas/configuracion/modelos/Cuentas.modelo';
+import { IonicComponentes } from '../../../../compartidos/IonicComponentes';
+import { CuentasModelo } from 'src/app/configuracion/cuentas/modelos/Cuentas.modelo';
 
 @Component({
   selector: 'app-seleccionar-cuentas',

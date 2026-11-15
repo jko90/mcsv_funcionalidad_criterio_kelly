@@ -20,8 +20,8 @@ import {
   CrearCuenta,
   CuentaResponse,
   EliminarCuenta,
-} from '../modelos/Cuentas.modelo';
-import { CapitalModelo } from '../modelos/Capital.modelo';
+} from '../../modelos/Cuentas.modelo';
+import { CapitalModelo } from '../../modelos/Capital.modelo';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import {
@@ -32,16 +32,16 @@ import {
 } from '@angular/forms';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { CuentaStore } from '../store/cuentaStore';
+import { CuentaStore } from '../../store/cuentaStore';
 import { Capacitor } from '@capacitor/core';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
 import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
-import { RUTA_PLANES } from '../../suscripcion/configuracion/permisos-plan.config';
-import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
+import { RUTA_PLANES } from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
+import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
 import {
   haAlcanzadoTopeCuentas,
   textoTopeCuentas,
-} from '../../suscripcion/configuracion/permisos-plan.config';
+} from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 
 const MONTO_MINIMO = 0.01;

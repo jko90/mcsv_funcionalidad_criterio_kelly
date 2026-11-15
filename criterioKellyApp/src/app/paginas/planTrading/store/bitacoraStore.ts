@@ -14,7 +14,7 @@ import {
 } from '../modelos/Bitacora.modelo';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { finalize, pipe, switchMap, tap, catchError, of } from 'rxjs';
-import { cuentasRespuetaExitosa } from '../../configuracion/modelos/Cuentas.modelo';
+import { cuentasRespuetaExitosa } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { FiltroBitacora } from '../servicios/bitacora.service';
 
 type BitacoraStoreState = {
