@@ -22,6 +22,13 @@ const initialState: MenuStoreState = {
   menu: [],
 };
 
+const GRUPOS_MENU: string[][] = [
+  ['/bitacora', '/bitacora-seguimiento', '/bitacora-fin', '/mostrar-criterio-kelly'],
+  ['/operativas', '/analisis'],
+  ['/cuentas', '/operativa-kelly', '/perfil', '/validar-pagos', '/datos-pago'],
+  ['/ayuda', '/acerca-d'],
+];
+
 export const MenuStore = signalStore(
   { providedIn: 'root' },
   withState<MenuStoreState>(initialState),
@@ -34,6 +41,13 @@ export const MenuStore = signalStore(
         (opcion) =>
           !opcion.roles?.length || opcion.roles.some((idRol) => idsRoles.includes(idRol)),
       );
+    }),
+  })),
+  withComputed(({ listaMenu }) => ({
+    // Se agrupa por ruta (redirectTo) y no por nombre: renombrar una opción en menu.json no la hace desaparecer.
+    gruposMenu: computed(() => {
+      const menu = listaMenu();
+      return GRUPOS_MENU.map((rutas) => menu.filter((item) => rutas.includes(item.redirectTo)));
     }),
   })),
   withMethods((store, menuService = inject(MenuService)) => ({

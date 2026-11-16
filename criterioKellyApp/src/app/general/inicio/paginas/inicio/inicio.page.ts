@@ -65,23 +65,7 @@ export class InicioPage {
   readonly titulo = '';
   readonly listaMenu = this.menuStore.listaMenu;
 
-  readonly gruposMenu = computed(() => {
-    const menu = this.listaMenu();
-    return [
-      menu.filter(item =>
-        ['Abrir operación', 'Seguimiento operación', 'Finalizar operación', 'Criterio Kelly'].includes(item.name)
-      ),
-      menu.filter(item =>
-        ['Reporte Operativas', 'Análisis Operativas'].includes(item.name)
-      ),
-      menu.filter(item =>
-        ['Cuentas', 'Configuración Kelly', 'Perfil', 'Validar pagos'].includes(item.name)
-      ),
-      menu.filter(item =>
-        ['Ayuda', 'Sobre App'].includes(item.name)
-      ),
-    ];
-  });
+  readonly gruposMenu = this.menuStore.gruposMenu;
 
   constructor() {
     effect(() => {

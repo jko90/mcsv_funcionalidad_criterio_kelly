@@ -41,7 +41,7 @@ describe('InicioPage · plan vigente', () => {
         { provide: SesionStore, useValue: { usuario: signal(usuario) } },
         {
           provide: MenuStore,
-          useValue: { listaMenu: signal([]), cargarMenu: () => undefined },
+          useValue: { listaMenu: signal([]), gruposMenu: signal([]), cargarMenu: () => undefined },
         },
       ],
     });

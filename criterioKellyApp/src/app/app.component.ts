@@ -95,26 +95,7 @@ export class AppComponent {
     this.inicializarDB();
   }
 
-  gruposMenu = computed(() => {
-    const menu = this.listaMenu();
-    return [
-      menu.filter((item) =>
-        [
-          'Abrir operación',
-          'Seguimiento operación',
-          'Finalizar operación',
-          'Criterio Kelly',
-        ].includes(item.name),
-      ),
-      menu.filter((item) =>
-        ['Reporte Operativas', 'Análisis Operativas'].includes(item.name),
-      ),
-      menu.filter((item) =>
-        ['Cuentas', 'Configuración Kelly', 'Perfil', 'Validar pagos', 'Datos de pago'].includes(item.name),
-      ),
-      menu.filter((item) => ['Ayuda', 'Sobre App'].includes(item.name)),
-    ];
-  });
+  gruposMenu = this.menuStore.gruposMenu;
 
   private async inicializarDB() {
     if (Capacitor.getPlatform() === 'web') {
