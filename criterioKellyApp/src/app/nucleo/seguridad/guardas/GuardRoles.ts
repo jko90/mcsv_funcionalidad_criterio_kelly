@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { filter, map, Observable, take } from 'rxjs';
-import { SesionStore } from '../../store/sesion.store';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 @Injectable({
   providedIn: 'root',

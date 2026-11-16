@@ -1,7 +1,7 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
-import { ErrorApi } from 'src/app/compartidos/modelos/error-api';
+import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
 import { DatosPagoDisponibles } from '../modelos/DatosPago.modelo';
 import { DatosPagoService } from '../servicios/datos-pago.service';
 import { PlanVigente } from '../modelos/PlanVigente.modelo';
@@ -13,15 +13,33 @@ const DATOS: DatosPagoDisponibles = {
   cripto: {
     nombre: 'Criptomoneda',
     redes: [
-      { clave: 'TRON', nombre: 'TRON', etiqueta: 'TRC20', direccion: 'TESTTRON', tieneQr: true, qrHash: 'h1' },
-      { clave: 'ETH', nombre: 'Ethereum', etiqueta: 'ERC20', direccion: 'TESTETH', tieneQr: false, qrHash: null },
+      {
+        clave: 'TRON',
+        nombre: 'TRON',
+        etiqueta: 'TRC20',
+        direccion: 'TESTTRON',
+        tieneQr: true,
+        qrHash: 'h1',
+      },
+      {
+        clave: 'ETH',
+        nombre: 'Ethereum',
+        etiqueta: 'ERC20',
+        direccion: 'TESTETH',
+        tieneQr: false,
+        qrHash: null,
+      },
     ],
   },
   paypal: { nombre: 'PayPal', correo: 'pagos@ejemplo.test', enlace: null },
   banco: { nombre: 'Banco', numero: '59399999', plantilla: null },
 };
 
-const SIN_DATOS: DatosPagoDisponibles = { cripto: null, paypal: null, banco: null };
+const SIN_DATOS: DatosPagoDisponibles = {
+  cripto: null,
+  paypal: null,
+  banco: null,
+};
 
 function crearPlan(idPlanInterv: number, nombre = 'Pro'): PlanVigente {
   return {
@@ -47,11 +65,16 @@ describe('MetodoPagoStore', () => {
     datos: DatosPagoDisponibles | null = DATOS,
   ): InstanceType<typeof MetodoPagoStore> {
     servicio.obtenerDisponibles.and.returnValue(
-      datos === null ? throwError(() => new ErrorApi('Sin conexión', 0)) : of(datos),
+      datos === null
+        ? throwError(() => new ErrorApi('Sin conexión', 0))
+        : of(datos),
     );
     TestBed.configureTestingModule({
       providers: [
-        { provide: PlanVigenteStore, useValue: { plan, usuarioId: signal<number | null>(7) } },
+        {
+          provide: PlanVigenteStore,
+          useValue: { plan, usuarioId: signal<number | null>(7) },
+        },
         { provide: DatosPagoService, useValue: servicio },
       ],
     });
@@ -63,20 +86,29 @@ describe('MetodoPagoStore', () => {
   beforeEach(() => {
     localStorage.removeItem(CLAVE_SOLICITUD_BANCO);
     plan = signal<PlanVigente | null>(crearPlan(5));
-    servicio = jasmine.createSpyObj<DatosPagoService>('DatosPagoService', ['obtenerDisponibles', 'obtenerQr']);
+    servicio = jasmine.createSpyObj<DatosPagoService>('DatosPagoService', [
+      'obtenerDisponibles',
+      'obtenerQr',
+    ]);
     servicio.obtenerQr.and.callFake(() => of(new Blob(['x'])));
   });
 
   it('empieza en el paso METODO con las tres opciones disponibles', () => {
     const store = crearStore();
     expect(store.pasoActual()).toBe('METODO');
-    expect(store.opcionesMetodo().map((opcion) => opcion.disponible)).toEqual([true, true, true]);
+    expect(store.opcionesMetodo().map((opcion) => opcion.disponible)).toEqual([
+      true,
+      true,
+      true,
+    ]);
     expect(store.redesUsdt().map((red) => red.clave)).toEqual(['TRON', 'ETH']);
   });
 
   it('con datos vacíos los métodos no están disponibles y no se pueden elegir', () => {
     const store = crearStore(SIN_DATOS);
-    expect(store.opcionesMetodo().every((opcion) => !opcion.disponible)).toBeTrue();
+    expect(
+      store.opcionesMetodo().every((opcion) => !opcion.disponible),
+    ).toBeTrue();
     store.elegirMetodo('PAYPAL');
     expect(store.pasoActual()).toBe('METODO');
   });
@@ -165,34 +197,56 @@ describe('MetodoPagoStore', () => {
     servicio.obtenerDisponibles.and.returnValue(respuesta);
     TestBed.configureTestingModule({
       providers: [
-        { provide: PlanVigenteStore, useValue: { plan, usuarioId: signal<number | null>(7) } },
+        {
+          provide: PlanVigenteStore,
+          useValue: { plan, usuarioId: signal<number | null>(7) },
+        },
         { provide: DatosPagoService, useValue: servicio },
       ],
     });
     const store = TestBed.inject(MetodoPagoStore);
     store.cargarDatos();
     expect(store.isLoading()).toBeTrue();
-    expect(store.opcionesMetodo().every((opcion) => !opcion.disponible)).toBeTrue();
+    expect(
+      store.opcionesMetodo().every((opcion) => !opcion.disponible),
+    ).toBeTrue();
     respuesta.next(DATOS);
     respuesta.complete();
     expect(store.isLoading()).toBeFalse();
-    expect(store.opcionesMetodo().every((opcion) => opcion.disponible)).toBeTrue();
+    expect(
+      store.opcionesMetodo().every((opcion) => opcion.disponible),
+    ).toBeTrue();
   });
 
   it('un fallo de carga deja los métodos no disponibles con el mensaje y permite reintentar', () => {
     const store = crearStore(null);
     expect(store.hayErrorDeCarga()).toBeTrue();
     expect(store.errorMessage()).toBe('Sin conexión');
-    expect(store.opcionesMetodo().every((opcion) => !opcion.disponible)).toBeTrue();
+    expect(
+      store.opcionesMetodo().every((opcion) => !opcion.disponible),
+    ).toBeTrue();
     servicio.obtenerDisponibles.and.returnValue(of(DATOS));
     store.cargarDatos();
     expect(store.hayErrorDeCarga()).toBeFalse();
-    expect(store.opcionesMetodo().every((opcion) => opcion.disponible)).toBeTrue();
+    expect(
+      store.opcionesMetodo().every((opcion) => opcion.disponible),
+    ).toBeTrue();
   });
 
   it('la respuesta del servidor decide la disponibilidad de cada método', () => {
-    const store = crearStore({ ...SIN_DATOS, paypal: { nombre: 'PayPal', correo: null, enlace: 'https://paypal.me/test' } });
-    expect(store.opcionesMetodo().map((opcion) => opcion.disponible)).toEqual([false, true, false]);
+    const store = crearStore({
+      ...SIN_DATOS,
+      paypal: {
+        nombre: 'PayPal',
+        correo: null,
+        enlace: 'https://paypal.me/test',
+      },
+    });
+    expect(store.opcionesMetodo().map((opcion) => opcion.disponible)).toEqual([
+      false,
+      true,
+      false,
+    ]);
     expect(store.enlacePaypal()).toBe('https://paypal.me/test');
     expect(store.correoPaypal()).toBe('');
   });
@@ -201,15 +255,23 @@ describe('MetodoPagoStore', () => {
     const store = crearStore();
     store.elegirMetodo('PAYPAL');
     store.reiniciar();
-    expect(store.opcionesMetodo().every((opcion) => opcion.disponible)).toBeTrue();
+    expect(
+      store.opcionesMetodo().every((opcion) => opcion.disponible),
+    ).toBeTrue();
   });
 
   it('el mensaje de WhatsApp usa la plantilla del servidor cuando existe', () => {
     const store = crearStore({
       ...DATOS,
-      banco: { nombre: 'Banco', numero: '59399999', plantilla: 'Quiero {plan} por {monto}' },
+      banco: {
+        nombre: 'Banco',
+        numero: '59399999',
+        plantilla: 'Quiero {plan} por {monto}',
+      },
     });
-    expect(decodeURIComponent(store.enlaceWhatsappBanco() ?? '')).toContain('Quiero Pro (Mensual) por 20');
+    expect(decodeURIComponent(store.enlaceWhatsappBanco() ?? '')).toContain(
+      'Quiero Pro (Mensual) por 20',
+    );
   });
 
   it('pide el QR solo de las redes que lo tienen al elegir cripto y lo libera al salir', () => {
@@ -232,7 +294,9 @@ describe('MetodoPagoStore', () => {
   });
 
   it('un QR que no se puede pedir no interrumpe el recorrido', () => {
-    servicio.obtenerQr.and.returnValue(throwError(() => new ErrorApi('No encontrado', 404)));
+    servicio.obtenerQr.and.returnValue(
+      throwError(() => new ErrorApi('No encontrado', 404)),
+    );
     const store = crearStore();
     store.elegirMetodo('CRIPTOMONEDA');
     expect(store.pasoActual()).toBe('INSTRUCCIONES');

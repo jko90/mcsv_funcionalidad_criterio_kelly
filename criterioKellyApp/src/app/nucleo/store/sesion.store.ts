@@ -26,22 +26,23 @@ import {
   tap,
   throwError,
 } from 'rxjs';
-import { Rol } from 'src/app/compartidos/modelos/Rol.modelo';
-import { UsuarioApp } from 'src/app/compartidos/modelos/Login.modelo';
-import { AlmacenSeguroService } from '../servicios/almacen-seguro.service';
-import {
-  CoordinadorPestanasService,
-  MensajeSesion,
-  NOMBRE_BLOQUEO_RENOVACION,
-} from '../servicios/coordinador-pestanas.service';
-import { SesionService } from '../servicios/sesion.service';
+import { Rol } from 'src/app/nucleo/modelo/Rol.modelo';
+import { UsuarioApp } from 'src/app/funcionalidad/autenticacion/modelo/Login.modelo';
+
 import {
   CredencialesSesion,
   EstadoRestauracion,
   RespuestaSesion,
   usuarioDesdeRespuesta,
-} from '../modelos/sesion.modelo';
-import { ES_PLATAFORMA_NATIVA } from '../servicios/plataforma';
+} from '../../nucleo/modelo/sesion.modelo';
+import { ES_PLATAFORMA_NATIVA } from 'src/app/nucleo/servicio/plataforma';
+import { SesionService } from 'src/app/nucleo/servicio/sesion.service';
+import { AlmacenSeguroService } from 'src/app/nucleo/servicio/almacen-seguro.service';
+import {
+  CoordinadorPestanasService,
+  MensajeSesion,
+  NOMBRE_BLOQUEO_RENOVACION,
+} from 'src/app/nucleo/servicio/coordinador-pestanas.service';
 
 type SesionEstado = {
   usuario: UsuarioApp | null;
@@ -74,15 +75,26 @@ const initialState: SesionEstado = {
 export const SesionStore = signalStore(
   { providedIn: 'root' },
   withState<SesionEstado>(initialState),
-  withComputed(({ loading, error, usuario, accessToken, cerrandoSesion, estadoRestauracion }) => ({
-    isLoading: computed(() => loading()),
-    errorMessage: computed(() => error()),
-    estaAutenticado: computed(
-      () => usuario() !== null && accessToken() !== null && !cerrandoSesion(),
-    ),
-    restauracionFinalizada: computed(() => estadoRestauracion() === 'finalizada'),
-    estaRestaurando: computed(() => estadoRestauracion() === 'en_curso'),
-  })),
+  withComputed(
+    ({
+      loading,
+      error,
+      usuario,
+      accessToken,
+      cerrandoSesion,
+      estadoRestauracion,
+    }) => ({
+      isLoading: computed(() => loading()),
+      errorMessage: computed(() => error()),
+      estaAutenticado: computed(
+        () => usuario() !== null && accessToken() !== null && !cerrandoSesion(),
+      ),
+      restauracionFinalizada: computed(
+        () => estadoRestauracion() === 'finalizada',
+      ),
+      estaRestaurando: computed(() => estadoRestauracion() === 'en_curso'),
+    }),
+  ),
   withMethods(
     (
       store,
@@ -94,7 +106,9 @@ export const SesionStore = signalStore(
       let renovacion$: Observable<string> | null = null;
       let restauracionEnCurso = false;
 
-      const aplicarRespuesta = (respuesta: RespuestaSesion): Observable<string> =>
+      const aplicarRespuesta = (
+        respuesta: RespuestaSesion,
+      ): Observable<string> =>
         defer(() =>
           from(
             esNativa && respuesta.refreshToken
@@ -115,7 +129,9 @@ export const SesionStore = signalStore(
           map(() => respuesta.accessToken),
         );
 
-      const limpiarTrasErrorRenovacion = (error: unknown): Observable<never> => {
+      const limpiarTrasErrorRenovacion = (
+        error: unknown,
+      ): Observable<never> => {
         const estado =
           typeof error === 'object' && error !== null && 'status' in error
             ? Number(error.status)
@@ -137,11 +153,15 @@ export const SesionStore = signalStore(
       const renovarInternamente = (): Observable<string> => {
         if (renovacion$) return renovacion$;
         patchState(store, { renovando: true, error: null });
-        renovacion$ = defer(() => from(esNativa ? almacenSeguro.leerRefresh() : Promise.resolve(null))).pipe(
+        renovacion$ = defer(() =>
+          from(esNativa ? almacenSeguro.leerRefresh() : Promise.resolve(null)),
+        ).pipe(
           switchMap((refreshToken) =>
             esNativa && !refreshToken
               ? throwError(() => new Error('No hay refresh disponible'))
-              : sesionServicio.renovar(esNativa ? { refreshToken: refreshToken ?? undefined } : {}),
+              : sesionServicio.renovar(
+                  esNativa ? { refreshToken: refreshToken ?? undefined } : {},
+                ),
           ),
           switchMap(aplicarRespuesta),
           finalize(() => {
@@ -157,31 +177,43 @@ export const SesionStore = signalStore(
         if (!esNativa) {
           const tokenAlPedir = store.accessToken();
           return defer(() =>
-            coordinador.ejecutarExclusivo(NOMBRE_BLOQUEO_RENOVACION, async () => {
-              const tokenExistente = store.accessToken();
-              if (tokenExistente && tokenExistente !== tokenAlPedir) {
-                return tokenExistente;
-              }
-              const tokenActual = await firstValueFrom(renovarInternamente());
-              if (tokenActual !== tokenAlPedir) {
-                coordinador.publicar(crearMensajeRenovada(store));
-              }
-              return tokenActual;
-            }),
+            coordinador.ejecutarExclusivo(
+              NOMBRE_BLOQUEO_RENOVACION,
+              async () => {
+                const tokenExistente = store.accessToken();
+                if (tokenExistente && tokenExistente !== tokenAlPedir) {
+                  return tokenExistente;
+                }
+                const tokenActual = await firstValueFrom(renovarInternamente());
+                if (tokenActual !== tokenAlPedir) {
+                  coordinador.publicar(crearMensajeRenovada(store));
+                }
+                return tokenActual;
+              },
+            ),
           ).pipe(
             switchMap((token) => of(token)),
             catchError(limpiarTrasErrorRenovacion),
           );
         }
-        return renovarInternamente().pipe(catchError(limpiarTrasErrorRenovacion));
+        return renovarInternamente().pipe(
+          catchError(limpiarTrasErrorRenovacion),
+        );
       };
 
       const restaurar = rxMethod<void>(
         pipe(
-          filter(() => !restauracionEnCurso && store.estadoRestauracion() === 'pendiente'),
+          filter(
+            () =>
+              !restauracionEnCurso &&
+              store.estadoRestauracion() === 'pendiente',
+          ),
           tap(() => {
             restauracionEnCurso = true;
-            patchState(store, { estadoRestauracion: 'en_curso', loading: true });
+            patchState(store, {
+              estadoRestauracion: 'en_curso',
+              loading: true,
+            });
           }),
           switchMap(() =>
             from(restaurarSesionPendiente(almacenSeguro, esNativa)).pipe(
@@ -201,7 +233,10 @@ export const SesionStore = signalStore(
               catchError(() => of(null)),
               finalize(() => {
                 restauracionEnCurso = false;
-                patchState(store, { estadoRestauracion: 'finalizada', loading: false });
+                patchState(store, {
+                  estadoRestauracion: 'finalizada',
+                  loading: false,
+                });
               }),
             ),
           ),
@@ -211,14 +246,22 @@ export const SesionStore = signalStore(
       return {
         iniciarSesion: rxMethod<CredencialesSesion>(
           pipe(
-            tap(() => patchState(store, { loading: true, error: null, estadoUltimoError: null })),
+            tap(() =>
+              patchState(store, {
+                loading: true,
+                error: null,
+                estadoUltimoError: null,
+              }),
+            ),
             switchMap((credenciales) =>
               sesionServicio.autenticar(credenciales).pipe(
                 switchMap(aplicarRespuesta),
                 tap(() => almacenSeguro.limpiarCierrePendiente()),
                 catchError((error: unknown) => {
                   const estado =
-                    typeof error === 'object' && error !== null && 'status' in error
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'status' in error
                       ? Number(error.status)
                       : null;
                   patchState(store, {
@@ -227,7 +270,10 @@ export const SesionStore = signalStore(
                     accessToken: null,
                     accessExpira: null,
                     estadoUltimoError: estado,
-                    error: error instanceof Error ? error.message : 'Error en la autenticación',
+                    error:
+                      error instanceof Error
+                        ? error.message
+                        : 'Error en la autenticación',
                   });
                   return EMPTY;
                 }),
@@ -241,7 +287,9 @@ export const SesionStore = signalStore(
         renovacionEnCurso: () => renovacion$,
         cerrarSesion: rxMethod<void>(
           pipe(
-            tap(() => patchState(store, { cerrandoSesion: true, loading: true })),
+            tap(() =>
+              patchState(store, { cerrandoSesion: true, loading: true }),
+            ),
             switchMap(() =>
               defer(() => {
                 let cierreExitoso = false;
@@ -259,7 +307,8 @@ export const SesionStore = signalStore(
                       ...initialState,
                       estadoRestauracion: 'finalizada',
                     });
-                    if (!esNativa) coordinador.publicar({ tipo: 'sesion-cerrada' });
+                    if (!esNativa)
+                      coordinador.publicar({ tipo: 'sesion-cerrada' });
                   }),
                 );
               }),
@@ -268,7 +317,9 @@ export const SesionStore = signalStore(
         ),
         cerrarTodasLasSesiones: rxMethod<void>(
           pipe(
-            tap(() => patchState(store, { cerrandoSesion: true, loading: true })),
+            tap(() =>
+              patchState(store, { cerrandoSesion: true, loading: true }),
+            ),
             switchMap(() =>
               defer(() => {
                 let cierreExitoso = false;
@@ -286,7 +337,8 @@ export const SesionStore = signalStore(
                       ...initialState,
                       estadoRestauracion: 'finalizada',
                     });
-                    if (!esNativa) coordinador.publicar({ tipo: 'sesion-cerrada' });
+                    if (!esNativa)
+                      coordinador.publicar({ tipo: 'sesion-cerrada' });
                   }),
                 );
               }),
@@ -302,7 +354,8 @@ export const SesionStore = signalStore(
             cerrandoSesion: false,
             loading: false,
           }),
-        actualizarDatosUsuario: (usuario: UsuarioApp) => patchState(store, { usuario }),
+        actualizarDatosUsuario: (usuario: UsuarioApp) =>
+          patchState(store, { usuario }),
         confirmarCierreRemoto: () => patchState(store, { cierreRemoto: false }),
       };
 
@@ -336,29 +389,29 @@ export const SesionStore = signalStore(
       coordinador.mensajes$
         .pipe(takeUntilDestroyed(destruir))
         .subscribe((mensaje) => {
-        if (mensaje.tipo === 'sesion-cerrada') {
-          if (store.estaAutenticado()) {
-            store.limpiarSesionLocal();
-            patchState(store, { cierreRemoto: true });
+          if (mensaje.tipo === 'sesion-cerrada') {
+            if (store.estaAutenticado()) {
+              store.limpiarSesionLocal();
+              patchState(store, { cierreRemoto: true });
+            }
+            return;
           }
-          return;
-        }
-        const sesion = mensaje.sesion;
-        const usuario = store.usuario();
-        const puedeAdoptar =
-          (store.estaAutenticado() && usuario?.id === sesion.id) ||
-          store.estadoRestauracion() !== 'finalizada';
-        if (!puedeAdoptar) return;
-        patchState(store, {
-          usuario: {
-            id: sesion.id,
-            nombres: sesion.nombres,
-            apellidos: sesion.apellidos,
-          },
-          roles: sesion.roles,
-          accessToken: sesion.accessToken,
-          accessExpira: sesion.accessExpira,
-        });
+          const sesion = mensaje.sesion;
+          const usuario = store.usuario();
+          const puedeAdoptar =
+            (store.estaAutenticado() && usuario?.id === sesion.id) ||
+            store.estadoRestauracion() !== 'finalizada';
+          if (!puedeAdoptar) return;
+          patchState(store, {
+            usuario: {
+              id: sesion.id,
+              nombres: sesion.nombres,
+              apellidos: sesion.apellidos,
+            },
+            roles: sesion.roles,
+            accessToken: sesion.accessToken,
+            accessExpira: sesion.accessExpira,
+          });
         });
     },
   }),

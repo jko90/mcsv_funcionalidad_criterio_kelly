@@ -24,7 +24,6 @@ import {
   tap,
   timer,
 } from 'rxjs';
-import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import {
   LimitesPlan,
   PlanProgramado,
@@ -43,6 +42,7 @@ import {
   textoBloqueo,
 } from '../configuracion/permisos-plan.config';
 import { SuscripcionService } from '../servicios/suscripcion.service';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 export const INTERVALO_TICK_MS = 30_000;
 export const SEGUNDOS_POR_DIA = 86_400;

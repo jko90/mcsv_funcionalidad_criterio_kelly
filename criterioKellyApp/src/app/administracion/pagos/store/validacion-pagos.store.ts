@@ -9,13 +9,16 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, filter, finalize, of, pipe, switchMap, tap } from 'rxjs';
-import { ErrorApi } from 'src/app/compartidos/modelos/error-api';
+import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
 import {
   esMotivoValido,
   mensajeConfirmarAprobacion,
   motivoSugerido,
 } from '../configuracion/textos-validacion';
-import { PagoPendiente, ResultadoValidacion } from '../modelos/PagoPendiente.modelo';
+import {
+  PagoPendiente,
+  ResultadoValidacion,
+} from '../modelos/PagoPendiente.modelo';
 import { AdministracionPagosService } from '../servicios/administracion-pagos.service';
 
 export const TAMANO_PAGINA_PAGOS = 20;
@@ -57,11 +60,15 @@ function estadoHttpDeError(error: unknown): number | null {
 
 // El interceptor ya mostró el mensaje del servidor; aquí se conserva para la pantalla.
 function mensajeDeError(error: unknown, mensajePorDefecto: string): string {
-  return error instanceof Error && error.message !== '' ? error.message : mensajePorDefecto;
+  return error instanceof Error && error.message !== ''
+    ? error.message
+    : mensajePorDefecto;
 }
 
 function menorIdPago(pagos: PagoPendiente[]): number | undefined {
-  return pagos.length === 0 ? undefined : Math.min(...pagos.map((pago) => pago.pag_idPago));
+  return pagos.length === 0
+    ? undefined
+    : Math.min(...pagos.map((pago) => pago.pag_idPago));
 }
 
 export const ValidacionPagosStore = signalStore(
@@ -91,7 +98,10 @@ export const ValidacionPagosStore = signalStore(
         switchMap(() =>
           servicio.obtenerPendientes(TAMANO_PAGINA_PAGOS).pipe(
             tap((pagos) =>
-              patchState(store, { pagos, hayMas: pagos.length === TAMANO_PAGINA_PAGOS }),
+              patchState(store, {
+                pagos,
+                hayMas: pagos.length === TAMANO_PAGINA_PAGOS,
+              }),
             ),
             catchError((error: unknown) => {
               patchState(store, {
@@ -112,19 +122,23 @@ export const ValidacionPagosStore = signalStore(
         filter(() => store.hayMas() && !store.loading()),
         tap(() => patchState(store, { loading: true, error: null })),
         switchMap(() =>
-          servicio.obtenerPendientes(TAMANO_PAGINA_PAGOS, menorIdPago(store.pagos())).pipe(
-            tap((pagina) =>
-              patchState(store, {
-                pagos: [...store.pagos(), ...pagina],
-                hayMas: pagina.length === TAMANO_PAGINA_PAGOS,
+          servicio
+            .obtenerPendientes(TAMANO_PAGINA_PAGOS, menorIdPago(store.pagos()))
+            .pipe(
+              tap((pagina) =>
+                patchState(store, {
+                  pagos: [...store.pagos(), ...pagina],
+                  hayMas: pagina.length === TAMANO_PAGINA_PAGOS,
+                }),
+              ),
+              catchError((error: unknown) => {
+                patchState(store, {
+                  error: mensajeDeError(error, MENSAJE_ERROR_CARGA),
+                });
+                return of(null);
               }),
+              finalize(() => patchState(store, { loading: false })),
             ),
-            catchError((error: unknown) => {
-              patchState(store, { error: mensajeDeError(error, MENSAJE_ERROR_CARGA) });
-              return of(null);
-            }),
-            finalize(() => patchState(store, { loading: false })),
-          ),
         ),
       ),
     );
@@ -141,13 +155,18 @@ export const ValidacionPagosStore = signalStore(
         switchMap((pago) => {
           if (!pago.tieneComprobante) return of(null);
           return servicio.obtenerComprobante(pago.pag_idPago).pipe(
-            tap((respuesta) => patchState(store, { comprobante: respuesta.comprobante })),
+            tap((respuesta) =>
+              patchState(store, { comprobante: respuesta.comprobante }),
+            ),
             catchError((error: unknown) => {
               // 404: el pago no tiene imagen; la ventana muestra «Sin comprobante».
-              const sinImagen = estadoHttpDeError(error) === ESTADO_NO_ENCONTRADO;
+              const sinImagen =
+                estadoHttpDeError(error) === ESTADO_NO_ENCONTRADO;
               patchState(store, {
                 comprobante: null,
-                error: sinImagen ? null : mensajeDeError(error, MENSAJE_ERROR_CARGA),
+                error: sinImagen
+                  ? null
+                  : mensajeDeError(error, MENSAJE_ERROR_CARGA),
               });
               return of(null);
             }),
@@ -168,7 +187,9 @@ export const ValidacionPagosStore = signalStore(
     // Un 409 indica que el pago cambió (otro administrador, comprobante antiguo...):
     // se vuelve a pedir la primera página para mostrar lo vigente.
     const alFallarValidacion = (error: unknown): null => {
-      patchState(store, { error: mensajeDeError(error, MENSAJE_ERROR_VALIDACION) });
+      patchState(store, {
+        error: mensajeDeError(error, MENSAJE_ERROR_VALIDACION),
+      });
       if (estadoHttpDeError(error) === ESTADO_CONFLICTO) cargarPendientes();
       return null;
     };
@@ -193,7 +214,10 @@ export const ValidacionPagosStore = signalStore(
         tap(() => patchState(store, { procesando: true, error: null })),
         switchMap(({ idPago, motivo }) => {
           if (!esMotivoValido(motivo)) {
-            patchState(store, { procesando: false, error: MENSAJE_MOTIVO_INVALIDO });
+            patchState(store, {
+              procesando: false,
+              error: MENSAJE_MOTIVO_INVALIDO,
+            });
             return of(null);
           }
           return servicio.rechazar(idPago, motivo.trim()).pipe(
@@ -213,7 +237,11 @@ export const ValidacionPagosStore = signalStore(
       rechazar,
       esMotivoValido,
       deseleccionar: (): void =>
-        patchState(store, { seleccionado: null, comprobante: null, cargandoComprobante: false }),
+        patchState(store, {
+          seleccionado: null,
+          comprobante: null,
+          cargandoComprobante: false,
+        }),
       limpiarResultado: (): void => patchState(store, { resultado: null }),
       limpiar: (): void => patchState(store, { ...estadoInicial }),
     };

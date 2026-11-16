@@ -1,10 +1,13 @@
 import { CUSTOM_ELEMENTS_SCHEMA, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { MOTIVO_COMPROBANTE_ANTIGUO } from '../../configuracion/textos-validacion';
-import { PagoPendiente, ResultadoValidacion } from '../../modelos/PagoPendiente.modelo';
+import {
+  PagoPendiente,
+  ResultadoValidacion,
+} from '../../modelos/PagoPendiente.modelo';
 import { ValidacionPagosStore } from '../../store/validacion-pagos.store';
 import { ValidarPagosPage } from './validar-pagos.page';
 
@@ -38,11 +41,16 @@ describe('ValidarPagosPage', () => {
       deseleccionar: jasmine.createSpy('deseleccionar'),
       aprobar: jasmine.createSpy('aprobar'),
       rechazar: jasmine.createSpy('rechazar'),
-      limpiarResultado: jasmine.createSpy('limpiarResultado').and.callFake(() => resultado.set(null)),
+      limpiarResultado: jasmine
+        .createSpy('limpiarResultado')
+        .and.callFake(() => resultado.set(null)),
       limpiar: jasmine.createSpy('limpiar'),
       esMotivoValido: (motivo: string) => motivo.trim().length >= 5,
     };
-    utilitarios = jasmine.createSpyObj<UtilitariosService>('UtilitariosService', ['mostrarToast']);
+    utilitarios = jasmine.createSpyObj<UtilitariosService>(
+      'UtilitariosService',
+      ['mostrarToast'],
+    );
 
     TestBed.configureTestingModule({
       imports: [ValidarPagosPage],
@@ -67,7 +75,9 @@ describe('ValidarPagosPage', () => {
   it('aprobar abre la confirmación del store y solo aprueba al confirmar', () => {
     pagina.alSolicitarAprobar(PAGO);
     expect(pagina.pagoPorAprobar()).toBe(PAGO);
-    expect(pagina.mensajeAprobarPago()).toBe('¿Aprobar el pago de ana por 20 USD?');
+    expect(pagina.mensajeAprobarPago()).toBe(
+      '¿Aprobar el pago de ana por 20 USD?',
+    );
     expect(store['aprobar']).not.toHaveBeenCalled();
     pagina.alConfirmarAprobar();
     expect(store['aprobar']).toHaveBeenCalledOnceWith(3);
@@ -95,9 +105,14 @@ describe('ValidarPagosPage', () => {
 
   it('un motivo válido se acepta y al confirmar llama al store', () => {
     pagina.alSolicitarRechazar(PAGO);
-    expect(pagina.validarMotivoRechazo({ motivo: 'Comprobante ilegible' })).toBeTrue();
+    expect(
+      pagina.validarMotivoRechazo({ motivo: 'Comprobante ilegible' }),
+    ).toBeTrue();
     pagina.alConfirmarRechazo({ motivo: 'Comprobante ilegible' });
-    expect(store['rechazar']).toHaveBeenCalledWith({ idPago: 3, motivo: 'Comprobante ilegible' });
+    expect(store['rechazar']).toHaveBeenCalledWith({
+      idPago: 3,
+      motivo: 'Comprobante ilegible',
+    });
     expect(pagina.pagoPorRechazar()).toBeNull();
   });
 
@@ -116,10 +131,16 @@ describe('ValidarPagosPage', () => {
   it('muestra el toast según el resultado y lo limpia', () => {
     resultado.set('APROBADO');
     fixture.detectChanges();
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith('Pago aprobado', 'success');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      'Pago aprobado',
+      'success',
+    );
     expect(store['limpiarResultado']).toHaveBeenCalled();
     resultado.set('RECHAZADO');
     fixture.detectChanges();
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith('Pago rechazado', 'success');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      'Pago rechazado',
+      'success',
+    );
   });
 });

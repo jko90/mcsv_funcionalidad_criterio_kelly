@@ -6,11 +6,11 @@ import {
   withState,
 } from '@ngrx/signals';
 import { inject, computed } from '@angular/core';
-import { MenuService } from '../servicios/menu.service';
 import { SesionStore } from './sesion.store';
-import { Menu } from '../modelos/menu';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { finalize, pipe, switchMap, tap, catchError, of } from 'rxjs';
+import { Menu } from 'src/app/compartidos/modelos/menu';
+import { MenuService } from 'src/app/compartidos/servicios/menu.service';
 
 type MenuStoreState = {
   loading: boolean;

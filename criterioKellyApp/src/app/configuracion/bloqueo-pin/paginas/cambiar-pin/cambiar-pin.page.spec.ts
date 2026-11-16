@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { NavController } from '@ionic/angular';
 import type { IonModal } from '@ionic/angular/standalone';
 import type { OverlayEventDetail } from '@ionic/core';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
@@ -27,7 +27,9 @@ describe('CambiarPinPage · modal del PIN', () => {
   function crearPagina(): CambiarPinPage {
     llamadas = [];
     navegar = jasmine.createSpy('navigateForward').and.resolveTo(true);
-    guardar = jasmine.createSpy('guardar').and.callFake(() => llamadas.push('guardar'));
+    guardar = jasmine
+      .createSpy('guardar')
+      .and.callFake(() => llamadas.push('guardar'));
     toast = jasmine.createSpy('mostrarToast').and.callFake(async () => {
       llamadas.push('toast');
     });
@@ -42,11 +44,17 @@ describe('CambiarPinPage · modal del PIN', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: NavController, useValue: { navigateForward: navegar } },
-        { provide: ServicioAutenticacion, useValue: { obtenerUsuarioActual: () => ({ id: 1 }) } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { obtenerUsuarioActual: () => ({ id: 1 }) },
+        },
         { provide: ServicioInactividad, useValue: {} },
         {
           provide: UtilitariosService,
-          useValue: { mostrarToast: toast, esperarCargaDeStore: () => Promise.resolve() },
+          useValue: {
+            mostrarToast: toast,
+            esperarCargaDeStore: () => Promise.resolve(),
+          },
         },
         { provide: DbPINWebStore, useValue: {} },
         { provide: DbPINAppStore, useValue: {} },
@@ -72,7 +80,10 @@ describe('CambiarPinPage · modal del PIN', () => {
   it('crear el PIN: guarda, avisa y cierra con { pinCreado: true }', async () => {
     const pagina = crearPagina();
     await pagina.alConfirmarPin(PIN_DE_PRUEBA, modal);
-    expect(toast).toHaveBeenCalledOnceWith('PIN creado correctamente.', 'success');
+    expect(toast).toHaveBeenCalledOnceWith(
+      'PIN creado correctamente.',
+      'success',
+    );
     expect(cerrarModal).toHaveBeenCalledOnceWith({ pinCreado: true });
     expect(llamadas).toEqual(['guardar', 'toast', 'dismiss']);
   });
@@ -82,14 +93,20 @@ describe('CambiarPinPage · modal del PIN', () => {
     pinCreado.set(false);
     colorAviso.set('danger');
     await pagina.alConfirmarPin(PIN_DE_PRUEBA, modal);
-    expect(toast).toHaveBeenCalledOnceWith('PIN creado correctamente.', 'danger');
+    expect(toast).toHaveBeenCalledOnceWith(
+      'PIN creado correctamente.',
+      'danger',
+    );
     expect(cerrarModal).toHaveBeenCalledOnceWith({ pinCreado: false });
   });
 
   it('valores distintos: aviso de peligro sin cerrar', async () => {
     const pagina = crearPagina();
     await pagina.alMostrarPinDistinto();
-    expect(toast).toHaveBeenCalledOnceWith('Digite el mismo valor en las dos opciones', 'danger');
+    expect(toast).toHaveBeenCalledOnceWith(
+      'Digite el mismo valor en las dos opciones',
+      'danger',
+    );
     expect(cerrarModal).not.toHaveBeenCalled();
   });
 

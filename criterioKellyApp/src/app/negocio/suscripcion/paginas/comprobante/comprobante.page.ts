@@ -13,7 +13,6 @@ import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { AccionesExternasService } from 'src/app/negocio/suscripcion/servicios/acciones-externas.service';
-import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { EstadoPagoComponent } from '../../componentes/estado-pago/estado-pago.component';
 import { FormularioComprobanteComponent } from '../../componentes/formulario-comprobante/formulario-comprobante.component';
 import { IndicadorPasosPagoComponent } from '../../componentes/indicador-pasos-pago/indicador-pasos-pago.component';
@@ -24,6 +23,7 @@ import { ComprobanteStore } from '../../store/comprobante.store';
 import { MetodoPagoStore } from '../../store/metodo-pago.store';
 import { PlanVigenteStore } from '../../store/plan-vigente.store';
 import { validarImagenComprobante } from './validacion-imagen';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 const MENSAJE_DIRECCION_COPIADA = 'Copiado. Ya puedes pegarlo en tu app de pago.';
 const MENSAJE_COPIA_FALLIDA = 'No se pudo copiar, selecciona el texto y cópialo a mano.';

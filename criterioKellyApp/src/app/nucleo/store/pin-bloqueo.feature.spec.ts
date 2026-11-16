@@ -1,7 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { signalStore } from '@ngrx/signals';
-import { AccesoPinBloqueo, PinBloqueo } from '../modelos/pin-bloqueo.modelo';
-import { generarHashPin, esHashPin } from '../seguridad/hash-pin';
+import {
+  AccesoPinBloqueo,
+  PinBloqueo,
+} from '../../funcionalidad/autenticacion/modelo/pin-bloqueo.modelo';
+import { generarHashPin, esHashPin } from '../seguridad/servicio/hash-pin';
 import { conPinBloqueo } from './pin-bloqueo.feature';
 
 class AccesoPinEnMemoria implements AccesoPinBloqueo {
@@ -38,7 +41,8 @@ class AccesoPinEnMemoria implements AccesoPinBloqueo {
     pin_idUsuario: number,
   ): Promise<string> {
     const registro = this.registros.find(
-      (item) => item.pin_idPin === pin_idPin && item.pin_idUsuario === pin_idUsuario,
+      (item) =>
+        item.pin_idPin === pin_idPin && item.pin_idUsuario === pin_idUsuario,
     );
     if (registro) registro.pin_codigo = pin_codigo;
     return 'PIN actualizado correctamente.';

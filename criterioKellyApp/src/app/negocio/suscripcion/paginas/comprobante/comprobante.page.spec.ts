@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { UltimoPago } from '../../modelos/EstadoPago.modelo';
 import { PlanVigente } from '../../modelos/PlanVigente.modelo';
@@ -46,10 +46,14 @@ describe('ComprobantePage', () => {
       enviarComprobante: jasmine.createSpy('enviarComprobante'),
       limpiar: jasmine.createSpy('limpiar'),
     };
-    imagenes = jasmine.createSpyObj<ManejoImagenesService>('ManejoImagenesService', [
-      'seleccionarImagen',
-    ]);
-    utilitarios = jasmine.createSpyObj<UtilitariosService>('UtilitariosService', ['mostrarToast']);
+    imagenes = jasmine.createSpyObj<ManejoImagenesService>(
+      'ManejoImagenesService',
+      ['seleccionarImagen'],
+    );
+    utilitarios = jasmine.createSpyObj<UtilitariosService>(
+      'UtilitariosService',
+      ['mostrarToast'],
+    );
     cargarPlan = jasmine.createSpy('cargar');
     metodoPago = {
       pasoActual: signal('COMPROBANTE'),
@@ -75,7 +79,10 @@ describe('ComprobantePage', () => {
       pasarAlComprobante: jasmine.createSpy('pasarAlComprobante'),
       reiniciar: jasmine.createSpy('reiniciar'),
     };
-    externas = jasmine.createSpyObj<AccionesExternasService>('AccionesExternasService', ['copiarTexto', 'abrirEnlaceExterno']);
+    externas = jasmine.createSpyObj<AccionesExternasService>(
+      'AccionesExternasService',
+      ['copiarTexto', 'abrirEnlaceExterno'],
+    );
 
     TestBed.configureTestingModule({
       imports: [ComprobantePage],
@@ -125,7 +132,10 @@ describe('ComprobantePage', () => {
   it('una imagen de más de 512 KB se rechaza con aviso y no queda para enviar', () => {
     elegirImagen(IMAGEN_GRANDE);
     expect(pagina.vistaPrevia()).toBeNull();
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(MENSAJE_IMAGEN_GRANDE, 'danger');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      MENSAJE_IMAGEN_GRANDE,
+      'danger',
+    );
     expect(store['enviarComprobante']).not.toHaveBeenCalled();
   });
 
@@ -139,23 +149,41 @@ describe('ComprobantePage', () => {
       alError?.('No se pudo procesar la imagen'),
     );
     pagina.alSeleccionarImagen({} as Event);
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith('No se pudo procesar la imagen', 'danger');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      'No se pudo procesar la imagen',
+      'danger',
+    );
   });
 
   it('al enviar delega la solicitud en el store', () => {
-    const solicitud = { metodoPago: 'BANCO', idTransaccion: 'TX', comprobante: IMAGEN_VALIDA } as const;
+    const solicitud = {
+      metodoPago: 'BANCO',
+      idTransaccion: 'TX',
+      comprobante: IMAGEN_VALIDA,
+    } as const;
     pagina.alEnviarComprobante(solicitud);
     expect(store['enviarComprobante']).toHaveBeenCalledOnceWith(solicitud);
   });
 
   it('con un pago en revisión (puedeEnviar=false) no muestra el formulario', () => {
-    expect((fixture.nativeElement as HTMLElement).querySelector('app-formulario-comprobante')).not.toBeNull();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        'app-formulario-comprobante',
+      ),
+    ).not.toBeNull();
 
     puedeEnviar.set(false);
-    ultimoPago.set({ pag_situacion: 'R', pag_fechaPago: '2026-11-12' } as UltimoPago);
+    ultimoPago.set({
+      pag_situacion: 'R',
+      pag_fechaPago: '2026-11-12',
+    } as UltimoPago);
     fixture.detectChanges();
 
-    expect((fixture.nativeElement as HTMLElement).querySelector('app-formulario-comprobante')).toBeNull();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        'app-formulario-comprobante',
+      ),
+    ).toBeNull();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'En revisión: el administrador validará tu comprobante',
     );
@@ -171,17 +199,25 @@ describe('ComprobantePage', () => {
 
   it('pedir datos por WhatsApp abre el enlace y marca la etapa', () => {
     pagina.alPedirDatosPorWhatsapp();
-    expect(externas.abrirEnlaceExterno).toHaveBeenCalledOnceWith(ENLACE_WHATSAPP_PRUEBA);
+    expect(externas.abrirEnlaceExterno).toHaveBeenCalledOnceWith(
+      ENLACE_WHATSAPP_PRUEBA,
+    );
     expect(metodoPago['marcarWhatsappAbierto']).toHaveBeenCalled();
   });
 
   it('copiar avisa con un toast según el resultado', async () => {
     externas.copiarTexto.and.resolveTo(true);
     await pagina.alCopiar('abc');
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(jasmine.any(String), 'success');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      jasmine.any(String),
+      'success',
+    );
     externas.copiarTexto.and.resolveTo(false);
     await pagina.alCopiar('abc');
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(jasmine.any(String), 'warning');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      jasmine.any(String),
+      'warning',
+    );
   });
 
   it('al salir descarta la imagen y limpia el store', () => {

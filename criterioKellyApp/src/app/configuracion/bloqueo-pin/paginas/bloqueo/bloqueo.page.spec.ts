@@ -2,10 +2,10 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NavController } from '@ionic/angular';
 import { of, throwError } from 'rxjs';
-import { NombreUsuarioSesion } from 'src/app/compartidos/seguridad/NombreUsuarioSesion';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
-import { SesionService } from 'src/app/compartidos/servicios/sesion.service';
+import { NombreUsuarioSesion } from 'src/app/nucleo/seguridad/servicio/NombreUsuarioSesion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
+import { SesionService } from 'src/app/nucleo/servicio/sesion.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
@@ -32,8 +32,17 @@ describe('BloqueoPage · contraseña sin PIN', () => {
       providers: [
         { provide: NavController, useValue: { navigateForward: navegar } },
         { provide: ServicioInactividad, useValue: { salir } },
-        { provide: ServicioAutenticacion, useValue: { obtenerUsuarioActual: () => ({ id: 1 }) } },
-        { provide: UtilitariosService, useValue: { mostrarToast: toast, esperarCargaDeStore: () => Promise.resolve() } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { obtenerUsuarioActual: () => ({ id: 1 }) },
+        },
+        {
+          provide: UtilitariosService,
+          useValue: {
+            mostrarToast: toast,
+            esperarCargaDeStore: () => Promise.resolve(),
+          },
+        },
         { provide: DbPINWebStore, useValue: almacenPin },
         { provide: DbPINAppStore, useValue: almacenPin },
         { provide: NombreUsuarioSesion, useValue: { obtener: () => 'ana' } },
@@ -69,7 +78,10 @@ describe('BloqueoPage · contraseña sin PIN', () => {
     expect(salir).not.toHaveBeenCalled();
     await pagina.alConfirmarClave({ clave: 'mala' });
     expect(pagina.alertaClaveAbierta()).toBeFalse();
-    expect(toast).toHaveBeenCalledWith('Demasiados intentos fallidos', 'danger');
+    expect(toast).toHaveBeenCalledWith(
+      'Demasiados intentos fallidos',
+      'danger',
+    );
     expect(salir).toHaveBeenCalled();
   });
 

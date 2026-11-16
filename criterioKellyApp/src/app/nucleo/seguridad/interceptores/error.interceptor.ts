@@ -1,8 +1,8 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { UtilitariosService } from '../../servicios/utilitarios.service';
+import { UtilitariosService } from '../../../compartidos/servicios/utilitarios.service';
 import { catchError, throwError } from 'rxjs';
-import { ErrorApi } from '../../modelos/error-api';
+import { ErrorApi } from '../../modelo/error-api';
 import { OMITIR_MANEJO_ERROR } from './sesion-http';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
@@ -46,7 +46,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             mensaje = 'Conflicto de datos. Verifique la información enviada.';
             break;
           case 422:
-            mensaje = 'Has llegado al límite de pérdida, recargue la cuenta para seguir intentando.';
+            mensaje =
+              'Has llegado al límite de pérdida, recargue la cuenta para seguir intentando.';
             break;
           default:
             if (error.status >= 500) {
@@ -66,15 +67,13 @@ function mensajePorReintento(error: HttpErrorResponse): string {
   const cabecera = error.headers.get('Retry-After');
   if (!cabecera) {
     return (
-      error.error?.error ||
-      'Demasiados intentos, intente nuevamente más tarde'
+      error.error?.error || 'Demasiados intentos, intente nuevamente más tarde'
     );
   }
   const segundos = Number(cabecera);
   if (!Number.isInteger(segundos) || segundos <= 0) {
     return (
-      error.error?.error ||
-      'Demasiados intentos, intente nuevamente más tarde'
+      error.error?.error || 'Demasiados intentos, intente nuevamente más tarde'
     );
   }
   if (segundos >= 60) {

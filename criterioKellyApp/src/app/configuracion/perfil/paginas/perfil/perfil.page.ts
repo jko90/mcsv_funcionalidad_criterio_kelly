@@ -1,23 +1,28 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { Router } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { SesionStore } from 'src/app/compartidos/store/sesion.store';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import {
   ActualizarPerfilRequest,
   CambiarClaveRequest,
   VALIDACIONES,
 } from '../../modelos/Perfil.modelo';
-import { UsuarioApp } from '../../../../compartidos/modelos/Login.modelo';
+import { UsuarioApp } from '../../../../funcionalidad/autenticacion/modelo/Login.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { PerfilStore } from '../../store/perfilStore';
 import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_CERRAR_SESIONES } from 'src/app/compartidos/textos-alertas';
-import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
 import { FormularioCambioClaveComponent } from '../../componentes/formulario-cambio-clave/formulario-cambio-clave.component';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 @Component({
   selector: 'app-perfil',
@@ -136,7 +141,6 @@ export class PerfilPage {
         [Validators.required, Validators.pattern(VALIDACIONES.TELEFONO_REGEX)],
       ],
     });
-
   }
 
   private cargarDatosUsuario(): void {
@@ -161,7 +165,8 @@ export class PerfilPage {
   }
 
   alCambiarClave(request: CambiarClaveRequest): void {
-    if (!this.cargandoCambioContrasena()) this.perfilStore.cambiarClave(request);
+    if (!this.cargandoCambioContrasena())
+      this.perfilStore.cambiarClave(request);
   }
 
   irACambiarPin(): void {

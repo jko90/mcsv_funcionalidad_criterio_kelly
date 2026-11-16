@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { AccesoPinBloqueo, PinBloqueo } from '../modelos/pin-bloqueo.modelo';
+import {
+  AccesoPinBloqueo,
+  PinBloqueo,
+} from '../../funcionalidad/autenticacion/modelo/pin-bloqueo.modelo';
 
 @Injectable({ providedIn: 'root' })
 export class DataBaseWebService implements AccesoPinBloqueo {
@@ -176,7 +179,8 @@ export class DataBaseWebService implements AccesoPinBloqueo {
       const cursorReq = store.openCursor();
       let exists = false;
       cursorReq.onsuccess = (event: Event) => {
-        const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>).result;
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>)
+          .result;
         if (cursor) {
           if (cursor.value.pin_idUsuario === pin_idUsuario) {
             exists = true;
@@ -210,7 +214,8 @@ export class DataBaseWebService implements AccesoPinBloqueo {
 
       const cursorReq = store.openCursor();
       cursorReq.onsuccess = (event: Event) => {
-        const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>).result;
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>)
+          .result;
         if (cursor) {
           if (cursor.value.pin_idUsuario === pin_idUsuario) {
             resolve(cursor.value as PinBloqueo);
@@ -221,7 +226,8 @@ export class DataBaseWebService implements AccesoPinBloqueo {
           resolve(null);
         }
       };
-      cursorReq.onerror = () => reject(new Error('No se pudo consultar el PIN'));
+      cursorReq.onerror = () =>
+        reject(new Error('No se pudo consultar el PIN'));
     });
   }
 
@@ -233,12 +239,14 @@ export class DataBaseWebService implements AccesoPinBloqueo {
 
       const cursorReq = store.openCursor();
       cursorReq.onsuccess = (event: Event) => {
-        const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>).result;
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>)
+          .result;
         if (cursor) {
           if (cursor.value.pin_idUsuario === pin_idUsuario) {
             const delReq = store.delete(cursor.primaryKey);
             delReq.onsuccess = () => resolve('PIN eliminado correctamente.');
-            delReq.onerror = () => reject(new Error('No se pudo eliminar el PIN'));
+            delReq.onerror = () =>
+              reject(new Error('No se pudo eliminar el PIN'));
             return;
           }
           cursor.continue();

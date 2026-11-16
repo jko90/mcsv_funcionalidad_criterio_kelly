@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { PlanesModelo } from '../../modelos/Planes.modelo';
 import { PlanesStore } from '../../store/PlanesStore';
@@ -40,12 +40,20 @@ describe('PlanesPage · comparación de límites (A-03)', () => {
             isLoading: signal(false),
             isError: signal(null),
             objPlanSeleccionado: signal(null),
-            seleccionarPlanPorObjeto: jasmine.createSpy('seleccionarPlanPorObjeto'),
+            seleccionarPlanPorObjeto: jasmine.createSpy(
+              'seleccionarPlanPorObjeto',
+            ),
           },
         },
-        { provide: ServicioAutenticacion, useValue: { estaAutenticado: () => true } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { estaAutenticado: () => true },
+        },
         { provide: SesionStore, useValue: { usuario: signal(null) } },
-        { provide: PlanVigenteStore, useValue: { cargar: jasmine.createSpy('cargar') } },
+        {
+          provide: PlanVigenteStore,
+          useValue: { cargar: jasmine.createSpy('cargar') },
+        },
       ],
     });
     return TestBed.runInInjectionContext(() => new PlanesPage());
@@ -59,8 +67,12 @@ describe('PlanesPage · comparación de límites (A-03)', () => {
     const filas = pagina.limitesPorPlan().get(7) ?? [];
 
     expect(filas.length).toBe(8);
-    expect(filas.find((fila) => fila.etiqueta === 'Rango de análisis')?.valor).toBe('Sin límite');
-    expect(filas.find((fila) => fila.etiqueta === 'Operaciones diarias')?.valor).toBe('Sin límite');
+    expect(
+      filas.find((fila) => fila.etiqueta === 'Rango de análisis')?.valor,
+    ).toBe('Sin límite');
+    expect(
+      filas.find((fila) => fila.etiqueta === 'Operaciones diarias')?.valor,
+    ).toBe('Sin límite');
   });
 
   it('muestra los números de un plan con restricciones', () => {
@@ -79,7 +91,11 @@ describe('PlanesPage · comparación de límites (A-03)', () => {
     const filas = pagina.limitesPorPlan().get(2) ?? [];
 
     expect(filas.find((fila) => fila.etiqueta === 'Cuentas')?.valor).toBe('1');
-    expect(filas.find((fila) => fila.etiqueta === 'Rango de análisis')?.valor).toBe('5 días');
-    expect(filas.find((fila) => fila.etiqueta === 'Operaciones diarias')?.valor).toBe('1');
+    expect(
+      filas.find((fila) => fila.etiqueta === 'Rango de análisis')?.valor,
+    ).toBe('5 días');
+    expect(
+      filas.find((fila) => fila.etiqueta === 'Operaciones diarias')?.valor,
+    ).toBe('1');
   });
 });

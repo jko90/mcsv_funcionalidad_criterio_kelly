@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
@@ -13,7 +13,10 @@ import { CuentaStore } from '../../store/cuentaStore';
 import { CuentasPage } from './cuentas.page';
 
 describe('CuentasPage · tope de cuentas del plan', () => {
-  const limites = signal<LimitesPlan>({ ...LIMITES_SIN_RESTRICCION, numCuentas: 1 });
+  const limites = signal<LimitesPlan>({
+    ...LIMITES_SIN_RESTRICCION,
+    numCuentas: 1,
+  });
   const listaCuentas = signal<unknown[]>([]);
   let toast: jasmine.Spy;
   let almacen: Record<string, jasmine.Spy>;
@@ -44,9 +47,22 @@ describe('CuentasPage · tope de cuentas del plan', () => {
           },
         },
         { provide: UtilitariosService, useValue: { mostrarToast: toast } },
-        { provide: ServicioAutenticacion, useValue: { obtenerUsuarioActual: () => ({ id: 1 }) } },
-        { provide: DBCriterioKellyWebStore, useValue: { eliminarDividendoKelly: jasmine.createSpy('eliminarWeb') } },
-        { provide: DBCriterioKellyAppStore, useValue: { eliminarDividendoKelly: jasmine.createSpy('eliminarApp') } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { obtenerUsuarioActual: () => ({ id: 1 }) },
+        },
+        {
+          provide: DBCriterioKellyWebStore,
+          useValue: {
+            eliminarDividendoKelly: jasmine.createSpy('eliminarWeb'),
+          },
+        },
+        {
+          provide: DBCriterioKellyAppStore,
+          useValue: {
+            eliminarDividendoKelly: jasmine.createSpy('eliminarApp'),
+          },
+        },
       ],
     });
     return TestBed.runInInjectionContext(() => new CuentasPage());
@@ -65,7 +81,9 @@ describe('CuentasPage · tope de cuentas del plan', () => {
 
     expect(pagina.alertaActiva()).toBeNull();
     expect(pagina.mostrarModalPlan()).toBeTrue();
-    expect(pagina.mensajeTopeCuentas()).toBe('Tu plan permite 1 cuenta. Actualiza tu plan para crear más');
+    expect(pagina.mensajeTopeCuentas()).toBe(
+      'Tu plan permite 1 cuenta. Actualiza tu plan para crear más',
+    );
   });
 
   it('con cupo disponible abre la creación de cuenta', () => {
@@ -90,16 +108,28 @@ describe('CuentasPage · tope de cuentas del plan', () => {
   });
 
   describe('validaciones de cada diálogo', () => {
-    const cuenta = { cue_idCuentas: 7, cue_nombre: 'Principal', valor_cuenta: 100 } as CuentaResponse;
+    const cuenta = {
+      cue_idCuentas: 7,
+      cue_nombre: 'Principal',
+      valor_cuenta: 100,
+    } as CuentaResponse;
 
     it('crear: sin nombre o con monto menor a 0.01 no es válido y avisa', () => {
       const pagina = crearPagina();
       pagina.crearCuenta();
-      expect(pagina.validarAlertaActiva({ cue_nombre: '  ', monto: 5 })).toBeFalse();
-      expect(pagina.validarAlertaActiva({ cue_nombre: 'A', monto: 0 })).toBeFalse();
-      expect(pagina.validarAlertaActiva({ cue_nombre: 'A', monto: 'x' })).toBeFalse();
+      expect(
+        pagina.validarAlertaActiva({ cue_nombre: '  ', monto: 5 }),
+      ).toBeFalse();
+      expect(
+        pagina.validarAlertaActiva({ cue_nombre: 'A', monto: 0 }),
+      ).toBeFalse();
+      expect(
+        pagina.validarAlertaActiva({ cue_nombre: 'A', monto: 'x' }),
+      ).toBeFalse();
       expect(toast).toHaveBeenCalledWith('Datos inválidos', 'danger');
-      expect(pagina.validarAlertaActiva({ cue_nombre: 'A', monto: 5 })).toBeTrue();
+      expect(
+        pagina.validarAlertaActiva({ cue_nombre: 'A', monto: 5 }),
+      ).toBeTrue();
     });
 
     it('crear: al confirmar guarda la cuenta con nombre recortado', () => {
@@ -116,9 +146,15 @@ describe('CuentasPage · tope de cuentas del plan', () => {
       const pagina = crearPagina();
       pagina.actualizarCuenta(cuenta);
       expect(pagina.validarAlertaActiva({ cue_nombre: ' ' })).toBeFalse();
-      expect(toast).toHaveBeenCalledWith('El nombre no puede estar vacío', 'danger');
+      expect(toast).toHaveBeenCalledWith(
+        'El nombre no puede estar vacío',
+        'danger',
+      );
       pagina.alConfirmarAlerta({ cue_nombre: 'Otra' });
-      expect(almacen['actualizarNombreCuenta']).toHaveBeenCalledWith({ cue_idCuenta: 7, cue_nombre: 'Otra' });
+      expect(almacen['actualizarNombreCuenta']).toHaveBeenCalledWith({
+        cue_idCuenta: 7,
+        cue_nombre: 'Otra',
+      });
     });
 
     it('eliminar: cancelar no elimina y confirmar sí', () => {
@@ -129,7 +165,9 @@ describe('CuentasPage · tope de cuentas del plan', () => {
       expect(almacen['eliminarCuenta']).not.toHaveBeenCalled();
       pagina.eliminarCuenta(cuenta);
       pagina.alConfirmarAlerta();
-      expect(almacen['eliminarCuenta']).toHaveBeenCalledWith({ cue_idCuenta: 7 });
+      expect(almacen['eliminarCuenta']).toHaveBeenCalledWith({
+        cue_idCuenta: 7,
+      });
     });
 
     it('capital: monto inválido y reducir por encima del saldo no cierran', () => {
@@ -138,7 +176,10 @@ describe('CuentasPage · tope de cuentas del plan', () => {
       expect(pagina.validarAlertaActiva({ monto: -1 })).toBeFalse();
       expect(toast).toHaveBeenCalledWith('Monto inválido', 'danger');
       expect(pagina.validarAlertaActiva({ monto: 150 })).toBeFalse();
-      expect(toast).toHaveBeenCalledWith('El capital no puede ser negativo', 'danger');
+      expect(toast).toHaveBeenCalledWith(
+        'El capital no puede ser negativo',
+        'danger',
+      );
       expect(pagina.validarAlertaActiva({ monto: 40 })).toBeTrue();
     });
 
@@ -160,10 +201,12 @@ describe('CuentasPage · tope de cuentas del plan', () => {
   it('alVerPlanes cierra la alerta y después navega a /planes', () => {
     const pagina = crearPagina();
     pagina.mostrarModalPlan.set(true);
-    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.callFake(() => {
-      expect(pagina.mostrarModalPlan()).toBeFalse();
-      return Promise.resolve(true);
-    });
+    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.callFake(
+      () => {
+        expect(pagina.mostrarModalPlan()).toBeFalse();
+        return Promise.resolve(true);
+      },
+    );
 
     pagina.alVerPlanes();
 

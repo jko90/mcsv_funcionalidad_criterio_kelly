@@ -9,7 +9,6 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, filter, finalize, of, pipe, switchMap, tap } from 'rxjs';
-import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { textoPeriodoComprobante } from '../configuracion/textos-comprobante';
 import {
   ModoComprobante,
@@ -20,6 +19,7 @@ import {
 import { PagosService } from '../servicios/pagos.service';
 import { SuscripcionService } from '../servicios/suscripcion.service';
 import { PlanVigenteStore } from './plan-vigente.store';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 const MENSAJE_ERROR_CARGA = 'No se pudo consultar el estado de tu pago';
 const MENSAJE_ERROR_ENVIO = 'No se pudo enviar el comprobante';

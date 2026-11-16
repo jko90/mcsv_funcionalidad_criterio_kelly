@@ -22,12 +22,12 @@ import {
   PinBloqueo,
   ResultadoVerificacionPin,
   SolicitudPin,
-} from '../modelos/pin-bloqueo.modelo';
+} from '../../funcionalidad/autenticacion/modelo/pin-bloqueo.modelo';
 import {
   ERROR_PIN_SIN_CRIPTOGRAFIA,
   generarHashPin,
   verificarPinContraHash,
-} from '../seguridad/hash-pin';
+} from 'src/app/nucleo/seguridad/servicio/hash-pin';
 
 type EstadoPinBloqueo = {
   pin: PinBloqueo | null;
@@ -67,7 +67,10 @@ export function conPinBloqueo(obtenerAcceso: () => AccesoPinBloqueo) {
             from(acceso.obtenerPinBloqueo(idUsuario)).pipe(
               tap((pin) => patchState(store, { pin })),
               catchError(() => {
-                patchState(store, { pin: null, error: 'No se pudo consultar el PIN' });
+                patchState(store, {
+                  pin: null,
+                  error: 'No se pudo consultar el PIN',
+                });
                 return of(null);
               }),
               finalize(() => patchState(store, { loading: false })),
@@ -144,7 +147,9 @@ export function conPinBloqueo(obtenerAcceso: () => AccesoPinBloqueo) {
               switchMap((existente) =>
                 !existente
                   ? of('sin-pin' as ResultadoVerificacionPin)
-                  : from(verificarPinContraHash(pin, existente.pin_codigo)).pipe(
+                  : from(
+                      verificarPinContraHash(pin, existente.pin_codigo),
+                    ).pipe(
                       switchMap((resultado) =>
                         resultado.esCorrecto && resultado.requiereMigracion
                           ? from(generarHashPin(pin)).pipe(
@@ -170,7 +175,9 @@ export function conPinBloqueo(obtenerAcceso: () => AccesoPinBloqueo) {
                                       error:
                                         'No se pudo actualizar la protección del PIN',
                                     });
-                                    return of('correcto' as ResultadoVerificacionPin);
+                                    return of(
+                                      'correcto' as ResultadoVerificacionPin,
+                                    );
                                   }),
                                 ),
                               ),

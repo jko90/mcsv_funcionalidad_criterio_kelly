@@ -3,7 +3,10 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AlertInput } from '@ionic/angular';
-import { AlertaCkComponent, ValoresCamposAlerta } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
+import {
+  AlertaCkComponent,
+  ValoresCamposAlerta,
+} from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import {
   ALERTA_CONFIRMAR_DIVISOR,
   TEXTO_ACTUALIZAR,
@@ -11,13 +14,14 @@ import {
 } from 'src/app/compartidos/textos-alertas';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
-import { CuentaResponse, CuentasModelo } from '../../../cuentas/modelos/Cuentas.modelo';
+import {
+  CuentaResponse,
+  CuentasModelo,
+} from '../../../cuentas/modelos/Cuentas.modelo';
 import { Capacitor } from '@capacitor/core';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentaStore } from '../../../cuentas/store/cuentaStore';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
-import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
 import { RUTA_PLANES } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
 import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
@@ -25,6 +29,8 @@ import {
   DIVISOR_KELLY_RECOMENDADO,
   TEXTO_DIVISOR_FIJO,
 } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
+import { DBCriterioKellyWebStore } from 'src/app/nucleo/store/dbkelly-web.store';
+import { DBCriterioKellyAppStore } from 'src/app/nucleo/store/dbkelly-app.store';
 
 type AlertaDivisor =
   | { tipo: 'editar'; cuenta: CuentasModelo; valor: number }
@@ -73,7 +79,9 @@ export class OperativaKellyPage {
   readonly textoCancelar = TEXTO_CANCELAR_LARGO;
   /** Una sola alerta por página: editar el valor y luego confirmar el cambio. */
   readonly alertaActiva = signal<AlertaDivisor | null>(null);
-  readonly esEdicionActiva = computed(() => this.alertaActiva()?.tipo === 'editar');
+  readonly esEdicionActiva = computed(
+    () => this.alertaActiva()?.tipo === 'editar',
+  );
   readonly tituloAlertaActiva = computed(() => {
     const alerta = this.alertaActiva();
     if (alerta?.tipo === 'editar') return 'Editar: ' + alerta.cuenta.cue_nombre;
@@ -83,7 +91,12 @@ export class OperativaKellyPage {
     const alerta = this.alertaActiva();
     if (alerta?.tipo !== 'editar') return undefined;
     return [
-      { name: 'agr_valor', type: 'number', placeholder: 'Valor divisor Kelly', value: alerta.valor },
+      {
+        name: 'agr_valor',
+        type: 'number',
+        placeholder: 'Valor divisor Kelly',
+        value: alerta.valor,
+      },
     ];
   });
 
@@ -101,19 +114,18 @@ export class OperativaKellyPage {
 
     const cuentasConKelly: CuentaResponse[] = [];
     for (const cuenta of this.listaObjCuentas()) {
-      const valor = await this.obtenerDivisorKelly(
-        cuenta.cue_idCuentas!,
-      );
+      const valor = await this.obtenerDivisorKelly(cuenta.cue_idCuentas!);
       cuentasConKelly.push({ ...cuenta, multipKelly: valor });
     }
     this.cuentaStore.actualizarListaCuentas(cuentasConKelly);
   }
 
-  async obtenerDivisorKelly(
-    cue_idCuentas: number,
-  ): Promise<number> {
+  async obtenerDivisorKelly(cue_idCuentas: number): Promise<number> {
     if (this.isWeb) {
-      this.dbKellyWebStore.cargarDividendosKelly(cue_idCuentas, this.usuarioActual());
+      this.dbKellyWebStore.cargarDividendosKelly(
+        cue_idCuentas,
+        this.usuarioActual(),
+      );
       await this.utilServicio.esperarCargaDeStore(() =>
         this.dbKellyWebStore.isLoading(),
       );
@@ -122,7 +134,10 @@ export class OperativaKellyPage {
         return dividendos[0].agr_valor || 0;
       }
     } else {
-      this.dbKellyAppStore.cargarDividendosKelly(cue_idCuentas, this.usuarioActual());
+      this.dbKellyAppStore.cargarDividendosKelly(
+        cue_idCuentas,
+        this.usuarioActual(),
+      );
       await this.utilServicio.esperarCargaDeStore(() =>
         this.dbKellyAppStore.isLoading(),
       );
@@ -160,7 +175,8 @@ export class OperativaKellyPage {
       cue_situacion: '',
       cue_estado: '',
     };
-    const valor = cuentaCapt.multipKelly !== undefined ? cuentaCapt.multipKelly : 0;
+    const valor =
+      cuentaCapt.multipKelly !== undefined ? cuentaCapt.multipKelly : 0;
     this.alertaActiva.set({ tipo: 'editar', cuenta, valor });
   }
 
@@ -179,7 +195,13 @@ export class OperativaKellyPage {
     if (alerta.tipo === 'editar') {
       const nuevoValor = Number(valores?.['agr_valor']);
       // Se reabre en otro ciclo: la alerta actual aún se está cerrando.
-      setTimeout(() => this.alertaActiva.set({ tipo: 'confirmar', cuenta: alerta.cuenta, nuevoValor }));
+      setTimeout(() =>
+        this.alertaActiva.set({
+          tipo: 'confirmar',
+          cuenta: alerta.cuenta,
+          nuevoValor,
+        }),
+      );
       return;
     }
     void this.aplicarNuevoDivisor(alerta.cuenta, alerta.nuevoValor);
@@ -189,7 +211,10 @@ export class OperativaKellyPage {
     this.alertaActiva.set(null);
   }
 
-  private async aplicarNuevoDivisor(cuenta: CuentasModelo, nuevoValor: number): Promise<void> {
+  private async aplicarNuevoDivisor(
+    cuenta: CuentasModelo,
+    nuevoValor: number,
+  ): Promise<void> {
     await this.actualizarDivisorKelly(cuenta, nuevoValor);
     this.divisoresKelly.set({
       ...this.divisoresKelly(),

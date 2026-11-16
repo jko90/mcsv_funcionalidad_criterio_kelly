@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { ErrorApi } from 'src/app/compartidos/modelos/error-api';
+import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
 import { DatosPagoService } from 'src/app/negocio/suscripcion/servicios/datos-pago.service';
 import {
   DatosPagoAdministracion,
@@ -26,12 +26,23 @@ function crearRed(id: number, conQr: boolean): RedUsdtAdmin {
   };
 }
 
-function crearMetodo(codigo: 'CRIPTOMONEDA' | 'PAYPAL' | 'BANCO', orden: number): MetodoPagoAdmin {
-  return { mep_codigo: codigo, mep_activo: 0, mep_orden: orden } as MetodoPagoAdmin;
+function crearMetodo(
+  codigo: 'CRIPTOMONEDA' | 'PAYPAL' | 'BANCO',
+  orden: number,
+): MetodoPagoAdmin {
+  return {
+    mep_codigo: codigo,
+    mep_activo: 0,
+    mep_orden: orden,
+  } as MetodoPagoAdmin;
 }
 
 const DATOS: DatosPagoAdministracion = {
-  metodos: [crearMetodo('CRIPTOMONEDA', 1), crearMetodo('PAYPAL', 2), crearMetodo('BANCO', 3)],
+  metodos: [
+    crearMetodo('CRIPTOMONEDA', 1),
+    crearMetodo('PAYPAL', 2),
+    crearMetodo('BANCO', 3),
+  ],
   redes: [crearRed(1, true), crearRed(2, false)],
 };
 
@@ -43,18 +54,23 @@ describe('DatosPagoAdminStore', () => {
   let urlsRevocadas: string[];
 
   beforeEach(() => {
-    servicio = jasmine.createSpyObj<AdministracionDatosPagoService>('AdministracionDatosPagoService', [
-      'obtenerAdministracion',
-      'guardarRed',
-      'cambiarEstadoRed',
-      'eliminarRed',
-      'guardarPaypal',
-      'guardarBanco',
-      'cambiarEstadoMetodo',
-      'subirQr',
-      'quitarQr',
+    servicio = jasmine.createSpyObj<AdministracionDatosPagoService>(
+      'AdministracionDatosPagoService',
+      [
+        'obtenerAdministracion',
+        'guardarRed',
+        'cambiarEstadoRed',
+        'eliminarRed',
+        'guardarPaypal',
+        'guardarBanco',
+        'cambiarEstadoMetodo',
+        'subirQr',
+        'quitarQr',
+      ],
+    );
+    servicioQr = jasmine.createSpyObj<DatosPagoService>('DatosPagoService', [
+      'obtenerQr',
     ]);
-    servicioQr = jasmine.createSpyObj<DatosPagoService>('DatosPagoService', ['obtenerQr']);
     servicio.obtenerAdministracion.and.returnValue(of(DATOS));
     servicioQr.obtenerQr.and.callFake(() => of(new Blob(['x'])));
     urlsCreadas = [];
@@ -113,7 +129,9 @@ describe('DatosPagoAdminStore', () => {
   });
 
   it('un fallo de carga deja el mensaje y no marca acceso denegado', () => {
-    servicio.obtenerAdministracion.and.returnValue(throwError(() => new ErrorApi('Error del servidor', 500)));
+    servicio.obtenerAdministracion.and.returnValue(
+      throwError(() => new ErrorApi('Error del servidor', 500)),
+    );
     store.cargar();
     expect(store.errorMessage()).toBe('Error del servidor');
     expect(store.accesoDenegado()).toBeFalse();
@@ -121,7 +139,9 @@ describe('DatosPagoAdminStore', () => {
   });
 
   it('un 403 marca acceso denegado para que la página vuelva al inicio', () => {
-    servicio.obtenerAdministracion.and.returnValue(throwError(() => new ErrorApi('Acceso denegado', 403)));
+    servicio.obtenerAdministracion.and.returnValue(
+      throwError(() => new ErrorApi('Acceso denegado', 403)),
+    );
     store.cargar();
     expect(store.accesoDenegado()).toBeTrue();
   });
@@ -144,7 +164,9 @@ describe('DatosPagoAdminStore', () => {
   });
 
   it('un error al guardar conserva el mensaje, no recarga y no avisa éxito', () => {
-    servicio.eliminarRed.and.returnValue(throwError(() => new ErrorApi('Es la última red activa', 400)));
+    servicio.eliminarRed.and.returnValue(
+      throwError(() => new ErrorApi('Es la última red activa', 400)),
+    );
     store.cargar();
     servicio.obtenerAdministracion.calls.reset();
     store.eliminarRed(1);
@@ -166,8 +188,12 @@ describe('DatosPagoAdminStore', () => {
   });
 
   it('el archivo del QR se valida por tipo y tamaño antes de enviarlo', () => {
-    expect(store.validarArchivoQr({ type: 'image/gif', size: 10 })).not.toBeNull();
-    expect(store.validarArchivoQr({ type: 'image/png', size: 262145 })).not.toBeNull();
+    expect(
+      store.validarArchivoQr({ type: 'image/gif', size: 10 }),
+    ).not.toBeNull();
+    expect(
+      store.validarArchivoQr({ type: 'image/png', size: 262145 }),
+    ).not.toBeNull();
     expect(store.validarArchivoQr({ type: 'image/png', size: 100 })).toBeNull();
   });
 

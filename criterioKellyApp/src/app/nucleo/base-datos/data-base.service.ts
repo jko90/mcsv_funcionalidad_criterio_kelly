@@ -4,7 +4,10 @@ import {
   SQLiteConnection,
   SQLiteDBConnection,
 } from '@capacitor-community/sqlite';
-import { AccesoPinBloqueo, PinBloqueo } from '../modelos/pin-bloqueo.modelo';
+import {
+  AccesoPinBloqueo,
+  PinBloqueo,
+} from '../../funcionalidad/autenticacion/modelo/pin-bloqueo.modelo';
 
 @Injectable({
   providedIn: 'root',
@@ -153,7 +156,10 @@ export class DataBaseService implements AccesoPinBloqueo {
   }
 
   /** MANEJO DE PIN DE BLOQUEO */
-  async agregarPinBloqueo(pin_codigo: string, pin_idUsuario: number): Promise<string> {
+  async agregarPinBloqueo(
+    pin_codigo: string,
+    pin_idUsuario: number,
+  ): Promise<string> {
     try {
       await this.objBaseDatos.run(
         `INSERT INTO ${this.tables.pinBloqueo} (pin_codigo, pin_idUsuario) VALUES (?, ?)`,
@@ -161,7 +167,12 @@ export class DataBaseService implements AccesoPinBloqueo {
       );
       return 'PIN creado correctamente.';
     } catch (error: unknown) {
-      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 6) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 6
+      ) {
         return 'PIN ya existe para este usuario';
       }
       throw new Error('No se pudo guardar el PIN');
@@ -173,7 +184,8 @@ export class DataBaseService implements AccesoPinBloqueo {
       `SELECT * FROM ${this.tables.pinBloqueo} WHERE pin_idUsuario = ?`,
       [pin_idUsuario],
     );
-    const valores = 'values' in result && Array.isArray(result.values) ? result.values : [];
+    const valores =
+      'values' in result && Array.isArray(result.values) ? result.values : [];
     return (valores[0] as PinBloqueo | undefined) ?? null;
   }
 
@@ -201,7 +213,12 @@ export class DataBaseService implements AccesoPinBloqueo {
       );
       return 'PIN actualizado correctamente.';
     } catch (error: unknown) {
-      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 6) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 6
+      ) {
         return 'PIN ya existe';
       }
       throw new Error('No se pudo guardar el PIN');

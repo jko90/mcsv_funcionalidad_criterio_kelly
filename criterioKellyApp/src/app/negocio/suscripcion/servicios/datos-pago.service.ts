@@ -1,7 +1,7 @@
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { OMITIR_MANEJO_ERROR } from 'src/app/compartidos/seguridad/interceptores/sesion-http';
+import { OMITIR_MANEJO_ERROR } from 'src/app/nucleo/seguridad/interceptores/sesion-http';
 import { environment } from 'src/environments/environment';
 import { DatosPagoDisponibles } from '../modelos/DatosPago.modelo';
 
@@ -11,7 +11,9 @@ export class DatosPagoService {
   private readonly http = inject(HttpClient);
 
   obtenerDisponibles(): Observable<DatosPagoDisponibles> {
-    return this.http.get<DatosPagoDisponibles>(`${this.apiUrl}datosPago/disponibles`);
+    return this.http.get<DatosPagoDisponibles>(
+      `${this.apiUrl}datosPago/disponibles`,
+    );
   }
 
   // Una imagen no envía Authorization: se pide como blob con el token del interceptor.

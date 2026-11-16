@@ -1,6 +1,6 @@
 import { routes } from 'src/app/app.routes';
-import { GuardAutenticacion } from 'src/app/compartidos/seguridad/guardas/GuardAutenticacion';
-import { planGuard } from 'src/app/compartidos/seguridad/guardas/plan.guard';
+import { GuardAutenticacion } from 'src/app/nucleo/seguridad/guardas/GuardAutenticacion';
+import { planGuard } from 'src/app/nucleo/seguridad/guardas/plan.guard';
 import { PlanesModelo } from '../modelos/Planes.modelo';
 import {
   EstadoPlan,
@@ -86,46 +86,67 @@ describe('permisos-plan.config · estadoMenuDesdePlan', () => {
     expect(estadoMenuDesdePlan(crearPlan('PAGO'))).toBe('COMPLETO');
     expect(
       estadoMenuDesdePlan(
-        crearPlan('PAGO', null, { planProgramado: { sis_idSuscrip: 9 } as never }),
+        crearPlan('PAGO', null, {
+          planProgramado: { sis_idSuscrip: 9 } as never,
+        }),
       ),
     ).toBe('COMPLETO');
     expect(
-      estadoMenuDesdePlan(crearPlan('PAGO', null, { planPendiente: crearPendiente() })),
+      estadoMenuDesdePlan(
+        crearPlan('PAGO', null, { planPendiente: crearPendiente() }),
+      ),
     ).toBe('COMPLETO');
   });
 
   it('estado 3: Libre terminado con plan de pago pendiente es MINIMO_PENDIENTE', () => {
     expect(
       estadoMenuDesdePlan(
-        crearPlan('SIN_PLAN', 'LIBRE_TERMINADO', { planPendiente: crearPendiente() }),
+        crearPlan('SIN_PLAN', 'LIBRE_TERMINADO', {
+          planPendiente: crearPendiente(),
+        }),
       ),
     ).toBe('MINIMO_PENDIENTE');
   });
 
   it('estado 6 descompuesto: renovación pendiente dentro del plazo es estado 3', () => {
-    const renovacion = crearPendiente({ esRenovacion: true, diasRestantesPago: 20 });
+    const renovacion = crearPendiente({
+      esRenovacion: true,
+      diasRestantesPago: 20,
+    });
     expect(
       estadoMenuDesdePlan(
-        crearPlan('SIN_PLAN', 'PLAN_PAGO_VENCIDO', { planPendiente: renovacion }),
+        crearPlan('SIN_PLAN', 'PLAN_PAGO_VENCIDO', {
+          planPendiente: renovacion,
+        }),
       ),
     ).toBe('MINIMO_PENDIENTE');
   });
 
   it('estado 6 descompuesto: renovación anulada concede el Libre (estado 2) y luego estado 4', () => {
     expect(estadoMenuDesdePlan(crearPlan('LIBRE'))).toBe('COMPLETO');
-    expect(estadoMenuDesdePlan(crearPlan('SIN_PLAN', 'LIBRE_TERMINADO'))).toBe('SIN_PLAN');
+    expect(estadoMenuDesdePlan(crearPlan('SIN_PLAN', 'LIBRE_TERMINADO'))).toBe(
+      'SIN_PLAN',
+    );
   });
 
   it('estado 4: Libre terminado sin plan pendiente y plan de pago vencido sin renovación son SIN_PLAN', () => {
-    expect(estadoMenuDesdePlan(crearPlan('SIN_PLAN', 'LIBRE_TERMINADO'))).toBe('SIN_PLAN');
-    expect(estadoMenuDesdePlan(crearPlan('SIN_PLAN', 'PLAN_PAGO_VENCIDO'))).toBe('SIN_PLAN');
+    expect(estadoMenuDesdePlan(crearPlan('SIN_PLAN', 'LIBRE_TERMINADO'))).toBe(
+      'SIN_PLAN',
+    );
+    expect(
+      estadoMenuDesdePlan(crearPlan('SIN_PLAN', 'PLAN_PAGO_VENCIDO')),
+    ).toBe('SIN_PLAN');
   });
 
   it('NUNCA_TUVO_PLAN: SIN_PLAN sin plan pendiente y MINIMO_PENDIENTE con plan pendiente', () => {
-    expect(estadoMenuDesdePlan(crearPlan('SIN_PLAN', 'NUNCA_TUVO_PLAN'))).toBe('SIN_PLAN');
+    expect(estadoMenuDesdePlan(crearPlan('SIN_PLAN', 'NUNCA_TUVO_PLAN'))).toBe(
+      'SIN_PLAN',
+    );
     expect(
       estadoMenuDesdePlan(
-        crearPlan('SIN_PLAN', 'NUNCA_TUVO_PLAN', { planPendiente: crearPendiente() }),
+        crearPlan('SIN_PLAN', 'NUNCA_TUVO_PLAN', {
+          planPendiente: crearPendiente(),
+        }),
       ),
     ).toBe('MINIMO_PENDIENTE');
   });
@@ -158,7 +179,13 @@ describe('permisos-plan.config · rutas', () => {
   }
 
   it('las rutas siempre abiertas no se bloquean aunque lleguen con parámetros', () => {
-    for (const ruta of ['/planes', '/login', '/bloqueo', '/modal-pin', '/inicio?x=1']) {
+    for (const ruta of [
+      '/planes',
+      '/login',
+      '/bloqueo',
+      '/modal-pin',
+      '/inicio?x=1',
+    ]) {
       expect(estaRutaPermitida('SIN_PLAN', ruta)).toBeTrue();
     }
     expect(esRutaControlada('/bitacora?id=3#a')).toBeTrue();
@@ -175,7 +202,10 @@ describe('permisos-plan.config · textoBloqueo', () => {
 
   it('plan pendiente con comprobante en revisión', () => {
     expect(
-      textoBloqueo('MINIMO_PENDIENTE', crearPendiente({ comprobanteEnviado: true })),
+      textoBloqueo(
+        'MINIMO_PENDIENTE',
+        crearPendiente({ comprobanteEnviado: true }),
+      ),
     ).toBe(
       'Tu comprobante de pago está en revisión; tu plan Pro se activará cuando el administrador lo valide',
     );
@@ -187,13 +217,17 @@ describe('permisos-plan.config · textoBloqueo', () => {
         'MINIMO_PENDIENTE',
         crearPendiente({ esRenovacion: true, diasRestantesPago: 12 }),
       ),
-    ).toBe('Tu plan Pro terminó. Tienes 12 días para pagarlo; si no, pasarás al plan Libre');
+    ).toBe(
+      'Tu plan Pro terminó. Tienes 12 días para pagarlo; si no, pasarás al plan Libre',
+    );
     expect(
       textoBloqueo(
         'MINIMO_PENDIENTE',
         crearPendiente({ esRenovacion: true, diasRestantesPago: 0 }),
       ),
-    ).toBe('Tu plan Pro terminó. Hoy es el último día para pagarlo; si no, pasarás al plan Libre');
+    ).toBe(
+      'Tu plan Pro terminó. Hoy es el último día para pagarlo; si no, pasarás al plan Libre',
+    );
   });
 
   it('sin plan y completo', () => {
@@ -222,7 +256,13 @@ describe('permisos-plan.config · R-04 clasificación de rutas de app.routes.ts'
     // Las rutas heredadas que solo redirigen no ejecutan guardas, pero siguen clasificadas
     // (las abiertas a propósito, como /modal-pin, no cuentan como controladas).
     const conGuarda = routes
-      .filter((ruta) => ruta.canActivate?.includes(planGuard) || (ruta.redirectTo === 'inicio' && ruta.path !== '' && !RUTAS_PRIVADAS_ABIERTAS.includes(`/${ruta.path}`)))
+      .filter(
+        (ruta) =>
+          ruta.canActivate?.includes(planGuard) ||
+          (ruta.redirectTo === 'inicio' &&
+            ruta.path !== '' &&
+            !RUTAS_PRIVADAS_ABIERTAS.includes(`/${ruta.path}`)),
+      )
       .map((ruta) => `/${ruta.path}`)
       .sort();
     expect(conGuarda).toEqual([...RUTAS_CONTROLADAS].sort());
@@ -255,12 +295,17 @@ describe('permisos-plan.config · límites por pantalla (HLT-27)', () => {
   const HOY = '2026-11-12';
 
   it('LP-01: limitesPantalla devuelve los límites del Libre que manda el servidor', () => {
-    expect(limitesPantalla(crearPlan('LIBRE', null, { limites: LIBRE }))).toEqual(LIBRE);
+    expect(
+      limitesPantalla(crearPlan('LIBRE', null, { limites: LIBRE })),
+    ).toEqual(LIBRE);
   });
 
   it('LP-02: un plan Básico trae sus propios límites', () => {
     const basico = { ...LIBRE, puedeDescargar: true, diasReporte: 15 };
-    expect(limitesPantalla(crearPlan('PAGO', null, { limites: basico })).puedeDescargar).toBeTrue();
+    expect(
+      limitesPantalla(crearPlan('PAGO', null, { limites: basico }))
+        .puedeDescargar,
+    ).toBeTrue();
   });
 
   it('LP-03: sin plan cargado no se restringe', () => {
@@ -283,13 +328,25 @@ describe('permisos-plan.config · límites por pantalla (HLT-27)', () => {
   });
 
   it('avisos de análisis, cuentas y operaciones diarias', () => {
-    expect(textoAvisoOperacionesAnalisis(LIBRE)).toBe('Tu plan muestra hasta 5 operaciones por cuenta');
+    expect(textoAvisoOperacionesAnalisis(LIBRE)).toBe(
+      'Tu plan muestra hasta 5 operaciones por cuenta',
+    );
     expect(textoAvisoOperacionesAnalisis(ENTERPRISE)).toBeNull();
-    expect(textoAvisoRangoAnalisis(LIBRE)).toBe('Tu plan permite consultar hasta 5 días');
-    expect(textoTopeCuentas(LIBRE)).toBe('Tu plan permite 1 cuenta. Actualiza tu plan para crear más');
-    expect(textoTopeCuentas({ ...LIBRE, numCuentas: 5 })).toBe('Tu plan permite 5 cuentas. Actualiza tu plan para crear más');
-    expect(textoTopeOperacionesDiarias(1)).toBe('Tu plan permite 1 operación diaria');
-    expect(textoTopeOperacionesDiarias(5)).toBe('Tu plan permite 5 operaciones diarias');
+    expect(textoAvisoRangoAnalisis(LIBRE)).toBe(
+      'Tu plan permite consultar hasta 5 días',
+    );
+    expect(textoTopeCuentas(LIBRE)).toBe(
+      'Tu plan permite 1 cuenta. Actualiza tu plan para crear más',
+    );
+    expect(textoTopeCuentas({ ...LIBRE, numCuentas: 5 })).toBe(
+      'Tu plan permite 5 cuentas. Actualiza tu plan para crear más',
+    );
+    expect(textoTopeOperacionesDiarias(1)).toBe(
+      'Tu plan permite 1 operación diaria',
+    );
+    expect(textoTopeOperacionesDiarias(5)).toBe(
+      'Tu plan permite 5 operaciones diarias',
+    );
   });
 
   it('tope de cuentas: se alcanza con la cantidad igual al límite', () => {
@@ -300,8 +357,14 @@ describe('permisos-plan.config · límites por pantalla (HLT-27)', () => {
   });
 
   it('rango por defecto: últimos diasAnalisis días o sin fechas si es libre', () => {
-    expect(rangoAnalisisPorDefecto(LIBRE, HOY)).toEqual({ desde: '2026-11-08', hasta: HOY });
-    expect(rangoAnalisisPorDefecto(ENTERPRISE, HOY)).toEqual({ desde: null, hasta: HOY });
+    expect(rangoAnalisisPorDefecto(LIBRE, HOY)).toEqual({
+      desde: '2026-11-08',
+      hasta: HOY,
+    });
+    expect(rangoAnalisisPorDefecto(ENTERPRISE, HOY)).toEqual({
+      desde: null,
+      hasta: HOY,
+    });
   });
 
   it('fecha mínima: hoy menos (diasTotalesAnalisis - 1)', () => {
@@ -310,7 +373,9 @@ describe('permisos-plan.config · límites por pantalla (HLT-27)', () => {
   });
 
   it('ajuste: un rango mayor a diasAnalisis mueve desde y avisa', () => {
-    expect(ajustarRangoAnalisis({ desde: '2026-11-05', hasta: HOY }, LIBRE, HOY)).toEqual({
+    expect(
+      ajustarRangoAnalisis({ desde: '2026-11-05', hasta: HOY }, LIBRE, HOY),
+    ).toEqual({
       desde: '2026-11-08',
       hasta: HOY,
       ajustado: true,
@@ -318,13 +383,26 @@ describe('permisos-plan.config · límites por pantalla (HLT-27)', () => {
   });
 
   it('ajuste: un rango válido no cambia y uno anterior a la ventana total se acota', () => {
-    expect(ajustarRangoAnalisis({ desde: '2026-11-10', hasta: HOY }, LIBRE, HOY).ajustado).toBeFalse();
-    const acotado = ajustarRangoAnalisis({ desde: '2026-10-01', hasta: '2026-11-07' }, LIBRE, HOY);
+    expect(
+      ajustarRangoAnalisis({ desde: '2026-11-10', hasta: HOY }, LIBRE, HOY)
+        .ajustado,
+    ).toBeFalse();
+    const acotado = ajustarRangoAnalisis(
+      { desde: '2026-10-01', hasta: '2026-11-07' },
+      LIBRE,
+      HOY,
+    );
     expect(acotado.desde).toBe('2026-11-05');
   });
 
   it('ajuste: con plan libre se respeta cualquier rango dentro de la ventana', () => {
-    expect(ajustarRangoAnalisis({ desde: '2026-01-01', hasta: HOY }, ENTERPRISE, HOY)).toEqual({
+    expect(
+      ajustarRangoAnalisis(
+        { desde: '2026-01-01', hasta: HOY },
+        ENTERPRISE,
+        HOY,
+      ),
+    ).toEqual({
       desde: '2026-01-01',
       hasta: HOY,
       ajustado: false,
@@ -346,7 +424,9 @@ describe('permisos-plan.config · límites por pantalla (HLT-27)', () => {
       pla_divisorEditable: true,
       pla_maxOperacionesDiarias: null,
     } as PlanesModelo);
-    const porEtiqueta = new Map(filas.map((fila) => [fila.etiqueta, fila.valor]));
+    const porEtiqueta = new Map(
+      filas.map((fila) => [fila.etiqueta, fila.valor]),
+    );
     expect(filas.length).toBe(8);
     expect(porEtiqueta.get('Rango de análisis')).toBe('Sin límite');
     expect(porEtiqueta.get('Operaciones en análisis')).toBe('Sin límite');
@@ -365,7 +445,9 @@ describe('permisos-plan.config · límites por pantalla (HLT-27)', () => {
       pla_divisorEditable: false,
       pla_maxOperacionesDiarias: 1,
     } as PlanesModelo);
-    const porEtiqueta = new Map(filas.map((fila) => [fila.etiqueta, fila.valor]));
+    const porEtiqueta = new Map(
+      filas.map((fila) => [fila.etiqueta, fila.valor]),
+    );
     expect(porEtiqueta.get('Rango de análisis')).toBe('5 días');
     expect(porEtiqueta.get('Graficar operaciones')).toBe('No incluido');
     expect(porEtiqueta.get('Divisor editable')).toBe('No (fijo en 10)');

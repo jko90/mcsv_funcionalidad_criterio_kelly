@@ -6,7 +6,7 @@ import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { GraficoEstadisticoComponent } from '../../componentes/grafico-estadistico/grafico-estadistico.component';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -33,7 +33,7 @@ import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore
     ReactiveFormsModule,
     GraficoEstadisticoComponent,
     SeleccionarCuentasComponent,
-    AlertaLimitePlanComponent
+    AlertaLimitePlanComponent,
   ],
 })
 export class OperativasPage implements OnInit {
@@ -48,7 +48,9 @@ export class OperativasPage implements OnInit {
 
   // El store entrega CuentaResponse; el selector y los manejadores heredados trabajan con CuentasModelo.
   // Se pasa el mismo objeto (sin copiar) para no cambiar lo que recibe la página al elegir.
-  readonly listaCuentas = computed(() => this.cuentaStore.listaCuentas() as unknown as CuentasModelo[]);
+  readonly listaCuentas = computed(
+    () => this.cuentaStore.listaCuentas() as unknown as CuentasModelo[],
+  );
   listaDetalleOperativas = this.reportesStore.listaDetallesOperaciones;
   listaDOPorCuentas = this.reportesStore.listaDOPorCuentas;
 
@@ -85,7 +87,9 @@ export class OperativasPage implements OnInit {
   private async cargarCuentasIniciales(): Promise<void> {
     if (this.usuarioActual() === 0) return;
     this.cuentaStore.cargarCuentas();
-    await this.utilServicio.esperarCargaDeStore(() => this.cuentaStore.isLoading());
+    await this.utilServicio.esperarCargaDeStore(() =>
+      this.cuentaStore.isLoading(),
+    );
 
     const cuentas = this.listaCuentas();
     if (!cuentas?.length) return;
@@ -94,7 +98,9 @@ export class OperativasPage implements OnInit {
 
   private async cargarDetalleDeCuenta(idCuenta: number): Promise<void> {
     this.reportesStore.obtenerDetallePorCuentas(idCuenta);
-    await this.utilServicio.esperarCargaDeStore(() => this.reportesStore.loading());
+    await this.utilServicio.esperarCargaDeStore(() =>
+      this.reportesStore.loading(),
+    );
   }
 
   graficarOperacion() {

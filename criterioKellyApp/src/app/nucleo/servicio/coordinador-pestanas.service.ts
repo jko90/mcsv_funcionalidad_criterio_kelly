@@ -8,7 +8,10 @@ export const NOMBRE_CANAL_SESION = 'ck-sesion';
 export type MensajeSesion =
   | {
       tipo: 'sesion-renovada';
-      sesion: Omit<import('../modelos/sesion.modelo').RespuestaSesion, 'refreshToken'>;
+      sesion: Omit<
+        import('../modelo/sesion.modelo').RespuestaSesion,
+        'refreshToken'
+      >;
     }
   | { tipo: 'sesion-cerrada' };
 
@@ -24,8 +27,9 @@ export class CoordinadorPestanasService {
   readonly mensajes$: Observable<MensajeSesion> = this.mensajes.asObservable();
 
   constructor() {
-    this.canal?.addEventListener('message', (evento: MessageEvent<MensajeSesion>) =>
-      this.mensajes.next(evento.data),
+    this.canal?.addEventListener(
+      'message',
+      (evento: MessageEvent<MensajeSesion>) => this.mensajes.next(evento.data),
     );
   }
 

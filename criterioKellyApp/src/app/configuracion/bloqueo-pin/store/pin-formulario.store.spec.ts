@@ -1,11 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Capacitor } from '@capacitor/core';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
-import { SolicitudPin } from 'src/app/compartidos/modelos/pin-bloqueo.modelo';
+import { SolicitudPin } from 'src/app/funcionalidad/autenticacion/modelo/pin-bloqueo.modelo';
 import { PinFormularioStore } from './pin-formulario.store';
 
 // Valores de prueba obvios: ningún PIN real aparece en este archivo.
@@ -16,16 +16,21 @@ function crearAlmacenSimulado() {
   const cargando = signal(false);
   const error = signal<string | null>(null);
   const mensaje = signal<string | null>(null);
-  const guardarPin = jasmine.createSpy('guardarPin').and.callFake((_: SolicitudPin) => {
-    cargando.set(true);
-    setTimeout(() => cargando.set(false), 0);
-  });
+  const guardarPin = jasmine
+    .createSpy('guardarPin')
+    .and.callFake((_: SolicitudPin) => {
+      cargando.set(true);
+      setTimeout(() => cargando.set(false), 0);
+    });
   return {
     guardarPin,
     isLoading: cargando,
     errorMessage: error,
     mensajeOperacion: mensaje,
-    definirResultado(textoError: string | null, textoMensaje: string | null): void {
+    definirResultado(
+      textoError: string | null,
+      textoMensaje: string | null,
+    ): void {
       error.set(textoError);
       mensaje.set(textoMensaje);
     },
@@ -43,7 +48,10 @@ describe('PinFormularioStore', () => {
       providers: [
         { provide: DbPINWebStore, useValue: almacenWeb },
         { provide: DbPINAppStore, useValue: almacenNativo },
-        { provide: ServicioAutenticacion, useValue: { obtenerUsuarioActual: () => usuario } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { obtenerUsuarioActual: () => usuario },
+        },
         {
           provide: UtilitariosService,
           useValue: {
@@ -57,8 +65,11 @@ describe('PinFormularioStore', () => {
     return TestBed.inject(PinFormularioStore);
   }
 
-  async function esperarFin(store: { guardando: () => boolean }): Promise<void> {
-    for (let i = 0; i < 200 && store.guardando(); i++) await new Promise((r) => setTimeout(r, 1));
+  async function esperarFin(store: {
+    guardando: () => boolean;
+  }): Promise<void> {
+    for (let i = 0; i < 200 && store.guardando(); i++)
+      await new Promise((r) => setTimeout(r, 1));
   }
 
   beforeEach(() => {
@@ -115,7 +126,10 @@ describe('PinFormularioStore', () => {
     const store = crearStore('web');
     store.guardar(PIN_DE_PRUEBA);
     await esperarFin(store);
-    expect(almacenWeb.guardarPin).toHaveBeenCalledWith({ pin: PIN_DE_PRUEBA, idUsuario: 0 });
+    expect(almacenWeb.guardarPin).toHaveBeenCalledWith({
+      pin: PIN_DE_PRUEBA,
+      idUsuario: 0,
+    });
   });
 
   it('un guardado nuevo limpia el resultado anterior', async () => {

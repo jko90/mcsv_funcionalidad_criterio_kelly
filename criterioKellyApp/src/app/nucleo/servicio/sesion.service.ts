@@ -6,7 +6,7 @@ import {
   RespuestaExitosa,
   RespuestaSesion,
   SolicitudRenovacion,
-} from '../modelos/sesion.modelo';
+} from '../modelo/sesion.modelo';
 import {
   OMITIR_MANEJO_ERROR,
   URL_AUTENTICAR,
@@ -40,9 +40,6 @@ export class SesionService {
   }
 
   cerrarTodas(): Observable<RespuestaExitosa> {
-    return this.http.post<RespuestaExitosa>(
-      URL_CERRAR_TODAS,
-      {},
-    );
+    return this.http.post<RespuestaExitosa>(URL_CERRAR_TODAS, {});
   }
 }

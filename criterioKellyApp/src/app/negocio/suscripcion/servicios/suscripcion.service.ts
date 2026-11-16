@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { OMITIR_MANEJO_ERROR } from 'src/app/compartidos/seguridad/interceptores/sesion-http';
+import { OMITIR_MANEJO_ERROR } from 'src/app/nucleo/seguridad/interceptores/sesion-http';
 import { SolicitudCrearConPago } from '../modelos/EstadoPago.modelo';
 import { PlanVigente } from '../modelos/PlanVigente.modelo';
 import {
@@ -55,7 +55,10 @@ export class SuscripcionService {
 
   // Sin OMITIR_MANEJO_ERROR: el interceptor muestra el mensaje del servidor.
   cancelarPlan(): Observable<PlanVigente> {
-    return this.http.post<PlanVigente>(`${this.apiUrl}suscripcion/cancelar`, {});
+    return this.http.post<PlanVigente>(
+      `${this.apiUrl}suscripcion/cancelar`,
+      {},
+    );
   }
 
   crearSuscripcionConPago(

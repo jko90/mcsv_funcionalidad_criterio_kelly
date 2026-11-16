@@ -1,5 +1,8 @@
-import { Rol } from 'src/app/compartidos/modelos/Rol.modelo';
-import { LoginRequest, UsuarioApp } from 'src/app/compartidos/modelos/Login.modelo';
+import { Rol } from 'src/app/nucleo/modelo/Rol.modelo';
+import {
+  LoginRequest,
+  UsuarioApp,
+} from 'src/app/funcionalidad/autenticacion/modelo/Login.modelo';
 
 export interface RespuestaSesion {
   id: number;

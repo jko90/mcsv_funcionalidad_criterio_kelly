@@ -7,21 +7,27 @@ import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/ale
 import { ALERTA_OLVIDE_PIN } from 'src/app/compartidos/textos-alertas';
 import { ModalPinComponent } from '../../componentes/modal-pin/modal-pin.component';
 import { PinFormularioStore } from '../../store/pin-formulario.store';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
-import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { Capacitor } from '@capacitor/core';
 import type { OverlayEventDetail } from '@ionic/core';
 import { IonModal } from '@ionic/angular/standalone';
+import { DbPINWebStore } from 'src/app/nucleo/store/dbPIN-web.store';
+import { DbPINAppStore } from 'src/app/nucleo/store/dbPIN-app.store';
 
 @Component({
   selector: 'app-cambiar-pin',
   templateUrl: './cambiar-pin.page.html',
   styleUrls: ['./cambiar-pin.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicComponentes, EncabezadoComponent, AlertaCkComponent, ModalPinComponent],
+  imports: [
+    CommonModule,
+    IonicComponentes,
+    EncabezadoComponent,
+    AlertaCkComponent,
+    ModalPinComponent,
+  ],
 })
 export class CambiarPinPage {
   private readonly navCtrl = inject(NavController);
@@ -63,10 +69,16 @@ export class CambiarPinPage {
     this.enteredPasscode += digito.toString();
     if (this.enteredPasscode.length !== 6) return;
     const store = this.esWeb ? this.dbWebStore : this.dbAppStore;
-    store.verificarPin({ pin: this.enteredPasscode, idUsuario: this.usuarioActual });
+    store.verificarPin({
+      pin: this.enteredPasscode,
+      idUsuario: this.usuarioActual,
+    });
     await this.utilServicio.esperarCargaDeStore(() => store.isLoading());
     if (store.errorMessage()) {
-      await this.utilServicio.mostrarToast(store.errorMessage() ?? 'No se pudo verificar el PIN', 'danger');
+      await this.utilServicio.mostrarToast(
+        store.errorMessage() ?? 'No se pudo verificar el PIN',
+        'danger',
+      );
       this.enteredPasscode = '';
       return;
     }
@@ -92,20 +104,27 @@ export class CambiarPinPage {
     store.eliminarPinBloqueo(this.usuarioActual);
     await this.utilServicio.esperarCargaDeStore(() => store.isLoading());
     if (store.errorMessage()) {
-      await this.utilServicio.mostrarToast(store.errorMessage() ?? 'No se pudo eliminar el PIN', 'danger');
+      await this.utilServicio.mostrarToast(
+        store.errorMessage() ?? 'No se pudo eliminar el PIN',
+        'danger',
+      );
       return;
     }
     await this.servicioInactividad.salir();
   }
 
-  async alCerrarModalPin(_evento: CustomEvent<OverlayEventDetail>): Promise<void> {
+  async alCerrarModalPin(
+    _evento: CustomEvent<OverlayEventDetail>,
+  ): Promise<void> {
     this.estaModalPinAbierto.set(false);
     await this.navCtrl.navigateForward('/inicio');
   }
 
   async alConfirmarPin(pin: string, modalPin: IonModal): Promise<void> {
     this.pinFormularioStore.guardar(pin);
-    await this.utilServicio.esperarCargaDeStore(() => this.pinFormularioStore.isLoading());
+    await this.utilServicio.esperarCargaDeStore(() =>
+      this.pinFormularioStore.isLoading(),
+    );
     await this.utilServicio.mostrarToast(
       this.pinFormularioStore.mensajeResultado(),
       this.pinFormularioStore.colorAviso(),
@@ -114,7 +133,10 @@ export class CambiarPinPage {
   }
 
   async alMostrarPinDistinto(): Promise<void> {
-    await this.utilServicio.mostrarToast('Digite el mismo valor en las dos opciones', 'danger');
+    await this.utilServicio.mostrarToast(
+      'Digite el mismo valor en las dos opciones',
+      'danger',
+    );
   }
 
   async alOmitirPin(modalPin: IonModal): Promise<void> {
@@ -131,6 +153,11 @@ export class CambiarPinPage {
     }, 800);
   }
 
-  borrarUltimo(): void { this.enteredPasscode = this.enteredPasscode.slice(0, -1); }
-  borrarPin(): void { this.enteredPasscode = ''; this.passcodeWrong = false; }
+  borrarUltimo(): void {
+    this.enteredPasscode = this.enteredPasscode.slice(0, -1);
+  }
+  borrarPin(): void {
+    this.enteredPasscode = '';
+    this.passcodeWrong = false;
+  }
 }

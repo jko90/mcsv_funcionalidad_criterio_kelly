@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { RedUsdtConQr } from '../../modelos/DatosPagoAdmin.modelo';
@@ -40,7 +40,9 @@ describe('DatosPagoAdminPage', () => {
       accesoDenegado,
       cargar: jasmine.createSpy('cargar'),
       limpiar: jasmine.createSpy('limpiar'),
-      limpiarResultado: jasmine.createSpy('limpiarResultado').and.callFake(() => resultado.set(null)),
+      limpiarResultado: jasmine
+        .createSpy('limpiarResultado')
+        .and.callFake(() => resultado.set(null)),
       guardarRed: jasmine.createSpy('guardarRed'),
       eliminarRed: jasmine.createSpy('eliminarRed'),
       guardarPaypal: jasmine.createSpy('guardarPaypal'),
@@ -49,13 +51,18 @@ describe('DatosPagoAdminPage', () => {
       cambiarEstadoMetodo: jasmine.createSpy('cambiarEstadoMetodo'),
       seleccionarRedEnEdicion: jasmine.createSpy('seleccionarRedEnEdicion'),
       seleccionarRedQr: jasmine.createSpy('seleccionarRedQr'),
-      validarArchivoQr: jasmine.createSpy('validarArchivoQr').and.returnValue('Tipo no permitido'),
+      validarArchivoQr: jasmine
+        .createSpy('validarArchivoQr')
+        .and.returnValue('Tipo no permitido'),
       establecerVistaPreviaQr: jasmine.createSpy('establecerVistaPreviaQr'),
       descartarVistaPreviaQr: jasmine.createSpy('descartarVistaPreviaQr'),
       confirmarSubidaQr: jasmine.createSpy('confirmarSubidaQr'),
       quitarQr: jasmine.createSpy('quitarQr'),
     };
-    utilitarios = jasmine.createSpyObj<UtilitariosService>('UtilitariosService', ['mostrarToast']);
+    utilitarios = jasmine.createSpyObj<UtilitariosService>(
+      'UtilitariosService',
+      ['mostrarToast'],
+    );
 
     TestBed.configureTestingModule({
       imports: [DatosPagoAdminPage],
@@ -64,7 +71,12 @@ describe('DatosPagoAdminPage', () => {
         provideRouter([]),
         { provide: DatosPagoAdminStore, useValue: store },
         { provide: UtilitariosService, useValue: utilitarios },
-        { provide: ManejoImagenesService, useValue: jasmine.createSpyObj('ManejoImagenesService', ['seleccionarImagen']) },
+        {
+          provide: ManejoImagenesService,
+          useValue: jasmine.createSpyObj('ManejoImagenesService', [
+            'seleccionarImagen',
+          ]),
+        },
         { provide: ServicioInactividad, useValue: { salir: () => undefined } },
       ],
     });
@@ -92,7 +104,10 @@ describe('DatosPagoAdminPage', () => {
   });
 
   it('guardar PayPal pide confirmar con el valor y solo guarda al aceptar', () => {
-    const cuerpo = { mep_paypalCorreo: 'pagos@ejemplo.test', mep_paypalEnlace: '' };
+    const cuerpo = {
+      mep_paypalCorreo: 'pagos@ejemplo.test',
+      mep_paypalEnlace: '',
+    };
     pagina.alGuardarPaypal(cuerpo);
     expect(pagina.confirmacionPendiente()?.mensaje).toBe(
       'Vas a cambiar los datos donde los usuarios envían su dinero. Revisa el valor: pagos@ejemplo.test',
@@ -112,7 +127,9 @@ describe('DatosPagoAdminPage', () => {
       red_orden: 0,
     };
     pagina.alEnviarRed(cuerpo);
-    expect(pagina.confirmacionPendiente()?.mensaje).toContain('TESTTESTTESTTEST (red TEST)');
+    expect(pagina.confirmacionPendiente()?.mensaje).toContain(
+      'TESTTESTTESTTEST (red TEST)',
+    );
     confirmarAlerta();
     expect(store['guardarRed']).toHaveBeenCalledOnceWith(cuerpo);
   });
@@ -129,7 +146,9 @@ describe('DatosPagoAdminPage', () => {
       mep_bancoPaisMoneda: '',
       mep_bancoObservaciones: '',
     });
-    expect(pagina.confirmacionPendiente()?.mensaje).toContain('WhatsApp 59300000000; cuenta terminada en 7890');
+    expect(pagina.confirmacionPendiente()?.mensaje).toContain(
+      'WhatsApp 59300000000; cuenta terminada en 7890',
+    );
     expect(pagina.confirmacionPendiente()?.mensaje).not.toContain('1234567890');
   });
 
@@ -147,16 +166,24 @@ describe('DatosPagoAdminPage', () => {
   });
 
   it('un archivo de QR rechazado muestra el mensaje y no genera vista previa', () => {
-    const evento = { target: { files: [new File(['x'], 'qr.gif', { type: 'image/gif' })] } } as unknown as Event;
+    const evento = {
+      target: { files: [new File(['x'], 'qr.gif', { type: 'image/gif' })] },
+    } as unknown as Event;
     pagina.alSeleccionarArchivoQr(evento);
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith('Tipo no permitido', 'danger');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      'Tipo no permitido',
+      'danger',
+    );
     expect(store['establecerVistaPreviaQr']).not.toHaveBeenCalled();
   });
 
   it('un guardado correcto muestra el aviso y limpia el resultado', () => {
     resultado.set('Red guardada');
     fixture.detectChanges();
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith('Red guardada', 'success');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      'Red guardada',
+      'success',
+    );
     expect(store['limpiarResultado']).toHaveBeenCalled();
   });
 
@@ -169,6 +196,9 @@ describe('DatosPagoAdminPage', () => {
 
   it('cambiar el estado de un método lo pide con su código', () => {
     pagina.alCambiarEstadoPaypal(true);
-    expect(store['cambiarEstadoMetodo']).toHaveBeenCalledWith({ codigo: 'PAYPAL', activo: true });
+    expect(store['cambiarEstadoMetodo']).toHaveBeenCalledWith({
+      codigo: 'PAYPAL',
+      activo: true,
+    });
   });
 });

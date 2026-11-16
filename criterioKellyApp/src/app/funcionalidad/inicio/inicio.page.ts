@@ -12,13 +12,14 @@ import {
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { MenuStore } from 'src/app/compartidos/store/menu.store';
-import { SesionStore } from 'src/app/compartidos/store/sesion.store';
+
 import { AvisoPlanComponent } from 'src/app/negocio/suscripcion/componentes/aviso-plan/aviso-plan.component';
 import { AvisoBloqueoComponent } from 'src/app/negocio/suscripcion/componentes/aviso-bloqueo/aviso-bloqueo.component';
 import { SuscripcionStore } from 'src/app/negocio/suscripcion/store/SuscripcionStore';
 import { PlanesStore } from 'src/app/negocio/suscripcion/store/PlanesStore';
 import { PlanVigenteStore } from 'src/app/negocio/suscripcion/store/plan-vigente.store';
+import { MenuStore } from 'src/app/nucleo/store/menu.store';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 @Component({
   selector: 'app-inicio',

@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RefresherCustomEvent, SelectChangeEventDetail } from '@ionic/angular';
@@ -6,7 +13,7 @@ import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { CuentaResponse } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { CriterioKellyStore } from '../../store/criterioKellyStore';
 import { ResultadosStore } from '../../store/resultadosStore';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
@@ -138,10 +145,14 @@ export class MostrarCriterioKellyPage {
     effect(() => {
       const maximo = this.maximoOperacionesDiarias();
       const valorEscrito = this.numOperativas();
-      if (maximo === null || valorEscrito === null || valorEscrito <= maximo) return;
+      if (maximo === null || valorEscrito === null || valorEscrito <= maximo)
+        return;
       untracked(() => {
         this.numOperativasControl.setValue(maximo);
-        this.utilServicio.mostrarToast(textoTopeOperacionesDiarias(maximo), 'warning');
+        this.utilServicio.mostrarToast(
+          textoTopeOperacionesDiarias(maximo),
+          'warning',
+        );
       });
     });
 
@@ -163,8 +174,12 @@ export class MostrarCriterioKellyPage {
 
     await Promise.all([
       this.utilServicio.esperarCargaDeStore(() => this.cuentaStore.isLoading()),
-      this.utilServicio.esperarCargaDeStore(() => this.criterioKellyStore.isLoading()),
-      this.utilServicio.esperarCargaDeStore(() => this.resultadosStore.isLoading()),
+      this.utilServicio.esperarCargaDeStore(() =>
+        this.criterioKellyStore.isLoading(),
+      ),
+      this.utilServicio.esperarCargaDeStore(() =>
+        this.resultadosStore.isLoading(),
+      ),
     ]);
 
     this.cuentaStore.buscarCuentaPorId(

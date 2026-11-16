@@ -4,17 +4,23 @@ import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { NavController } from '@ionic/angular';
 import { AlertInput } from '@ionic/angular/standalone';
-import { AlertaCkComponent, ValoresCamposAlerta } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
-import { ALERTA_BLOQUEO_SIN_PIN, TEXTO_SALIR } from 'src/app/compartidos/textos-alertas';
+import {
+  AlertaCkComponent,
+  ValoresCamposAlerta,
+} from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
+import {
+  ALERTA_BLOQUEO_SIN_PIN,
+  TEXTO_SALIR,
+} from 'src/app/compartidos/textos-alertas';
 import { firstValueFrom } from 'rxjs';
-import { NombreUsuarioSesion } from 'src/app/compartidos/seguridad/NombreUsuarioSesion';
-import { SesionService } from 'src/app/compartidos/servicios/sesion.service';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { NombreUsuarioSesion } from 'src/app/nucleo/seguridad/servicio/NombreUsuarioSesion';
+import { SesionService } from 'src/app/nucleo/servicio/sesion.service';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
-import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { Capacitor } from '@capacitor/core';
-import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
+import { DbPINWebStore } from 'src/app/nucleo/store/dbPIN-web.store';
+import { DbPINAppStore } from 'src/app/nucleo/store/dbPIN-app.store';
 
 const MAX_INTENTOS_CLAVE = 3;
 
@@ -23,7 +29,12 @@ const MAX_INTENTOS_CLAVE = 3;
   templateUrl: './bloqueo.page.html',
   styleUrls: ['./bloqueo.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicComponentes, EncabezadoComponent, AlertaCkComponent],
+  imports: [
+    CommonModule,
+    IonicComponentes,
+    EncabezadoComponent,
+    AlertaCkComponent,
+  ],
 })
 export class BloqueoPage {
   private readonly navCtrl = inject(NavController);
@@ -34,11 +45,13 @@ export class BloqueoPage {
   private readonly dbAppStore = inject(DbPINAppStore);
   private readonly nombreUsuario = inject(NombreUsuarioSesion);
   private readonly sesionServicio = inject(SesionService);
-  private readonly esWeb =Capacitor.getPlatform() === 'web';
+  private readonly esWeb = Capacitor.getPlatform() === 'web';
 
   readonly alertaClave = ALERTA_BLOQUEO_SIN_PIN;
   readonly textoSalir = TEXTO_SALIR;
-  readonly camposClave: AlertInput[] = [{ name: 'clave', type: 'password', placeholder: 'Contraseña' }];
+  readonly camposClave: AlertInput[] = [
+    { name: 'clave', type: 'password', placeholder: 'Contraseña' },
+  ];
   readonly alertaClaveAbierta = signal(false);
 
   titulo = 'CRITERIO KELLY';
@@ -89,7 +102,10 @@ export class BloqueoPage {
     }
     this.passcodeAttempts.update((n) => n + 1);
     if (this.passcodeAttempts() >= MAX_INTENTOS_CLAVE) {
-      await this.utilServicio.mostrarToast('Demasiados intentos fallidos', 'danger');
+      await this.utilServicio.mostrarToast(
+        'Demasiados intentos fallidos',
+        'danger',
+      );
       await this.servicioInactividad.salir();
       return;
     }
@@ -103,18 +119,27 @@ export class BloqueoPage {
     await this.servicioInactividad.salir();
   }
 
-  private async claveCorrecta(usuario: string, clave: string): Promise<boolean> {
+  private async claveCorrecta(
+    usuario: string,
+    clave: string,
+  ): Promise<boolean> {
     if (!clave) return false;
     try {
-      const respuesta = await firstValueFrom(this.sesionServicio.autenticar({ usuario, clave }));
+      const respuesta = await firstValueFrom(
+        this.sesionServicio.autenticar({ usuario, clave }),
+      );
       return respuesta.id === this.usuarioActual;
     } catch {
       return false;
     }
   }
 
-  borrarPin(): void { this.enteredPasscode.set(''); }
-  borrarUltimo(): void { this.enteredPasscode.update((pin) => pin.slice(0, -1)); }
+  borrarPin(): void {
+    this.enteredPasscode.set('');
+  }
+  borrarUltimo(): void {
+    this.enteredPasscode.update((pin) => pin.slice(0, -1));
+  }
 
   capturarPin(digito: number): void {
     if (this.passcodeWrong() || this.enteredPasscode().length >= 6) return;
@@ -128,7 +153,10 @@ export class BloqueoPage {
       return;
     }
     const store = this.esWeb ? this.dbWebStore : this.dbAppStore;
-    store.verificarPin({ pin: this.enteredPasscode(), idUsuario: this.usuarioActual });
+    store.verificarPin({
+      pin: this.enteredPasscode(),
+      idUsuario: this.usuarioActual,
+    });
     await this.utilServicio.esperarCargaDeStore(() => store.isLoading());
     const resultado = store.resultadoVerificacion();
     if (resultado === 'sin-pin') {
@@ -143,14 +171,20 @@ export class BloqueoPage {
       return;
     }
     if (store.errorMessage()) {
-      await this.utilServicio.mostrarToast(store.errorMessage() ?? 'No se pudo verificar el PIN', 'danger');
+      await this.utilServicio.mostrarToast(
+        store.errorMessage() ?? 'No se pudo verificar el PIN',
+        'danger',
+      );
       return;
     }
     this.passcodeAttempts.update((intentos) => intentos + 1);
     this.passcodeWrong.set(true);
     await this.utilServicio.mostrarToast('PIN erróneo', 'warning');
     if (this.passcodeAttempts() > 3) {
-      await this.utilServicio.mostrarToast('Demasiados intentos fallidos', 'danger');
+      await this.utilServicio.mostrarToast(
+        'Demasiados intentos fallidos',
+        'danger',
+      );
       await this.servicioInactividad.salir();
       return;
     }

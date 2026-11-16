@@ -6,8 +6,8 @@ import {
   withState,
 } from '@ngrx/signals';
 import { inject, computed } from '@angular/core';
-import { DataBaseService } from '../servicios/data-base.service';
 import { finalize, from, of, tap, catchError } from 'rxjs';
+import { DataBaseService } from 'src/app/nucleo/base-datos/data-base.service';
 
 type DividendosKelly = { agr_idAgresiv?: number; agr_valor: number };
 

@@ -1,12 +1,18 @@
 import { computed, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { Capacitor } from '@capacitor/core';
 import { catchError, finalize, from, of, pipe, switchMap, tap } from 'rxjs';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
-import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
+import { DbPINWebStore } from 'src/app/nucleo/store/dbPIN-web.store';
+import { DbPINAppStore } from 'src/app/nucleo/store/dbPIN-app.store';
 
 export type ResultadoGuardadoPin = 'creado' | 'error';
 
@@ -35,7 +41,9 @@ export const PinFormularioStore = signalStore(
     errorMessage: computed(() => error()),
     /** Texto del aviso: el error si lo hubo y, si no, el mensaje de la operación. */
     mensajeResultado: computed(() => error() ?? mensaje() ?? ''),
-    colorAviso: computed<'success' | 'danger'>(() => (error() ? 'danger' : 'success')),
+    colorAviso: computed<'success' | 'danger'>(() =>
+      error() ? 'danger' : 'success',
+    ),
     pinCreado: computed(() => resultado() === 'creado'),
   })),
   withMethods((store) => {
@@ -48,26 +56,44 @@ export const PinFormularioStore = signalStore(
     const guardarEnAlmacenLocal = async (
       pin: string,
     ): Promise<{ error: string | null; mensaje: string }> => {
-      const almacen = Capacitor.getPlatform() === 'web' ? almacenWeb : almacenNativo;
-      const idUsuario = servicioAutenticacion.obtenerUsuarioActual()?.id || ID_USUARIO_SIN_SESION;
+      const almacen =
+        Capacitor.getPlatform() === 'web' ? almacenWeb : almacenNativo;
+      const idUsuario =
+        servicioAutenticacion.obtenerUsuarioActual()?.id ||
+        ID_USUARIO_SIN_SESION;
       almacen.guardarPin({ pin, idUsuario });
       await utilServicio.esperarCargaDeStore(() => almacen.isLoading());
-      return { error: almacen.errorMessage(), mensaje: almacen.mensajeOperacion() ?? '' };
+      return {
+        error: almacen.errorMessage(),
+        mensaje: almacen.mensajeOperacion() ?? '',
+      };
     };
 
     return {
       guardar: rxMethod<string>(
         pipe(
           tap(() =>
-            patchState(store, { guardando: true, error: null, mensaje: null, resultado: null }),
+            patchState(store, {
+              guardando: true,
+              error: null,
+              mensaje: null,
+              resultado: null,
+            }),
           ),
           switchMap((pin) =>
             from(guardarEnAlmacenLocal(pin)).pipe(
               tap(({ error, mensaje }) =>
-                patchState(store, { error, mensaje, resultado: error ? 'error' : 'creado' }),
+                patchState(store, {
+                  error,
+                  mensaje,
+                  resultado: error ? 'error' : 'creado',
+                }),
               ),
               catchError(() => {
-                patchState(store, { error: MENSAJE_ERROR_POR_DEFECTO, resultado: 'error' });
+                patchState(store, {
+                  error: MENSAJE_ERROR_POR_DEFECTO,
+                  resultado: 'error',
+                });
                 return of(null);
               }),
               finalize(() => patchState(store, { guardando: false })),

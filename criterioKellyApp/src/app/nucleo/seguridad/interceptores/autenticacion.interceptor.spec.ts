@@ -12,9 +12,9 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { UtilitariosService } from '../../servicios/utilitarios.service';
+import { UtilitariosService } from '../../../compartidos/servicios/utilitarios.service';
 import { SesionStore } from '../../store/sesion.store';
-import { ES_PLATAFORMA_NATIVA } from '../../servicios/plataforma';
+import { ES_PLATAFORMA_NATIVA } from '../../servicio/plataforma';
 import { autenticacionInterceptor } from './autenticacion.interceptor';
 
 describe('autenticacionInterceptor', () => {
@@ -55,7 +55,9 @@ describe('autenticacionInterceptor', () => {
 
   it('solo agrega cabeceras a una API y nunca a un tercero', () => {
     cliente.get(`${environment.apiUrlCritKell}cuentas/obtener`).subscribe();
-    const api = controlador.expectOne(`${environment.apiUrlCritKell}cuentas/obtener`);
+    const api = controlador.expectOne(
+      `${environment.apiUrlCritKell}cuentas/obtener`,
+    );
     expect(api.request.headers.get('Authorization')).toBe(
       ['Bearer', 'access-inicial'].join(' '),
     );
@@ -72,10 +74,14 @@ describe('autenticacionInterceptor', () => {
 
   it('renueva y reintenta una sola vez cuando una petición protegida responde 401', () => {
     cliente.get(`${environment.apiUrlCritKell}cuentas/obtener`).subscribe();
-    const primera = controlador.expectOne(`${environment.apiUrlCritKell}cuentas/obtener`);
+    const primera = controlador.expectOne(
+      `${environment.apiUrlCritKell}cuentas/obtener`,
+    );
     primera.flush({}, { status: 401, statusText: 'No autorizado' });
 
-    const reintento = controlador.expectOne(`${environment.apiUrlCritKell}cuentas/obtener`);
+    const reintento = controlador.expectOne(
+      `${environment.apiUrlCritKell}cuentas/obtener`,
+    );
     expect(reintento.request.headers.get('Authorization')).toBe(
       ['Bearer', 'access-renovado'].join(' '),
     );
@@ -83,15 +89,19 @@ describe('autenticacionInterceptor', () => {
   });
 
   it('no agrega Authorization a autenticar', () => {
-    cliente.post(
-      `${environment.apiUrlLoge}autenticacion/autenticar`,
-      { usuario: 'usuario', clave: 'clave' },
-    ).subscribe();
+    cliente
+      .post(`${environment.apiUrlLoge}autenticacion/autenticar`, {
+        usuario: 'usuario',
+        clave: 'clave',
+      })
+      .subscribe();
     const solicitud = controlador.expectOne(
       `${environment.apiUrlLoge}autenticacion/autenticar`,
     );
     expect(solicitud.request.headers.has('Authorization')).toBeFalse();
-    expect(solicitud.request.headers.get('X-Requested-With')).toBe('CriterioKelly');
+    expect(solicitud.request.headers.get('X-Requested-With')).toBe(
+      'CriterioKelly',
+    );
     expect(solicitud.request.withCredentials).toBeTrue();
     solicitud.flush({});
   });
@@ -106,7 +116,8 @@ describe('autenticacionInterceptor', () => {
         claveNueva: 'NuevaClaveSegura1',
       })
       .subscribe({
-        error: (error: { status: number }) => estadosRecibidos.push(error.status),
+        error: (error: { status: number }) =>
+          estadosRecibidos.push(error.status),
       });
     const solicitud = controlador.expectOne(
       `${environment.apiUrlLoge}autenticacion/actualizarClave`,

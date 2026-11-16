@@ -3,7 +3,11 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { AlertInput } from '@ionic/angular';
-import { AlertaCkComponent, TipoAlertaCk, ValoresCamposAlerta } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
+import {
+  AlertaCkComponent,
+  TipoAlertaCk,
+  ValoresCamposAlerta,
+} from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import {
   ALERTA_AUMENTAR_CAPITAL,
   ALERTA_CREAR_CUENTA,
@@ -30,11 +34,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentaStore } from '../../store/cuentaStore';
 import { Capacitor } from '@capacitor/core';
-import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
 import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
 import { RUTA_PLANES } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
 import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
@@ -42,7 +45,8 @@ import {
   haAlcanzadoTopeCuentas,
   textoTopeCuentas,
 } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
-import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
+import { DBCriterioKellyWebStore } from 'src/app/nucleo/store/dbkelly-web.store';
+import { DBCriterioKellyAppStore } from 'src/app/nucleo/store/dbkelly-app.store';
 
 const MONTO_MINIMO = 0.01;
 const MONTO_MAXIMO = 100000000;
@@ -103,7 +107,10 @@ export class CuentasPage {
       case 'editar':
         return ALERTA_EDITAR_CUENTA;
       case 'eliminar':
-        return { ...ALERTA_ELIMINAR_CUENTA, mensaje: mensajeEliminarCuenta(alerta.cuenta.cue_nombre) };
+        return {
+          ...ALERTA_ELIMINAR_CUENTA,
+          mensaje: mensajeEliminarCuenta(alerta.cuenta.cue_nombre),
+        };
       case 'aumentar':
         return ALERTA_AUMENTAR_CAPITAL;
       case 'reducir':
@@ -115,7 +122,9 @@ export class CuentasPage {
 
   readonly tipoAlertaActiva = computed<TipoAlertaCk>(() => {
     const tipo = this.alertaActiva()?.tipo;
-    return tipo === 'eliminar' || tipo === 'reducir' ? 'destructiva' : 'confirmacion';
+    return tipo === 'eliminar' || tipo === 'reducir'
+      ? 'destructiva'
+      : 'confirmacion';
   });
 
   readonly camposAlertaActiva = computed<AlertInput[] | undefined>(() => {
@@ -124,7 +133,13 @@ export class CuentasPage {
       case 'crear':
         return [
           { name: 'cue_nombre', type: 'text', placeholder: 'Nombre' },
-          { name: 'monto', type: 'number', placeholder: 'Monto (0.00)', min: MONTO_MINIMO, max: MONTO_MAXIMO },
+          {
+            name: 'monto',
+            type: 'number',
+            placeholder: 'Monto (0.00)',
+            min: MONTO_MINIMO,
+            max: MONTO_MAXIMO,
+          },
         ];
       case 'editar':
         return [
@@ -137,7 +152,14 @@ export class CuentasPage {
         ];
       case 'aumentar':
       case 'reducir':
-        return [{ name: 'monto', type: 'number', placeholder: 'Monto', min: MONTO_MINIMO }];
+        return [
+          {
+            name: 'monto',
+            type: 'number',
+            placeholder: 'Monto',
+            min: MONTO_MINIMO,
+          },
+        ];
       default:
         return undefined;
     }
@@ -218,7 +240,10 @@ export class CuentasPage {
     this.alertaActiva.set({ tipo: 'eliminar', cuenta });
   }
 
-  abrirModalCapital(cuenta: CuentaResponse, accion: 'aumentar' | 'reducir'): void {
+  abrirModalCapital(
+    cuenta: CuentaResponse,
+    accion: 'aumentar' | 'reducir',
+  ): void {
     this.alertaActiva.set({ tipo: accion, cuenta });
   }
 
@@ -288,7 +313,10 @@ export class CuentasPage {
     return false;
   }
 
-  private guardarNombreEditado(valores: ValoresCamposAlerta, cuenta: CuentaResponse): void {
+  private guardarNombreEditado(
+    valores: ValoresCamposAlerta,
+    cuenta: CuentaResponse,
+  ): void {
     const request: ActualizarNombreCuenta = {
       cue_idCuenta: cuenta.cue_idCuentas,
       cue_nombre: String(valores['cue_nombre'] ?? '').trim(),
@@ -305,23 +333,34 @@ export class CuentasPage {
 
   private calcularNuevoCapital(monto: number, alerta: AlertaCapital): number {
     const capitalActual = alerta.cuenta.valor_cuenta || 0;
-    return alerta.tipo === 'aumentar' ? capitalActual + monto : capitalActual - monto;
+    return alerta.tipo === 'aumentar'
+      ? capitalActual + monto
+      : capitalActual - monto;
   }
 
-  private validarCapital(valores: ValoresCamposAlerta, alerta: AlertaCapital): boolean {
+  private validarCapital(
+    valores: ValoresCamposAlerta,
+    alerta: AlertaCapital,
+  ): boolean {
     const monto = Number(valores['monto']);
     if (isNaN(monto) || monto <= 0) {
       this.utilServicio.mostrarToast('Monto inválido', 'danger');
       return false;
     }
     if (this.calcularNuevoCapital(monto, alerta) < 0) {
-      this.utilServicio.mostrarToast('El capital no puede ser negativo', 'danger');
+      this.utilServicio.mostrarToast(
+        'El capital no puede ser negativo',
+        'danger',
+      );
       return false;
     }
     return true;
   }
 
-  private guardarCapital(valores: ValoresCamposAlerta, alerta: AlertaCapital): void {
+  private guardarCapital(
+    valores: ValoresCamposAlerta,
+    alerta: AlertaCapital,
+  ): void {
     const monto = Number(valores['monto']);
     const nuevoCapital: CapitalModelo = {
       cap_idCapital: 0,

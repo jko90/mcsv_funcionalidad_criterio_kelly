@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { provideRouter, Router } from '@angular/router';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
@@ -13,9 +13,16 @@ import { CuentaStore } from '../../../cuentas/store/cuentaStore';
 import { OperativaKellyPage } from './operativa-kelly.page';
 
 describe('OperativaKellyPage · divisor según el plan', () => {
-  const limites = signal<LimitesPlan>({ ...LIMITES_SIN_RESTRICCION, divisorEditable: false });
+  const limites = signal<LimitesPlan>({
+    ...LIMITES_SIN_RESTRICCION,
+    divisorEditable: false,
+  });
   let toast: jasmine.Spy;
-  const cuenta = { cue_idCuentas: 3, cue_nombre: 'Principal', multipKelly: 7 } as CuentaResponse;
+  const cuenta = {
+    cue_idCuentas: 3,
+    cue_nombre: 'Principal',
+    multipKelly: 7,
+  } as CuentaResponse;
 
   function crearPagina(): OperativaKellyPage {
     toast = jasmine.createSpy('mostrarToast');
@@ -44,7 +51,10 @@ describe('OperativaKellyPage · divisor según el plan', () => {
             esperarCargaDeStore: () => Promise.resolve(),
           },
         },
-        { provide: ServicioAutenticacion, useValue: { obtenerUsuarioActual: () => ({ id: 1 }) } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { obtenerUsuarioActual: () => ({ id: 1 }) },
+        },
         { provide: DBCriterioKellyWebStore, useValue: doble },
         { provide: DBCriterioKellyAppStore, useValue: doble },
       ],
@@ -59,7 +69,9 @@ describe('OperativaKellyPage · divisor según el plan', () => {
     pagina.abrirModalCuenta(cuenta);
 
     expect(pagina.divisorFijo).toBe(10);
-    expect(pagina.textoDivisorFijo).toBe('Tu plan usa el divisor 10. Actualiza tu plan para cambiarlo');
+    expect(pagina.textoDivisorFijo).toBe(
+      'Tu plan usa el divisor 10. Actualiza tu plan para cambiarlo',
+    );
     expect(pagina.mostrarModalPlan()).toBeTrue();
     expect(pagina.alertaActiva()).toBeNull();
   });
@@ -97,16 +109,21 @@ describe('OperativaKellyPage · divisor según el plan', () => {
 
     pagina.alDescartarAlerta();
     expect(pagina.alertaActiva()).toBeNull();
-    expect(toast).not.toHaveBeenCalledWith('Divisor Kelly actualizado', 'success');
+    expect(toast).not.toHaveBeenCalledWith(
+      'Divisor Kelly actualizado',
+      'success',
+    );
   }));
 
   it('alVerPlanes cierra la alerta y después navega a /planes', () => {
     const pagina = crearPagina();
     pagina.mostrarModalPlan.set(true);
-    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.callFake(() => {
-      expect(pagina.mostrarModalPlan()).toBeFalse();
-      return Promise.resolve(true);
-    });
+    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.callFake(
+      () => {
+        expect(pagina.mostrarModalPlan()).toBeFalse();
+        return Promise.resolve(true);
+      },
+    );
 
     pagina.alVerPlanes();
 

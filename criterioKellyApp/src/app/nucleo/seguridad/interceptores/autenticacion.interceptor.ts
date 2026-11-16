@@ -8,9 +8,8 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, catchError, of, Observable, switchMap, throwError } from 'rxjs';
-import { UtilitariosService } from '../../servicios/utilitarios.service';
-import { SesionStore } from '../../store/sesion.store';
-import { ES_PLATAFORMA_NATIVA } from '../../servicios/plataforma';
+import { UtilitariosService } from '../../../compartidos/servicios/utilitarios.service';
+import { ES_PLATAFORMA_NATIVA } from '../../servicio/plataforma';
 import {
   ES_REINTENTO_AUTENTICACION,
   URL_AUTENTICAR,
@@ -21,13 +20,11 @@ import {
   esUrlApi,
   esUrlSesion,
 } from './sesion-http';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 const MENSAJE_SESION_EXPIRADA = 'Tu sesión expiró, vuelve a iniciar sesión';
 
-export const autenticacionInterceptor: HttpInterceptorFn = (
-  req,
-  next,
-) => {
+export const autenticacionInterceptor: HttpInterceptorFn = (req, next) => {
   const sesionStore = inject(SesionStore);
   const router = inject(Router);
   const utilServicio = inject(UtilitariosService);
@@ -49,7 +46,9 @@ export const autenticacionInterceptor: HttpInterceptorFn = (
     esAutenticar || esRenovar || esCerrarSesion,
   );
 
-  const enviar = (solicitud: HttpRequest<unknown>): Observable<HttpEvent<unknown>> =>
+  const enviar = (
+    solicitud: HttpRequest<unknown>,
+  ): Observable<HttpEvent<unknown>> =>
     next(solicitud).pipe(
       catchError((error: HttpErrorResponse) => {
         const esReintento = solicitud.context.get(ES_REINTENTO_AUTENTICACION);
@@ -62,18 +61,23 @@ export const autenticacionInterceptor: HttpInterceptorFn = (
         if (!puedeRenovar) return throwError(() => error);
 
         const tokenActual = sesionStore.accessToken();
-        const tokenEnviado = solicitud.headers.get('Authorization')?.replace('Bearer ', '');
+        const tokenEnviado = solicitud.headers
+          .get('Authorization')
+          ?.replace('Bearer ', '');
         const renovar$ =
           tokenActual && tokenActual !== tokenEnviado
             ? of(tokenActual)
-            : sesionStore.renovacionEnCurso() ?? sesionStore.renovarSesion();
+            : (sesionStore.renovacionEnCurso() ?? sesionStore.renovarSesion());
 
         return renovar$.pipe(
           switchMap((token) =>
             enviar(
               prepararSolicitud(
                 solicitud.clone({
-                  context: solicitud.context.set(ES_REINTENTO_AUTENTICACION, true),
+                  context: solicitud.context.set(
+                    ES_REINTENTO_AUTENTICACION,
+                    true,
+                  ),
                 }),
                 token,
                 esNativa,
@@ -81,7 +85,9 @@ export const autenticacionInterceptor: HttpInterceptorFn = (
               ),
             ),
           ),
-          catchError(() => manejarExpiracion(sesionStore, router, utilServicio)),
+          catchError(() =>
+            manejarExpiracion(sesionStore, router, utilServicio),
+          ),
         );
       }),
     );
@@ -89,7 +95,9 @@ export const autenticacionInterceptor: HttpInterceptorFn = (
   const renovacionActual = sesionStore.renovacionEnCurso();
   if (!esPeticionDeSesion && renovacionActual) {
     return renovacionActual.pipe(
-      switchMap((token) => enviar(prepararSolicitud(solicitudPreparada, token, esNativa, false))),
+      switchMap((token) =>
+        enviar(prepararSolicitud(solicitudPreparada, token, esNativa, false)),
+      ),
       catchError(() => manejarExpiracion(sesionStore, router, utilServicio)),
     );
   }
@@ -108,7 +116,11 @@ function prepararSolicitud(
     VALOR_X_REQUESTED_WITH,
   );
   if (esNativa) headers = headers.set('X-Cliente', VALOR_X_CLIENTE_NATIVO);
-  if (accessToken && !esUrlSesion(solicitud.url, URL_AUTENTICAR) && !esUrlSesion(solicitud.url, URL_RENOVAR)) {
+  if (
+    accessToken &&
+    !esUrlSesion(solicitud.url, URL_AUTENTICAR) &&
+    !esUrlSesion(solicitud.url, URL_RENOVAR)
+  ) {
     headers = headers.set('Authorization', `Bearer ${accessToken}`);
   }
   return solicitud.clone({

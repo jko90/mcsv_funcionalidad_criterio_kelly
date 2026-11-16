@@ -7,8 +7,17 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { catchError, finalize, from, mergeMap, of, pipe, switchMap, tap } from 'rxjs';
-import { ErrorApi } from 'src/app/compartidos/modelos/error-api';
+import {
+  catchError,
+  finalize,
+  from,
+  mergeMap,
+  of,
+  pipe,
+  switchMap,
+  tap,
+} from 'rxjs';
+import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
 import {
   descripcionPlan,
   desescaparEntidades,
@@ -16,7 +25,10 @@ import {
   mensajeSolicitudBanco,
   numeroWhatsapp,
 } from '../configuracion/textos-pago';
-import { DatosPagoDisponibles, RedUsdtDisponible } from '../modelos/DatosPago.modelo';
+import {
+  DatosPagoDisponibles,
+  RedUsdtDisponible,
+} from '../modelos/DatosPago.modelo';
 import { MetodoPago } from '../modelos/EstadoPago.modelo';
 import {
   EtapaBanco,
@@ -132,8 +144,12 @@ export const MetodoPagoStore = signalStore(
           etiqueta: desescaparEntidades(red.etiqueta),
         })),
       );
-      const correoPaypal = computed(() => (datos()?.paypal?.correo ?? '').trim());
-      const enlacePaypal = computed(() => (datos()?.paypal?.enlace ?? '').trim());
+      const correoPaypal = computed(() =>
+        (datos()?.paypal?.correo ?? '').trim(),
+      );
+      const enlacePaypal = computed(() =>
+        (datos()?.paypal?.enlace ?? '').trim(),
+      );
       const paypalDisponible = computed(
         () => correoPaypal() !== '' || enlacePaypal() !== '',
       );
@@ -223,7 +239,9 @@ export const MetodoPagoStore = signalStore(
       datosPagoServicio = inject(DatosPagoService),
     ) => {
       const liberarQr = (): void => {
-        Object.values(store.urlsQr()).forEach((url) => URL.revokeObjectURL(url));
+        Object.values(store.urlsQr()).forEach((url) =>
+          URL.revokeObjectURL(url),
+        );
         patchState(store, { urlsQr: {} });
       };
 
@@ -231,13 +249,18 @@ export const MetodoPagoStore = signalStore(
         pipe(
           switchMap((redes) =>
             from(
-              redes.filter((red) => red.tieneQr && store.urlsQr()[red.clave] === undefined),
+              redes.filter(
+                (red) => red.tieneQr && store.urlsQr()[red.clave] === undefined,
+              ),
             ).pipe(
               mergeMap((red) =>
                 datosPagoServicio.obtenerQr(red.clave).pipe(
                   tap((imagen) =>
                     patchState(store, {
-                      urlsQr: { ...store.urlsQr(), [red.clave]: URL.createObjectURL(imagen) },
+                      urlsQr: {
+                        ...store.urlsQr(),
+                        [red.clave]: URL.createObjectURL(imagen),
+                      },
                     }),
                   ),
                   // Sin imagen se muestra solo la dirección; el pago no se interrumpe.
@@ -257,11 +280,15 @@ export const MetodoPagoStore = signalStore(
               tap((datos) => {
                 liberarQr();
                 patchState(store, { datos });
-                if (store.metodoActivo() === 'CRIPTOMONEDA') cargarQrFaltantes(store.redesUsdt());
+                if (store.metodoActivo() === 'CRIPTOMONEDA')
+                  cargarQrFaltantes(store.redesUsdt());
               }),
               catchError((error: unknown) => {
                 liberarQr();
-                patchState(store, { datos: null, error: mensajeDeError(error) });
+                patchState(store, {
+                  datos: null,
+                  error: mensajeDeError(error),
+                });
                 return of(null);
               }),
               finalize(() => patchState(store, { loading: false })),

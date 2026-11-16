@@ -4,11 +4,11 @@ import { Router } from '@angular/router';
 import { PlanesModelo } from '../../modelos/Planes.modelo';
 import { CommonModule } from '@angular/common';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { SesionStore } from 'src/app/compartidos/store/sesion.store';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { AvisoPlanComponent } from '../../componentes/aviso-plan/aviso-plan.component';
 import { PlanVigenteStore } from '../../store/plan-vigente.store';
 import { filasLimitesPlan } from '../../configuracion/permisos-plan.config';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 @Component({
   selector: 'app-planes',

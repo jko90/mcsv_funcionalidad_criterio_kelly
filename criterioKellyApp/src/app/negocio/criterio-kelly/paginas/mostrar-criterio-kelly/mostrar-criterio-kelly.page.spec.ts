@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
 import { LIMITES_SIN_RESTRICCION } from '../../../suscripcion/configuracion/permisos-plan.config';
@@ -11,7 +11,10 @@ import { ResultadosStore } from '../../store/resultadosStore';
 import { MostrarCriterioKellyPage } from './mostrar-criterio-kelly.page';
 
 describe('MostrarCriterioKellyPage · operaciones diarias según el plan', () => {
-  const limites = signal<LimitesPlan>({ ...LIMITES_SIN_RESTRICCION, maxOperacionesDiarias: 1 });
+  const limites = signal<LimitesPlan>({
+    ...LIMITES_SIN_RESTRICCION,
+    maxOperacionesDiarias: 1,
+  });
   let mostrarToast: jasmine.Spy;
 
   function crearPagina(): MostrarCriterioKellyPage {
@@ -21,21 +24,35 @@ describe('MostrarCriterioKellyPage · operaciones diarias según el plan', () =>
         { provide: PlanVigenteStore, useValue: { limites } },
         {
           provide: CuentaStore,
-          useValue: { listaCuentas: signal([]), cuentaSeleccionada: signal(null) },
+          useValue: {
+            listaCuentas: signal([]),
+            cuentaSeleccionada: signal(null),
+          },
         },
         {
           provide: CriterioKellyStore,
-          useValue: { listaCriteriosKelly: signal([]), criterioKellyActual: signal(null) },
+          useValue: {
+            listaCriteriosKelly: signal([]),
+            criterioKellyActual: signal(null),
+          },
         },
         {
           provide: ResultadosStore,
-          useValue: { listaResultados: signal([]), resultadoActual: signal(null) },
+          useValue: {
+            listaResultados: signal([]),
+            resultadoActual: signal(null),
+          },
         },
-        { provide: ServicioAutenticacion, useValue: { obtenerUsuarioActual: () => null } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { obtenerUsuarioActual: () => null },
+        },
         { provide: UtilitariosService, useValue: { mostrarToast } },
       ],
     });
-    const pagina = TestBed.runInInjectionContext(() => new MostrarCriterioKellyPage());
+    const pagina = TestBed.runInInjectionContext(
+      () => new MostrarCriterioKellyPage(),
+    );
     TestBed.tick();
     return pagina;
   }
@@ -48,8 +65,13 @@ describe('MostrarCriterioKellyPage · operaciones diarias según el plan', () =>
     TestBed.tick();
 
     expect(pagina.numOperativasControl.value).toBe(1);
-    expect(mostrarToast).toHaveBeenCalledWith('Tu plan permite 1 operación diaria', 'warning');
-    expect(pagina.avisoOperacionesDiarias()).toBe('Tu plan permite 1 operación diaria');
+    expect(mostrarToast).toHaveBeenCalledWith(
+      'Tu plan permite 1 operación diaria',
+      'warning',
+    );
+    expect(pagina.avisoOperacionesDiarias()).toBe(
+      'Tu plan permite 1 operación diaria',
+    );
   });
 
   it('un valor dentro del máximo no se toca', () => {

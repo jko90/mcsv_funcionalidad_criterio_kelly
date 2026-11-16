@@ -2,7 +2,7 @@ import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { Rol } from 'src/app/compartidos/modelos/Rol.modelo';
+import { Rol } from 'src/app/nucleo/modelo/Rol.modelo';
 import { SesionStore } from '../../store/sesion.store';
 import { GuardRoles } from './GuardRoles';
 
@@ -14,7 +14,9 @@ describe('GuardRoles', () => {
   let roles: WritableSignal<Rol[]>;
   let autenticado: WritableSignal<boolean>;
   let router: Router;
-  const ruta = { data: { roles: [1, 2], requireAll: false } } as unknown as ActivatedRouteSnapshot;
+  const ruta = {
+    data: { roles: [1, 2], requireAll: false },
+  } as unknown as ActivatedRouteSnapshot;
 
   beforeEach(() => {
     roles = signal<Rol[]>([]);

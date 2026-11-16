@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { LIMITES_SIN_RESTRICCION } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
 import { LimitesPlan } from '../../../../negocio/suscripcion/modelos/PlanVigente.modelo';
@@ -39,8 +39,10 @@ describe('OperativasPage · límites del plan', () => {
           useValue: {
             listaDetallesOperaciones: signal([]),
             listaDOPorCuentas: signal([]),
-            cargarDetalleOperaciones: () => llamadas.push('reportes.cargarDetalleOperaciones'),
-            obtenerDetallePorCuentas: (id: number) => llamadas.push(`reportes.detalle(${id})`),
+            cargarDetalleOperaciones: () =>
+              llamadas.push('reportes.cargarDetalleOperaciones'),
+            obtenerDetallePorCuentas: (id: number) =>
+              llamadas.push(`reportes.detalle(${id})`),
             loading: signal(false),
           },
         },
@@ -52,8 +54,14 @@ describe('OperativasPage · límites del plan', () => {
             cargarCuentas: () => llamadas.push('cuentas.cargar'),
           },
         },
-        { provide: ServicioAutenticacion, useValue: { obtenerUsuarioActual: () => ({ id: idUsuario }) } },
-        { provide: UtilitariosService, useValue: { esperarCargaDeStore: () => Promise.resolve() } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { obtenerUsuarioActual: () => ({ id: idUsuario }) },
+        },
+        {
+          provide: UtilitariosService,
+          useValue: { esperarCargaDeStore: () => Promise.resolve() },
+        },
       ],
     });
     return TestBed.runInInjectionContext(() => new OperativasPage());
@@ -103,7 +111,10 @@ describe('OperativasPage · límites del plan', () => {
 
       await pagina.ngOnInit();
 
-      expect(llamadas).toEqual(['reportes.cargarDetalleOperaciones', 'cuentas.cargar']);
+      expect(llamadas).toEqual([
+        'reportes.cargarDetalleOperaciones',
+        'cuentas.cargar',
+      ]);
     });
   });
 
@@ -149,7 +160,11 @@ describe('OperativasPage · límites del plan', () => {
       'Tu plan muestra los últimos 15 días. Actualiza tu plan para ver más',
     );
 
-    limites.set({ ...LIMITES_SIN_RESTRICCION, diasReporte: 365, diasTotalesAnalisis: 365 });
+    limites.set({
+      ...LIMITES_SIN_RESTRICCION,
+      diasReporte: 365,
+      diasTotalesAnalisis: 365,
+    });
     expect(pagina.avisoDiasReporte()).toBeNull();
   });
 
@@ -165,10 +180,12 @@ describe('OperativasPage · límites del plan', () => {
   it('alVerPlanes cierra la alerta y después navega a /planes', () => {
     const pagina = crearPagina();
     pagina.mostrarModalPlan.set(true);
-    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.callFake(() => {
-      expect(pagina.mostrarModalPlan()).toBeFalse();
-      return Promise.resolve(true);
-    });
+    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.callFake(
+      () => {
+        expect(pagina.mostrarModalPlan()).toBeFalse();
+        return Promise.resolve(true);
+      },
+    );
 
     pagina.alVerPlanes();
 

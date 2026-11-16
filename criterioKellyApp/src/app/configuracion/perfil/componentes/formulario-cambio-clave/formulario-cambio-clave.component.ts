@@ -1,12 +1,30 @@
-import { ChangeDetectionStrategy, Component, effect, input, output } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  input,
+  output,
+} from '@angular/core';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { CambiarClaveRequest } from '../../modelos/Perfil.modelo';
-import { MENSAJES_POLITICA_CLAVE, politicaClaveValidator } from 'src/app/compartidos/validadores/politica-clave.validator';
+import {
+  MENSAJES_POLITICA_CLAVE,
+  politicaClaveValidator,
+} from 'src/app/compartidos/validadores/politica-clave.validator';
 
-const clavesCoinciden = (control: AbstractControl): { clavesNoCoinciden: true } | null => {
+const clavesCoinciden = (
+  control: AbstractControl,
+): { clavesNoCoinciden: true } | null => {
   const grupo = control as FormGroup;
-  return grupo.controls['claveNueva'].value === grupo.controls['confirmacion'].value
+  return grupo.controls['claveNueva'].value ===
+    grupo.controls['confirmacion'].value
     ? null
     : { clavesNoCoinciden: true };
 };
@@ -26,9 +44,18 @@ export class FormularioCambioClaveComponent {
   readonly mensajes = MENSAJES_POLITICA_CLAVE;
   readonly formulario = new FormGroup(
     {
-      claveActual: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      claveNueva: new FormControl('', { nonNullable: true, validators: [Validators.required, politicaClaveValidator({})] }),
-      confirmacion: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      claveActual: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      claveNueva: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, politicaClaveValidator({})],
+      }),
+      confirmacion: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
     },
     { validators: clavesCoinciden },
   );

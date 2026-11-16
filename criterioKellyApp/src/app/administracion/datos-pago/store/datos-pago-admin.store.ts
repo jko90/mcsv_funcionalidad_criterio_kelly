@@ -19,7 +19,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { ErrorApi } from 'src/app/compartidos/modelos/error-api';
+import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
 import { desescaparEntidades } from 'src/app/negocio/suscripcion/configuracion/textos-pago';
 import { DatosPagoService } from 'src/app/negocio/suscripcion/servicios/datos-pago.service';
 import { mensajeErrorArchivoQr } from '../configuracion/validadores-pago';
@@ -99,10 +99,15 @@ function estadoHttpDeError(error: unknown): number | null {
 
 // El interceptor ya mostró el mensaje del servidor; aquí se conserva para la pantalla.
 function mensajeDeError(error: unknown, mensajePorDefecto: string): string {
-  return error instanceof Error && error.message !== '' ? error.message : mensajePorDefecto;
+  return error instanceof Error && error.message !== ''
+    ? error.message
+    : mensajePorDefecto;
 }
 
-function buscarMetodo(metodos: MetodoPagoAdmin[], codigo: string): MetodoPagoAdmin | null {
+function buscarMetodo(
+  metodos: MetodoPagoAdmin[],
+  codigo: string,
+): MetodoPagoAdmin | null {
   return metodos.find((metodo) => metodo.mep_codigo === codigo) ?? null;
 }
 
@@ -164,7 +169,9 @@ export const DatosPagoAdminStore = signalStore(
         metodoPaypal,
         metodoBanco,
         redEnEdicion: computed(
-          () => listaRedes().find((red) => red.red_idRed === idRedEnEdicion()) ?? null,
+          () =>
+            listaRedes().find((red) => red.red_idRed === idRedEnEdicion()) ??
+            null,
         ),
         redQrSeleccionada: computed(
           () => listaRedes().find((red) => red.red_idRed === idRedQr()) ?? null,
@@ -190,7 +197,10 @@ export const DatosPagoAdminStore = signalStore(
       servicio = inject(AdministracionDatosPagoService),
       servicioQr = inject(DatosPagoService),
     ) => {
-      const registrarError = (error: unknown, mensajePorDefecto: string): null => {
+      const registrarError = (
+        error: unknown,
+        mensajePorDefecto: string,
+      ): null => {
         patchState(store, {
           error: mensajeDeError(error, mensajePorDefecto),
           accesoDenegado: estadoHttpDeError(error) === ESTADO_ACCESO_DENEGADO,
@@ -223,7 +233,10 @@ export const DatosPagoAdminStore = signalStore(
         patchState(store, {
           qrCargados: {
             ...store.qrCargados(),
-            [red.red_clave]: { hash: red.qrHash, url: URL.createObjectURL(imagen) },
+            [red.red_clave]: {
+              hash: red.qrHash,
+              url: URL.createObjectURL(imagen),
+            },
           },
         });
       };
@@ -246,7 +259,11 @@ export const DatosPagoAdminStore = signalStore(
 
       const aplicarAdministracion = (datos: DatosPagoAdministracion): void => {
         descartarQrObsoletos(datos.redes);
-        patchState(store, { metodos: datos.metodos, redes: datos.redes, haCargado: true });
+        patchState(store, {
+          metodos: datos.metodos,
+          redes: datos.redes,
+          haCargado: true,
+        });
         cargarQrFaltantes(datos.redes);
       };
 
@@ -256,7 +273,9 @@ export const DatosPagoAdminStore = signalStore(
           switchMap(() =>
             servicio.obtenerAdministracion().pipe(
               tap(aplicarAdministracion),
-              catchError((error: unknown) => of(registrarError(error, MENSAJE_ERROR_CARGA))),
+              catchError((error: unknown) =>
+                of(registrarError(error, MENSAJE_ERROR_CARGA)),
+              ),
               finalize(() => patchState(store, { loading: false })),
             ),
           ),
@@ -278,7 +297,9 @@ export const DatosPagoAdminStore = signalStore(
                   patchState(store, { resultado: opciones.mensajeExito });
                   cargar();
                 }),
-                catchError((error: unknown) => of(registrarError(error, MENSAJE_ERROR_GUARDADO))),
+                catchError((error: unknown) =>
+                  of(registrarError(error, MENSAJE_ERROR_GUARDADO)),
+                ),
                 finalize(() => patchState(store, { guardando: false })),
               ),
             ),
@@ -289,23 +310,33 @@ export const DatosPagoAdminStore = signalStore(
         (cambio) => servicio.cambiarEstadoMetodo(cambio),
         { mensajeExito: MENSAJE_METODO_ACTUALIZADO },
       );
-      const subirQr = crearEscritura<SubidaQr>((subida) => servicio.subirQr(subida), {
-        mensajeExito: MENSAJE_QR_GUARDADO,
-        alExito: () => patchState(store, { vistaPreviaQr: null, idRedQr: null }),
-      });
+      const subirQr = crearEscritura<SubidaQr>(
+        (subida) => servicio.subirQr(subida),
+        {
+          mensajeExito: MENSAJE_QR_GUARDADO,
+          alExito: () =>
+            patchState(store, { vistaPreviaQr: null, idRedQr: null }),
+        },
+      );
 
       return {
         cargar,
-        guardarRed: crearEscritura<CuerpoGuardarRed>((cuerpo) => servicio.guardarRed(cuerpo), {
-          mensajeExito: MENSAJE_RED_GUARDADA,
-        }),
+        guardarRed: crearEscritura<CuerpoGuardarRed>(
+          (cuerpo) => servicio.guardarRed(cuerpo),
+          {
+            mensajeExito: MENSAJE_RED_GUARDADA,
+          },
+        ),
         cambiarEstadoRed: crearEscritura<CambioEstadoRed>(
           (cambio) => servicio.cambiarEstadoRed(cambio.idRed, cambio.activo),
           { mensajeExito: MENSAJE_RED_ACTUALIZADA },
         ),
-        eliminarRed: crearEscritura<number>((idRed) => servicio.eliminarRed(idRed), {
-          mensajeExito: MENSAJE_RED_ELIMINADA,
-        }),
+        eliminarRed: crearEscritura<number>(
+          (idRed) => servicio.eliminarRed(idRed),
+          {
+            mensajeExito: MENSAJE_RED_ELIMINADA,
+          },
+        ),
         guardarPaypal: crearEscritura<CuerpoGuardarPaypal>(
           (cuerpo) => servicio.guardarPaypal(cuerpo),
           { mensajeExito: MENSAJE_PAYPAL_GUARDADO },
@@ -315,9 +346,16 @@ export const DatosPagoAdminStore = signalStore(
           { mensajeExito: MENSAJE_BANCO_GUARDADO },
         ),
         // El orden del método no se edita en pantalla: se conserva el guardado.
-        cambiarEstadoMetodo: (solicitud: Omit<CambioEstadoMetodo, 'orden'>): void => {
-          const metodo = store.metodos().find((candidato) => candidato.mep_codigo === solicitud.codigo);
-          cambiarEstadoMetodoConOrden({ ...solicitud, orden: metodo?.mep_orden ?? 0 });
+        cambiarEstadoMetodo: (
+          solicitud: Omit<CambioEstadoMetodo, 'orden'>,
+        ): void => {
+          const metodo = store
+            .metodos()
+            .find((candidato) => candidato.mep_codigo === solicitud.codigo);
+          cambiarEstadoMetodoConOrden({
+            ...solicitud,
+            orden: metodo?.mep_orden ?? 0,
+          });
         },
         confirmarSubidaQr: (): void => {
           const idRed = store.idRedQr();
@@ -327,13 +365,17 @@ export const DatosPagoAdminStore = signalStore(
         },
         quitarQr: crearEscritura<number>((idRed) => servicio.quitarQr(idRed), {
           mensajeExito: MENSAJE_QR_QUITADO,
-          alExito: () => patchState(store, { vistaPreviaQr: null, idRedQr: null }),
+          alExito: () =>
+            patchState(store, { vistaPreviaQr: null, idRedQr: null }),
         }),
-        validarArchivoQr: (archivo: { type: string; size: number }): string | null =>
-          mensajeErrorArchivoQr(archivo.type, archivo.size),
+        validarArchivoQr: (archivo: {
+          type: string;
+          size: number;
+        }): string | null => mensajeErrorArchivoQr(archivo.type, archivo.size),
         establecerVistaPreviaQr: (vistaPrevia: string): void =>
           patchState(store, { vistaPreviaQr: vistaPrevia }),
-        descartarVistaPreviaQr: (): void => patchState(store, { vistaPreviaQr: null }),
+        descartarVistaPreviaQr: (): void =>
+          patchState(store, { vistaPreviaQr: null }),
         seleccionarRedEnEdicion: (idRed: number | null): void =>
           patchState(store, { idRedEnEdicion: idRed }),
         seleccionarRedQr: (idRed: number | null): void =>

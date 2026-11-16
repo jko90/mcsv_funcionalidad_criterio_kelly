@@ -1,13 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { ErrorApi } from 'src/app/compartidos/modelos/error-api';
+import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
 import { MOTIVO_COMPROBANTE_ANTIGUO } from '../configuracion/textos-validacion';
-import { ConfirmacionPago, PagoPendiente } from '../modelos/PagoPendiente.modelo';
+import {
+  ConfirmacionPago,
+  PagoPendiente,
+} from '../modelos/PagoPendiente.modelo';
 import { AdministracionPagosService } from '../servicios/administracion-pagos.service';
-import { TAMANO_PAGINA_PAGOS, ValidacionPagosStore } from './validacion-pagos.store';
+import {
+  TAMANO_PAGINA_PAGOS,
+  ValidacionPagosStore,
+} from './validacion-pagos.store';
 
-function crearPago(id: number, cambios: Partial<PagoPendiente> = {}): PagoPendiente {
+function crearPago(
+  id: number,
+  cambios: Partial<PagoPendiente> = {},
+): PagoPendiente {
   return {
     pag_idPago: id,
     pag_susIdSuscri: 100 + id,
@@ -32,7 +41,9 @@ function crearPago(id: number, cambios: Partial<PagoPendiente> = {}): PagoPendie
 }
 
 function crearPagina(desdeId: number, cantidad: number): PagoPendiente[] {
-  return Array.from({ length: cantidad }, (_, indice) => crearPago(desdeId - indice));
+  return Array.from({ length: cantidad }, (_, indice) =>
+    crearPago(desdeId - indice),
+  );
 }
 
 describe('ValidacionPagosStore', () => {
@@ -40,12 +51,10 @@ describe('ValidacionPagosStore', () => {
   let store: InstanceType<typeof ValidacionPagosStore>;
 
   beforeEach(() => {
-    servicio = jasmine.createSpyObj<AdministracionPagosService>('AdministracionPagosService', [
-      'obtenerPendientes',
-      'obtenerComprobante',
-      'confirmar',
-      'rechazar',
-    ]);
+    servicio = jasmine.createSpyObj<AdministracionPagosService>(
+      'AdministracionPagosService',
+      ['obtenerPendientes', 'obtenerComprobante', 'confirmar', 'rechazar'],
+    );
     TestBed.configureTestingModule({
       providers: [{ provide: AdministracionPagosService, useValue: servicio }],
     });
@@ -53,9 +62,13 @@ describe('ValidacionPagosStore', () => {
   });
 
   it('VP-01 carga la primera página con el límite de 20', () => {
-    servicio.obtenerPendientes.and.returnValue(of([crearPago(3), crearPago(2)]));
+    servicio.obtenerPendientes.and.returnValue(
+      of([crearPago(3), crearPago(2)]),
+    );
     store.cargarPendientes();
-    expect(servicio.obtenerPendientes).toHaveBeenCalledWith(TAMANO_PAGINA_PAGOS);
+    expect(servicio.obtenerPendientes).toHaveBeenCalledWith(
+      TAMANO_PAGINA_PAGOS,
+    );
     expect(store.pagos().length).toBe(2);
     expect(store.isLoading()).toBeFalse();
   });
@@ -65,7 +78,10 @@ describe('ValidacionPagosStore', () => {
     store.cargarPendientes();
     servicio.obtenerPendientes.and.returnValue(of([crearPago(70)]));
     store.cargarMas();
-    expect(servicio.obtenerPendientes).toHaveBeenCalledWith(TAMANO_PAGINA_PAGOS, 81);
+    expect(servicio.obtenerPendientes).toHaveBeenCalledWith(
+      TAMANO_PAGINA_PAGOS,
+      81,
+    );
     expect(store.pagos().length).toBe(21);
   });
 
@@ -110,7 +126,9 @@ describe('ValidacionPagosStore', () => {
   });
 
   it('VP-05 aprobar con 200 quita el pago y marca el resultado', () => {
-    servicio.obtenerPendientes.and.returnValue(of([crearPago(3), crearPago(2)]));
+    servicio.obtenerPendientes.and.returnValue(
+      of([crearPago(3), crearPago(2)]),
+    );
     store.cargarPendientes();
     servicio.confirmar.and.returnValue(of({} as ConfirmacionPago));
     store.aprobar(3);
@@ -123,7 +141,9 @@ describe('ValidacionPagosStore', () => {
   it('VP-06 rechazar envía el motivo y quita el pago', () => {
     servicio.obtenerPendientes.and.returnValue(of([crearPago(3)]));
     store.cargarPendientes();
-    servicio.rechazar.and.returnValue(of({ pag_idPago: 3, pag_situacion: 'F' }));
+    servicio.rechazar.and.returnValue(
+      of({ pag_idPago: 3, pag_situacion: 'F' }),
+    );
     store.rechazar({ idPago: 3, motivo: '  Comprobante ilegible ' });
     expect(servicio.rechazar).toHaveBeenCalledWith(3, 'Comprobante ilegible');
     expect(store.pagos().length).toBe(0);
@@ -143,10 +163,14 @@ describe('ValidacionPagosStore', () => {
     servicio.obtenerPendientes.calls.reset();
     servicio.obtenerPendientes.and.returnValue(of([]));
     servicio.confirmar.and.returnValue(
-      throwError(() => new ErrorApi('El pago no está pendiente de revisión', 409)),
+      throwError(
+        () => new ErrorApi('El pago no está pendiente de revisión', 409),
+      ),
     );
     store.aprobar(3);
-    expect(servicio.obtenerPendientes).toHaveBeenCalledOnceWith(TAMANO_PAGINA_PAGOS);
+    expect(servicio.obtenerPendientes).toHaveBeenCalledOnceWith(
+      TAMANO_PAGINA_PAGOS,
+    );
     expect(store.pagos().length).toBe(0);
     expect(store.resultado()).toBeNull();
   });
@@ -165,13 +189,17 @@ describe('ValidacionPagosStore', () => {
   });
 
   it('VP-08 con esAntiguo el motivo sugerido es el del comprobante antiguo', () => {
-    servicio.obtenerComprobante.and.returnValue(of({ pag_idPago: 3, comprobante: 'data:image/png;base64,A' }));
+    servicio.obtenerComprobante.and.returnValue(
+      of({ pag_idPago: 3, comprobante: 'data:image/png;base64,A' }),
+    );
     store.seleccionar(crearPago(3, { esAntiguo: true }));
     expect(store.motivoRechazoSugerido()).toBe(MOTIVO_COMPROBANTE_ANTIGUO);
   });
 
   it('el mensaje de confirmación incluye usuario, monto y fechas resultantes', () => {
-    servicio.obtenerComprobante.and.returnValue(of({ pag_idPago: 3, comprobante: 'data:image/png;base64,A' }));
+    servicio.obtenerComprobante.and.returnValue(
+      of({ pag_idPago: 3, comprobante: 'data:image/png;base64,A' }),
+    );
     store.seleccionar(crearPago(3));
     expect(store.mensajeConfirmarAprobacion()).toBe(
       '¿Aprobar el pago de ana por 20 USD? El plan correrá desde el 12/11/2026 hasta el 12/12/2026',

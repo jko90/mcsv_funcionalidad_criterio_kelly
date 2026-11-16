@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { GuardAutenticacion } from './compartidos/seguridad/guardas/GuardAutenticacion';
-import { planGuard } from './compartidos/seguridad/guardas/plan.guard';
-import { GuardRoles } from './compartidos/seguridad/guardas/GuardRoles';
+import { GuardAutenticacion } from './nucleo/seguridad/guardas/GuardAutenticacion';
+import { planGuard } from './nucleo/seguridad/guardas/plan.guard';
+import { GuardRoles } from './nucleo/seguridad/guardas/GuardRoles';
 
 export const routes: Routes = [
   {
@@ -33,9 +33,7 @@ export const routes: Routes = [
   {
     path: 'inicio',
     loadComponent: () =>
-      import('./funcionalidad/inicio/inicio.page').then(
-        (m) => m.InicioPage,
-      ),
+      import('./funcionalidad/inicio/inicio.page').then((m) => m.InicioPage),
     canActivate: [GuardAutenticacion],
   },
   {

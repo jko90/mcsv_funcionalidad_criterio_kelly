@@ -1,7 +1,7 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { Rol } from 'src/app/compartidos/modelos/Rol.modelo';
+import { Rol } from 'src/app/nucleo/modelo/Rol.modelo';
 import { Menu } from '../modelos/menu';
 import { MenuService } from '../servicios/menu.service';
 import { MenuStore } from './menu.store';
@@ -9,8 +9,18 @@ import { SesionStore } from './sesion.store';
 
 const OPCIONES: Menu[] = [
   { icon: 'a', name: 'Cuentas', redirectTo: '/cuentas' },
-  { icon: 'b', name: 'Validar pagos', redirectTo: '/validar-pagos', roles: [1, 2] },
-  { icon: 'd', name: 'Datos de pago', redirectTo: '/datos-pago', roles: [1, 2] },
+  {
+    icon: 'b',
+    name: 'Validar pagos',
+    redirectTo: '/validar-pagos',
+    roles: [1, 2],
+  },
+  {
+    icon: 'd',
+    name: 'Datos de pago',
+    redirectTo: '/datos-pago',
+    roles: [1, 2],
+  },
   { icon: 'c', name: 'Perfil', redirectTo: '/perfil' },
 ];
 
@@ -45,7 +55,12 @@ describe('MenuStore', () => {
 
   it('con rol 2 aparece Validar pagos', () => {
     roles.set([rol(2)]);
-    expect(nombres()).toEqual(['Cuentas', 'Validar pagos', 'Datos de pago', 'Perfil']);
+    expect(nombres()).toEqual([
+      'Cuentas',
+      'Validar pagos',
+      'Datos de pago',
+      'Perfil',
+    ]);
   });
 
   it('con rol 1 aparece Validar pagos', () => {

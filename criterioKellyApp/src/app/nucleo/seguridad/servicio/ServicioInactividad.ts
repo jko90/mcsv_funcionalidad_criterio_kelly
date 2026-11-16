@@ -1,10 +1,10 @@
 import { inject, Injectable, NgZone, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
-import { SesionStore } from '../store/sesion.store';
-import { UtilitariosService } from '../servicios/utilitarios.service';
+import { UtilitariosService } from '../../../compartidos/servicios/utilitarios.service';
 import { Location } from '@angular/common';
-import { LimpiezaClienteService } from '../servicios/limpieza-cliente.service';
+import { LimpiezaClienteService } from '../../servicio/limpieza-cliente.service';
+import { SesionStore } from 'src/app/nucleo/store/sesion.store';
 
 @Injectable({
   providedIn: 'root',
@@ -58,7 +58,9 @@ export class ServicioInactividad implements OnDestroy {
   async salir(): Promise<void> {
     this.sesionStore.cerrarSesion();
     try {
-      await this.utilServicio.esperarCargaDeStore(() => this.sesionStore.isLoading());
+      await this.utilServicio.esperarCargaDeStore(() =>
+        this.sesionStore.isLoading(),
+      );
     } catch {
       // La limpieza local se ejecuta en el finalize del store aunque la red falle.
     }

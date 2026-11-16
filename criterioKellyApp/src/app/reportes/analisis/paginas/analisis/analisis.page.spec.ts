@@ -7,7 +7,7 @@ import { LimitesPlan } from '../../../../negocio/suscripcion/modelos/PlanVigente
 import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
 import { ExportarExcelService } from '../../servicios/exportarExcel.service';
 import { ReportesStore } from '../../../compartido/store/reportesStore';
-import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
 import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { AnalisisPage } from './analisis.page';
@@ -37,8 +37,13 @@ describe('AnalisisPage · límites del plan', () => {
     llamadas = [];
     cargarOperaciones = jasmine.createSpy('cargarOperaciones');
     cargarObservaciones = jasmine.createSpy('cargarObservaciones');
-    exportador = jasmine.createSpyObj('ExportarExcelService', ['exportarOperacionesConObservaciones']);
-    utilitarios = jasmine.createSpyObj('UtilitariosService', ['mostrarToast', 'esperarCargaDeStore']);
+    exportador = jasmine.createSpyObj('ExportarExcelService', [
+      'exportarOperacionesConObservaciones',
+    ]);
+    utilitarios = jasmine.createSpyObj('UtilitariosService', [
+      'mostrarToast',
+      'esperarCargaDeStore',
+    ]);
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
@@ -46,15 +51,20 @@ describe('AnalisisPage · límites del plan', () => {
         {
           provide: ReportesStore,
           useValue: {
-            listaOperacionesPorCuentas: signal([{ id_bitacora: 1, cue_idCuentas: 9 }]),
+            listaOperacionesPorCuentas: signal([
+              { id_bitacora: 1, cue_idCuentas: 9 },
+            ]),
             listaObservacionesPorBitacora: signal([]),
             listaOperacionesAnalisis: signal([]),
             listaObservacionesAnalisis: signal([]),
             cargarOperacionesParaAnalisis: cargarOperaciones,
             cargarObservacionesParaAnalisis: cargarObservaciones,
-            obtenerListaOperacionesPorCuentas: (id: number) => llamadas.push(`reportes.listaOperaciones(${id})`),
-            obtenerDetallePorCuentas: (id: number) => llamadas.push(`reportes.detalle(${id})`),
-            obtenerListaObservacionesPorBitacora: jasmine.createSpy('porBitacora'),
+            obtenerListaOperacionesPorCuentas: (id: number) =>
+              llamadas.push(`reportes.listaOperaciones(${id})`),
+            obtenerDetallePorCuentas: (id: number) =>
+              llamadas.push(`reportes.detalle(${id})`),
+            obtenerListaObservacionesPorBitacora:
+              jasmine.createSpy('porBitacora'),
             loading: signal(false),
           },
         },
@@ -66,7 +76,10 @@ describe('AnalisisPage · límites del plan', () => {
             cargarCuentas: () => llamadas.push('cuentas.cargar'),
           },
         },
-        { provide: ServicioAutenticacion, useValue: { obtenerUsuarioActual: () => ({ id: idUsuario }) } },
+        {
+          provide: ServicioAutenticacion,
+          useValue: { obtenerUsuarioActual: () => ({ id: idUsuario }) },
+        },
         { provide: ExportarExcelService, useValue: exportador },
         { provide: UtilitariosService, useValue: utilitarios },
       ],
@@ -101,7 +114,9 @@ describe('AnalisisPage · límites del plan', () => {
       pagina.ionViewWillEnter();
       pagina.ionViewWillEnter();
 
-      expect(llamadas.filter((llamada) => llamada === 'cuentas.cargar').length).toBe(1);
+      expect(
+        llamadas.filter((llamada) => llamada === 'cuentas.cargar').length,
+      ).toBe(1);
     });
 
     it('al elegir una cuenta ejecuta primero el manejador y después el detalle', async () => {
@@ -111,7 +126,10 @@ describe('AnalisisPage · límites del plan', () => {
       await pagina.alElegirCuenta(CUENTA_B);
 
       expect(pagina.cuentaSeleccionada).toBe(CUENTA_B);
-      expect(llamadas).toEqual(['reportes.listaOperaciones(8)', 'reportes.detalle(8)']);
+      expect(llamadas).toEqual([
+        'reportes.listaOperaciones(8)',
+        'reportes.detalle(8)',
+      ]);
     });
 
     it('sin usuario no carga nada', async () => {
@@ -142,7 +160,9 @@ describe('AnalisisPage · límites del plan', () => {
     const filtro = cargarOperaciones.calls.mostRecent().args[0];
     expect(filtro.fechaHasta).toBe(pagina.rangoFechas().hasta);
     expect(filtro.fechaDesde).toBe(pagina.rangoFechas().desde!);
-    expect(pagina.avisoOperaciones()).toBe('Tu plan muestra hasta 5 operaciones por cuenta');
+    expect(pagina.avisoOperaciones()).toBe(
+      'Tu plan muestra hasta 5 operaciones por cuenta',
+    );
   });
 
   it('un rango mayor al permitido se ajusta, avisa y vuelve a consultar', () => {
@@ -152,7 +172,10 @@ describe('AnalisisPage · límites del plan', () => {
     pagina.alCambiarRango({ desde: '2000-01-01', hasta });
 
     expect(pagina.rangoFechas().desde).not.toBe('2000-01-01');
-    expect(utilitarios.mostrarToast).toHaveBeenCalledWith('Tu plan permite consultar hasta 5 días', 'warning');
+    expect(utilitarios.mostrarToast).toHaveBeenCalledWith(
+      'Tu plan permite consultar hasta 5 días',
+      'warning',
+    );
     expect(cargarObservaciones).toHaveBeenCalledTimes(2);
   });
 
@@ -160,7 +183,9 @@ describe('AnalisisPage · límites del plan', () => {
     limites.set({ ...LIMITES_SIN_RESTRICCION, diasTotalesAnalisis: 365 });
     const pagina = crearPagina();
 
-    expect(cargarOperaciones.calls.mostRecent().args[0].fechaDesde).toBeUndefined();
+    expect(
+      cargarOperaciones.calls.mostRecent().args[0].fechaDesde,
+    ).toBeUndefined();
     expect(pagina.avisoOperaciones()).toBeNull();
   });
 
@@ -171,7 +196,9 @@ describe('AnalisisPage · límites del plan', () => {
     pagina.exportarAExcel();
 
     expect(pagina.mostrarModal()).toBeTrue();
-    expect(exportador.exportarOperacionesConObservaciones).not.toHaveBeenCalled();
+    expect(
+      exportador.exportarOperacionesConObservaciones,
+    ).not.toHaveBeenCalled();
   });
 
   it('con puedeDescargar exporta las operaciones', () => {
@@ -186,10 +213,12 @@ describe('AnalisisPage · límites del plan', () => {
   it('alVerPlanes cierra la alerta y después navega a /planes', () => {
     const pagina = crearPagina();
     pagina.mostrarModal.set(true);
-    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.callFake(() => {
-      expect(pagina.mostrarModal()).toBeFalse();
-      return Promise.resolve(true);
-    });
+    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.callFake(
+      () => {
+        expect(pagina.mostrarModal()).toBeFalse();
+        return Promise.resolve(true);
+      },
+    );
 
     pagina.alVerPlanes();
 
