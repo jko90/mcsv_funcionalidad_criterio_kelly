@@ -5,11 +5,11 @@ import { ALERTA_APROBAR_PAGO, ALERTA_RECHAZAR_PAGO, PLACEHOLDER_MOTIVO_RECHAZO, 
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { DetallePagoComponent } from '../componentes/detalle-pago/detalle-pago.component';
-import { ListaPagosPendientesComponent } from '../componentes/lista-pagos-pendientes/lista-pagos-pendientes.component';
-import { MOTIVO_MAXIMO_CARACTERES } from '../configuracion/textos-validacion';
-import { PagoPendiente } from '../modelos/PagoPendiente.modelo';
-import { ValidacionPagosStore } from '../store/validacion-pagos.store';
+import { DetallePagoComponent } from '../../componentes/detalle-pago/detalle-pago.component';
+import { ListaPagosPendientesComponent } from '../../componentes/lista-pagos-pendientes/lista-pagos-pendientes.component';
+import { MOTIVO_MAXIMO_CARACTERES } from '../../configuracion/textos-validacion';
+import { PagoPendiente } from '../../modelos/PagoPendiente.modelo';
+import { ValidacionPagosStore } from '../../store/validacion-pagos.store';
 
 const MENSAJE_PAGO_APROBADO = 'Pago aprobado';
 const MENSAJE_PAGO_RECHAZADO = 'Pago rechazado';

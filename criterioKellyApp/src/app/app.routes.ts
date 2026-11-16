@@ -45,7 +45,7 @@ export const routes: Routes = [
   {
     path: 'operativas',
     loadComponent: () =>
-      import('./paginas/reportes/operativas/operativas.page').then(
+      import('./reportes/operativas/paginas/operativas/operativas.page').then(
         (m) => m.OperativasPage,
       ),
     canActivate: [GuardAutenticacion, planGuard],
@@ -139,7 +139,7 @@ export const routes: Routes = [
   {
     path: 'analisis',
     loadComponent: () =>
-      import('./paginas/reportes/analisis/analisis.page').then(
+      import('./reportes/analisis/paginas/analisis/analisis.page').then(
         (m) => m.AnalisisPage,
       ),
     canActivate: [GuardAutenticacion, planGuard],
@@ -163,7 +163,7 @@ export const routes: Routes = [
   {
     path: 'validar-pagos',
     loadComponent: () =>
-      import('./paginas/administracion/validar-pagos/validar-pagos.page').then(
+      import('./administracion/pagos/paginas/validar-pagos/validar-pagos.page').then(
         (m) => m.ValidarPagosPage,
       ),
     canActivate: [GuardAutenticacion, GuardRoles],
@@ -172,7 +172,7 @@ export const routes: Routes = [
   {
     path: 'datos-pago',
     loadComponent: () =>
-      import('./paginas/administracion/datos-pago/datos-pago-admin.page').then(
+      import('./administracion/datos-pago/paginas/datos-pago/datos-pago-admin.page').then(
         (m) => m.DatosPagoAdminPage,
       ),
     canActivate: [GuardAutenticacion, GuardRoles],

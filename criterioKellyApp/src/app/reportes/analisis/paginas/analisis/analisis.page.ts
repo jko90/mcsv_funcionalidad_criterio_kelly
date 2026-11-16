@@ -3,16 +3,16 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
-import { CuentasModelo } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { SeleccionarCuentasComponent } from 'src/app/configuracion/cuentas/componentes/seleccionar-cuentas/seleccionar-cuentas.component';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { CuentaStore } from '../../../configuracion/cuentas/store/cuentaStore';
-import { ReportesStore } from '../store/reportesStore';
+import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
+import { ReportesStore } from '../../../compartido/store/reportesStore';
 import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
-import { ExportarExcelService } from '../servicios/exportarExcel.service';
+import { ExportarExcelService } from '../../servicios/exportarExcel.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { FiltroFechasComponent } from '../componentes/filtro-fechas/filtro-fechas.component';
-import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
+import { FiltroFechasComponent } from '../../componentes/filtro-fechas/filtro-fechas.component';
+import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
 import {
   ajustarRangoAnalisis,
   fechaIsoDeHoy,
@@ -23,7 +23,7 @@ import {
   TEXTO_FUNCION_NO_INCLUIDA,
   textoAvisoOperacionesAnalisis,
   textoAvisoRangoAnalisis,
-} from '../../suscripcion/configuracion/permisos-plan.config';
+} from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
 
 @Component({
   selector: 'app-analisis',

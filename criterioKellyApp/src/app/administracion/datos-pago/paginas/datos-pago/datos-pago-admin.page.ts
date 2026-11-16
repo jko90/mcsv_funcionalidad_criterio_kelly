@@ -13,11 +13,11 @@ import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { FormularioBancoComponent } from './componentes/formulario-banco/formulario-banco.component';
-import { FormularioPaypalComponent } from './componentes/formulario-paypal/formulario-paypal.component';
-import { FormularioRedComponent } from './componentes/formulario-red/formulario-red.component';
-import { ListaRedesComponent } from './componentes/lista-redes/lista-redes.component';
-import { SubidaQrComponent } from './componentes/subida-qr/subida-qr.component';
+import { FormularioBancoComponent } from '../../componentes/formulario-banco/formulario-banco.component';
+import { FormularioPaypalComponent } from '../../componentes/formulario-paypal/formulario-paypal.component';
+import { FormularioRedComponent } from '../../componentes/formulario-red/formulario-red.component';
+import { ListaRedesComponent } from '../../componentes/lista-redes/lista-redes.component';
+import { SubidaQrComponent } from '../../componentes/subida-qr/subida-qr.component';
 import {
   ENCABEZADO_CONFIRMAR_CAMBIO,
   ENCABEZADO_CONFIRMAR_ELIMINAR,
@@ -27,15 +27,15 @@ import {
   mensajeConfirmarQuitarQr,
   valorConfirmacionBanco,
   valorConfirmacionPaypal,
-} from './configuracion/textos-datos-pago';
+} from '../../configuracion/textos-datos-pago';
 import {
   CambioEstadoRed,
   CuerpoGuardarBanco,
   CuerpoGuardarPaypal,
   CuerpoGuardarRed,
   RedUsdtConQr,
-} from './modelos/DatosPagoAdmin.modelo';
-import { DatosPagoAdminStore } from './store/datos-pago-admin.store';
+} from '../../modelos/DatosPagoAdmin.modelo';
+import { DatosPagoAdminStore } from '../../store/datos-pago-admin.store';
 import { TEXTO_CONFIRMAR, TEXTO_ELIMINAR, TEXTO_QUITAR } from 'src/app/compartidos/textos-alertas';
 
 const RUTA_INICIO = '/inicio';

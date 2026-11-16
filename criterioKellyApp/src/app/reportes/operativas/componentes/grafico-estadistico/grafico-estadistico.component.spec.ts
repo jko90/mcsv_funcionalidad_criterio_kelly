@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import Chart from 'chart.js/auto';
-import { OperacionCuentaModelo } from '../../modelos/DetalleOperacion.modelo';
+import { OperacionCuentaModelo } from '../../../compartido/modelos/DetalleOperacion.modelo';
 import { GraficoEstadisticoComponent } from './grafico-estadistico.component';
 
 function operacion(fechaFin: string, balance: number): OperacionCuentaModelo {

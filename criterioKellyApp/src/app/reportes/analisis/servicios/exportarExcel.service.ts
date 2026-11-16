@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as XLSX from 'xlsx';
-import { BitacoraResultadoAnalisis, observacionResultadoAnalisis } from '../modelos/DetalleOperacion.modelo';
+import { BitacoraResultadoAnalisis, observacionResultadoAnalisis } from '../../compartido/modelos/DetalleOperacion.modelo';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 

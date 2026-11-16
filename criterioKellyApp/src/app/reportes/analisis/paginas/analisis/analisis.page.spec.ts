@@ -2,14 +2,14 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { LIMITES_SIN_RESTRICCION } from '../../suscripcion/configuracion/permisos-plan.config';
-import { LimitesPlan } from '../../suscripcion/modelos/PlanVigente.modelo';
-import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
-import { ExportarExcelService } from '../servicios/exportarExcel.service';
-import { ReportesStore } from '../store/reportesStore';
+import { LIMITES_SIN_RESTRICCION } from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
+import { LimitesPlan } from '../../../../paginas/suscripcion/modelos/PlanVigente.modelo';
+import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { ExportarExcelService } from '../../servicios/exportarExcel.service';
+import { ReportesStore } from '../../../compartido/store/reportesStore';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { CuentaStore } from '../../../configuracion/cuentas/store/cuentaStore';
-import { CuentasModelo } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
+import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { AnalisisPage } from './analisis.page';
 
 const BASICO: LimitesPlan = {

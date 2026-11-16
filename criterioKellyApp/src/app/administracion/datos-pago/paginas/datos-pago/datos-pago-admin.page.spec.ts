@@ -4,8 +4,8 @@ import { provideRouter, Router } from '@angular/router';
 import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { RedUsdtConQr } from './modelos/DatosPagoAdmin.modelo';
-import { DatosPagoAdminStore } from './store/datos-pago-admin.store';
+import { RedUsdtConQr } from '../../modelos/DatosPagoAdmin.modelo';
+import { DatosPagoAdminStore } from '../../store/datos-pago-admin.store';
 import { DatosPagoAdminPage } from './datos-pago-admin.page';
 
 const RED = { red_idRed: 4, red_nombre: 'Red de prueba' } as RedUsdtConQr;

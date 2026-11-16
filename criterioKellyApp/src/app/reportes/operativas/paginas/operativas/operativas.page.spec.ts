@@ -3,12 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { LIMITES_SIN_RESTRICCION } from '../../suscripcion/configuracion/permisos-plan.config';
-import { LimitesPlan } from '../../suscripcion/modelos/PlanVigente.modelo';
-import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
-import { ReportesStore } from '../store/reportesStore';
-import { CuentaStore } from '../../../configuracion/cuentas/store/cuentaStore';
-import { CuentasModelo } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { LIMITES_SIN_RESTRICCION } from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
+import { LimitesPlan } from '../../../../paginas/suscripcion/modelos/PlanVigente.modelo';
+import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { ReportesStore } from '../../../compartido/store/reportesStore';
+import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
+import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { OperativasPage } from './operativas.page';
 
 const BASICO: LimitesPlan = {

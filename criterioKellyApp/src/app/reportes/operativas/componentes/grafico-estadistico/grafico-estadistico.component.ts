@@ -16,7 +16,7 @@ import Chart, {
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import jsPDF from 'jspdf';
 import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
-import { OperacionCuentaModelo } from '../../modelos/DetalleOperacion.modelo';
+import { OperacionCuentaModelo } from '../../../compartido/modelos/DetalleOperacion.modelo';
 
 Chart.register(ChartDataLabels);
 

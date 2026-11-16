@@ -5,9 +5,9 @@
 export const environment = {
   production: false,
   entorno: 'local',
-  apiUrlLoge: 'http://localhost:8080/criterio_kelly/rest_usuario/',
-  apiUrlCritKell: 'http://localhost:8080/criterio_kelly/rest_criteriokelly/',
-  apiUrlSuscripcion: 'http://localhost:8080/criterio_kelly/rest_suscripcion/',
+  apiUrlLoge: 'http://localhost:8080/mcsv_funcionalidad_criterio_kelly/rest_usuario/',
+  apiUrlCritKell: 'http://localhost:8080/mcsv_funcionalidad_criterio_kelly/rest_criteriokelly/',
+  apiUrlSuscripcion: 'http://localhost:8080/mcsv_funcionalidad_criterio_kelly/rest_suscripcion/',
 };
 
 /*
