@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { RangoFechas } from 'src/app/paginas/suscripcion/configuracion/permisos-plan.config';
+import { RangoFechas } from 'src/app/negocio/suscripcion/configuracion/permisos-plan.config';
 
 const LONGITUD_FECHA_ISO = 10;
 

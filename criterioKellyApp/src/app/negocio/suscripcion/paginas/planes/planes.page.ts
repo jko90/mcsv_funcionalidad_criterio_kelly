@@ -1,14 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { PlanesStore } from '../store/PlanesStore';
+import { PlanesStore } from '../../store/PlanesStore';
 import { Router } from '@angular/router';
-import { PlanesModelo } from '../modelos/Planes.modelo';
+import { PlanesModelo } from '../../modelos/Planes.modelo';
 import { CommonModule } from '@angular/common';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
-import { AvisoPlanComponent } from '../aviso-plan/aviso-plan.component';
-import { PlanVigenteStore } from '../store/plan-vigente.store';
-import { filasLimitesPlan } from '../configuracion/permisos-plan.config';
+import { AvisoPlanComponent } from '../../componentes/aviso-plan/aviso-plan.component';
+import { PlanVigenteStore } from '../../store/plan-vigente.store';
+import { filasLimitesPlan } from '../../configuracion/permisos-plan.config';
 
 @Component({
   selector: 'app-planes',

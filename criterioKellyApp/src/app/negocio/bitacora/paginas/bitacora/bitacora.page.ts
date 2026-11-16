@@ -10,24 +10,24 @@ import {
 } from '@angular/core';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { ModalBuscaDivisaComponent } from '../componentes/modal-busca-divisa/modal-busca-divisa.component';
+import { ModalBuscaDivisaComponent } from '../../componentes/modal-busca-divisa/modal-busca-divisa.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import {
   ActualizarTPSLBEComentarios,
   BitacoraModelo,
   RegistroBitacoraModelo,
-} from '../modelos/Bitacora.modelo';
-import { listDivisas } from '../modelos/listaDivisas';
-import { DivisasModelo } from '../modelos/Divisas.modelo';
-import { ComentarioModelo } from '../modelos/Comentario.modelo';
+} from '../../modelos/Bitacora.modelo';
+import { listDivisas } from '../../modelos/listaDivisas';
+import { DivisasModelo } from '../../modelos/Divisas.modelo';
+import { ComentarioModelo } from '../../modelos/Comentario.modelo';
 import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_ELIMINAR_REGISTRO } from 'src/app/compartidos/textos-alertas';
-import { CuentasModelo } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { BitacoraStore } from '../store/bitacoraStore';
-import { CuentaStore } from '../../../configuracion/cuentas/store/cuentaStore';
-import { ComentariosStore } from '../store/comentariosStore';
+import { BitacoraStore } from '../../store/bitacoraStore';
+import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
+import { ComentariosStore } from '../../store/comentariosStore';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 
 @Component({

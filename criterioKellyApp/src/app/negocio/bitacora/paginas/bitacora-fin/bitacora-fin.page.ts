@@ -13,15 +13,15 @@ import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/
 import {
   ActualizarBitacoraFinalModelo,
   BitacoraModelo,
-} from '../modelos/Bitacora.modelo';
-import { ComentarioModelo } from '../modelos/Comentario.modelo';
+} from '../../modelos/Bitacora.modelo';
+import { ComentarioModelo } from '../../modelos/Comentario.modelo';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { CuentaResponse } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentaResponse } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
-import { BitacoraStore } from '../store/bitacoraStore';
-import { CuentaStore } from '../../../configuracion/cuentas/store/cuentaStore';
-import { ComentariosStore } from '../store/comentariosStore';
+import { BitacoraStore } from '../../store/bitacoraStore';
+import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
+import { ComentariosStore } from '../../store/comentariosStore';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
 import { Capacitor } from '@capacitor/core';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';

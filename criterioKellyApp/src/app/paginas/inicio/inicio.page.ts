@@ -14,11 +14,11 @@ import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { MenuStore } from 'src/app/compartidos/store/menu.store';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
-import { AvisoPlanComponent } from '../suscripcion/aviso-plan/aviso-plan.component';
-import { AvisoBloqueoComponent } from '../suscripcion/aviso-bloqueo/aviso-bloqueo.component';
-import { PlanesStore } from '../suscripcion/store/PlanesStore';
-import { PlanVigenteStore } from '../suscripcion/store/plan-vigente.store';
-import { SuscripcionStore } from '../suscripcion/store/SuscripcionStore';
+import { AvisoPlanComponent } from '../../negocio/suscripcion/componentes/aviso-plan/aviso-plan.component';
+import { AvisoBloqueoComponent } from '../../negocio/suscripcion/componentes/aviso-bloqueo/aviso-bloqueo.component';
+import { PlanesStore } from '../../negocio/suscripcion/store/PlanesStore';
+import { PlanVigenteStore } from '../../negocio/suscripcion/store/plan-vigente.store';
+import { SuscripcionStore } from '../../negocio/suscripcion/store/SuscripcionStore';
 
 @Component({
   selector: 'app-inicio',

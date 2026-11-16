@@ -14,9 +14,9 @@ import { DatosPersona } from '../../util/modelos/Persona.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { PersonaStore } from '../../util/store/personaStore';
 import { VerificacionCorreoStore } from '../../util/store/verificacion-correo.store';
-import { PlanesStore } from '../store/PlanesStore';
-import { PLAN_LIBRE_ID_INTERVALO } from '../modelos/Suscripcion.modelo';
-import { PlanReservadoService } from '../servicios/plan-reservado.service';
+import { PlanesStore } from '../../../negocio/suscripcion/store/PlanesStore';
+import { PLAN_LIBRE_ID_INTERVALO } from '../../../negocio/suscripcion/modelos/Suscripcion.modelo';
+import { PlanReservadoService } from '../../../negocio/suscripcion/servicios/plan-reservado.service';
 import {
   ErroresPoliticaClave,
   MENSAJES_POLITICA_CLAVE,

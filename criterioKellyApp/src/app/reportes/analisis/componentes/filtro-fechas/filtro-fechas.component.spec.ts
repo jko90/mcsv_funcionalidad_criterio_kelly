@@ -1,6 +1,6 @@
 import { ComponentRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RangoFechas } from 'src/app/paginas/suscripcion/configuracion/permisos-plan.config';
+import { RangoFechas } from 'src/app/negocio/suscripcion/configuracion/permisos-plan.config';
 import { FiltroFechasComponent } from './filtro-fechas.component';
 
 describe('FiltroFechasComponent', () => {

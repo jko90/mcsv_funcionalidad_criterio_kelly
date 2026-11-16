@@ -4,8 +4,8 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { PersonaStore } from '../../util/store/personaStore';
-import { PlanesModelo } from '../modelos/Planes.modelo';
-import { PlanesStore } from '../store/PlanesStore';
+import { PlanesModelo } from '../../../negocio/suscripcion/modelos/Planes.modelo';
+import { PlanesStore } from '../../../negocio/suscripcion/store/PlanesStore';
 import { RegistroPage } from './registro.page';
 
 describe('RegistroPage · habilitación de pasos', () => {

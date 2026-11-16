@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, input, output, signal } f
 import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ALERTA_PLAN_PENDIENTE, TEXTO_ENTENDIDO, TEXTO_SUBIR_COMPROBANTE } from 'src/app/compartidos/textos-alertas';
-import { BloqueoPlan } from '../configuracion/permisos-plan.config';
-import { PlanesModelo } from '../modelos/Planes.modelo';
+import { BloqueoPlan } from '../../configuracion/permisos-plan.config';
+import { PlanesModelo } from '../../modelos/Planes.modelo';
 
 @Component({
   selector: 'app-aviso-bloqueo',

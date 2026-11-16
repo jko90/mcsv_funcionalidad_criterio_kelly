@@ -12,7 +12,7 @@ import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alert
 import { ExportarExcelService } from '../../servicios/exportarExcel.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { FiltroFechasComponent } from '../../componentes/filtro-fechas/filtro-fechas.component';
-import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
 import {
   ajustarRangoAnalisis,
   fechaIsoDeHoy,
@@ -23,7 +23,7 @@ import {
   TEXTO_FUNCION_NO_INCLUIDA,
   textoAvisoOperacionesAnalisis,
   textoAvisoRangoAnalisis,
-} from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
+} from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
 
 @Component({
   selector: 'app-analisis',

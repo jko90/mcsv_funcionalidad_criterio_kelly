@@ -5,12 +5,12 @@ import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imag
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { ServicioInactividad } from 'src/app/compartidos/seguridad/ServicioInactividad';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
-import { UltimoPago } from '../modelos/EstadoPago.modelo';
-import { PlanVigente } from '../modelos/PlanVigente.modelo';
-import { ComprobanteStore } from '../store/comprobante.store';
-import { MetodoPagoStore } from '../store/metodo-pago.store';
-import { AccionesExternasService } from 'src/app/compartidos/servicios/acciones-externas.service';
-import { PlanVigenteStore } from '../store/plan-vigente.store';
+import { UltimoPago } from '../../modelos/EstadoPago.modelo';
+import { PlanVigente } from '../../modelos/PlanVigente.modelo';
+import { ComprobanteStore } from '../../store/comprobante.store';
+import { MetodoPagoStore } from '../../store/metodo-pago.store';
+import { AccionesExternasService } from 'src/app/negocio/suscripcion/servicios/acciones-externas.service';
+import { PlanVigenteStore } from '../../store/plan-vigente.store';
 import { ComprobantePage } from './comprobante.page';
 import { MENSAJE_IMAGEN_GRANDE } from './validacion-imagen';
 

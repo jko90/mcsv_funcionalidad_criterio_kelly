@@ -12,12 +12,12 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ReportesStore } from '../../../compartido/store/reportesStore';
 import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
-import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
 import {
   RUTA_PLANES,
   TEXTO_FUNCION_NO_INCLUIDA,
   textoAvisoDiasReporte,
-} from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
+} from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
 import { SeleccionarCuentasComponent } from 'src/app/configuracion/cuentas/componentes/seleccionar-cuentas/seleccionar-cuentas.component';
 import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
 

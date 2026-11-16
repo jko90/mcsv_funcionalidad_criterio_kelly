@@ -4,15 +4,15 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RefresherCustomEvent, SelectChangeEventDetail } from '@ionic/angular';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
-import { CuentaResponse } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
-import { CuentaStore } from '../../../configuracion/cuentas/store/cuentaStore';
+import { CuentaResponse } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
 import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAutenticacion';
-import { CriterioKellyStore } from '../store/criterioKellyStore';
-import { ResultadosStore } from '../store/resultadosStore';
+import { CriterioKellyStore } from '../../store/criterioKellyStore';
+import { ResultadosStore } from '../../store/resultadosStore';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { PlanVigenteStore } from '../../suscripcion/store/plan-vigente.store';
-import { textoTopeOperacionesDiarias } from '../../suscripcion/configuracion/permisos-plan.config';
+import { PlanVigenteStore } from '../../../suscripcion/store/plan-vigente.store';
+import { textoTopeOperacionesDiarias } from '../../../suscripcion/configuracion/permisos-plan.config';
 
 type FilaResultado = {
   tipo: string;

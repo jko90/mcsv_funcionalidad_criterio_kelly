@@ -1,6 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PlanesModelo } from '../modelos/Planes.modelo';
+import { PlanesModelo } from '../../modelos/Planes.modelo';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { AvisoBloqueoComponent } from './aviso-bloqueo.component';
 

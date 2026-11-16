@@ -7,9 +7,9 @@ import {
   esRutaControlada,
   estaRutaPermitida,
   normalizarRuta,
-} from 'src/app/paginas/suscripcion/configuracion/permisos-plan.config';
-import { PlanVigente } from 'src/app/paginas/suscripcion/modelos/PlanVigente.modelo';
-import { PlanVigenteStore } from 'src/app/paginas/suscripcion/store/plan-vigente.store';
+} from 'src/app/negocio/suscripcion/configuracion/permisos-plan.config';
+import { PlanVigente } from 'src/app/negocio/suscripcion/modelos/PlanVigente.modelo';
+import { PlanVigenteStore } from 'src/app/negocio/suscripcion/store/plan-vigente.store';
 import { SesionStore } from '../../store/sesion.store';
 
 const RUTA_INICIO = '/inicio';

@@ -36,12 +36,12 @@ import { CuentaStore } from '../../store/cuentaStore';
 import { Capacitor } from '@capacitor/core';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
 import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
-import { RUTA_PLANES } from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
-import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { RUTA_PLANES } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
+import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
 import {
   haAlcanzadoTopeCuentas,
   textoTopeCuentas,
-} from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
+} from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 
 const MONTO_MINIMO = 0.01;

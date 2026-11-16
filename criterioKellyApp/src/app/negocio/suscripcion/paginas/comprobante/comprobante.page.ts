@@ -12,17 +12,17 @@ import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { AccionesExternasService } from 'src/app/compartidos/servicios/acciones-externas.service';
+import { AccionesExternasService } from 'src/app/negocio/suscripcion/servicios/acciones-externas.service';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
-import { EstadoPagoComponent } from '../componentes/estado-pago/estado-pago.component';
-import { FormularioComprobanteComponent } from '../componentes/formulario-comprobante/formulario-comprobante.component';
-import { IndicadorPasosPagoComponent } from '../componentes/indicador-pasos-pago/indicador-pasos-pago.component';
-import { InstruccionesPagoComponent } from '../componentes/instrucciones-pago/instrucciones-pago.component';
-import { SelectorMetodoPagoComponent } from '../componentes/selector-metodo-pago/selector-metodo-pago.component';
-import { MetodoPago, SolicitudComprobante } from '../modelos/EstadoPago.modelo';
-import { ComprobanteStore } from '../store/comprobante.store';
-import { MetodoPagoStore } from '../store/metodo-pago.store';
-import { PlanVigenteStore } from '../store/plan-vigente.store';
+import { EstadoPagoComponent } from '../../componentes/estado-pago/estado-pago.component';
+import { FormularioComprobanteComponent } from '../../componentes/formulario-comprobante/formulario-comprobante.component';
+import { IndicadorPasosPagoComponent } from '../../componentes/indicador-pasos-pago/indicador-pasos-pago.component';
+import { InstruccionesPagoComponent } from '../../componentes/instrucciones-pago/instrucciones-pago.component';
+import { SelectorMetodoPagoComponent } from '../../componentes/selector-metodo-pago/selector-metodo-pago.component';
+import { MetodoPago, SolicitudComprobante } from '../../modelos/EstadoPago.modelo';
+import { ComprobanteStore } from '../../store/comprobante.store';
+import { MetodoPagoStore } from '../../store/metodo-pago.store';
+import { PlanVigenteStore } from '../../store/plan-vigente.store';
 import { validarImagenComprobante } from './validacion-imagen';
 
 const MENSAJE_DIRECCION_COPIADA = 'Copiado. Ya puedes pegarlo en tu app de pago.';

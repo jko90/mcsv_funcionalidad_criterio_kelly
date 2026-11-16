@@ -5,9 +5,9 @@ import { ServicioAutenticacion } from 'src/app/compartidos/seguridad/ServicioAut
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
-import { LIMITES_SIN_RESTRICCION } from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
-import { LimitesPlan } from '../../../../paginas/suscripcion/modelos/PlanVigente.modelo';
-import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { LIMITES_SIN_RESTRICCION } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
+import { LimitesPlan } from '../../../../negocio/suscripcion/modelos/PlanVigente.modelo';
+import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
 import { CuentaResponse } from '../../modelos/Cuentas.modelo';
 import { CuentaStore } from '../../store/cuentaStore';
 import { CuentasPage } from './cuentas.page';

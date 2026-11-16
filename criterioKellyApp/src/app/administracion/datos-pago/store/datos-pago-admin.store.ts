@@ -20,8 +20,8 @@ import {
   tap,
 } from 'rxjs';
 import { ErrorApi } from 'src/app/compartidos/modelos/error-api';
-import { desescaparEntidades } from 'src/app/paginas/suscripcion/configuracion/textos-pago';
-import { DatosPagoService } from 'src/app/paginas/suscripcion/servicios/datos-pago.service';
+import { desescaparEntidades } from 'src/app/negocio/suscripcion/configuracion/textos-pago';
+import { DatosPagoService } from 'src/app/negocio/suscripcion/servicios/datos-pago.service';
 import { mensajeErrorArchivoQr } from '../configuracion/validadores-pago';
 import {
   CambioEstadoMetodo,

@@ -9,7 +9,7 @@ import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { PinFormularioStore } from '../../../configuracion/bloqueo-pin/store/pin-formulario.store';
-import { SuscripcionStore } from '../../suscripcion/store/SuscripcionStore';
+import { SuscripcionStore } from '../../../negocio/suscripcion/store/SuscripcionStore';
 import { LoginStore } from '../store/login.store';
 import { VerificacionCorreoStore } from '../store/verificacion-correo.store';
 import { LoginPage } from './login.page';

@@ -37,7 +37,7 @@ export const routes: Routes = [
   {
     path: 'bitacora',
     loadComponent: () =>
-      import('./paginas/planTrading/bitacora/bitacora.page').then(
+      import('./negocio/bitacora/paginas/bitacora/bitacora.page').then(
         (m) => m.BitacoraPage,
       ),
     canActivate: [GuardAutenticacion, planGuard],
@@ -66,7 +66,7 @@ export const routes: Routes = [
   {
     path: 'bitacora-seguimiento',
     loadComponent: () =>
-      import('./paginas/planTrading/bitacora-seguimiento/bitacora-seguimiento.page').then(
+      import('./negocio/bitacora/paginas/bitacora-seguimiento/bitacora-seguimiento.page').then(
         (m) => m.BitacoraSeguimientoPage,
       ),
     canActivate: [GuardAutenticacion, planGuard],
@@ -74,7 +74,7 @@ export const routes: Routes = [
   {
     path: 'bitacora-fin',
     loadComponent: () =>
-      import('./paginas/planTrading/bitacora-fin/bitacora-fin.page').then(
+      import('./negocio/bitacora/paginas/bitacora-fin/bitacora-fin.page').then(
         (m) => m.BitacoraFinPage,
       ),
     canActivate: [GuardAutenticacion, planGuard],
@@ -130,7 +130,7 @@ export const routes: Routes = [
   {
     path: 'mostrar-criterio-kelly',
     loadComponent: () =>
-      import('./paginas/criterioKelly/mostrar-criterio-kelly/mostrar-criterio-kelly.page').then(
+      import('./negocio/criterio-kelly/paginas/mostrar-criterio-kelly/mostrar-criterio-kelly.page').then(
         (m) => m.MostrarCriterioKellyPage,
       ),
     canActivate: [GuardAutenticacion],
@@ -147,7 +147,7 @@ export const routes: Routes = [
   {
     path: 'comprobante',
     loadComponent: () =>
-      import('./paginas/suscripcion/comprobante/comprobante.page').then(
+      import('./negocio/suscripcion/paginas/comprobante/comprobante.page').then(
         (m) => m.ComprobantePage,
       ),
     canActivate: [GuardAutenticacion],
@@ -155,7 +155,7 @@ export const routes: Routes = [
   {
     path: 'planes',
     loadComponent: () =>
-      import('./paginas/suscripcion/planes/planes.page').then(
+      import('./negocio/suscripcion/paginas/planes/planes.page').then(
         (m) => m.PlanesPage,
       ),
   },

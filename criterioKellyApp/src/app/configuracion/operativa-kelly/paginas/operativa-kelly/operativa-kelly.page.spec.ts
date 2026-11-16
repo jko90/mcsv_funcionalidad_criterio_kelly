@@ -6,9 +6,9 @@ import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.se
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';
 import { CuentaResponse } from '../../../cuentas/modelos/Cuentas.modelo';
-import { LIMITES_SIN_RESTRICCION } from '../../../../paginas/suscripcion/configuracion/permisos-plan.config';
-import { LimitesPlan } from '../../../../paginas/suscripcion/modelos/PlanVigente.modelo';
-import { PlanVigenteStore } from '../../../../paginas/suscripcion/store/plan-vigente.store';
+import { LIMITES_SIN_RESTRICCION } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
+import { LimitesPlan } from '../../../../negocio/suscripcion/modelos/PlanVigente.modelo';
+import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
 import { CuentaStore } from '../../../cuentas/store/cuentaStore';
 import { OperativaKellyPage } from './operativa-kelly.page';
 

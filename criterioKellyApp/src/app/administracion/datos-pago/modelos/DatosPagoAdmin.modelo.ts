@@ -1,4 +1,4 @@
-import { MetodoPago } from 'src/app/paginas/suscripcion/modelos/EstadoPago.modelo';
+import { MetodoPago } from 'src/app/negocio/suscripcion/modelos/EstadoPago.modelo';
 
 // Mismo valor que HLT-29 (RN-10): el servidor vuelve a validar y responde 400.
 export const LIMITE_QR = {
