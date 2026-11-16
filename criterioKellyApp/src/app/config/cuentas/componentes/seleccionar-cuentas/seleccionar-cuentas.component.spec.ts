@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CuentasModelo } from 'src/app/configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentasModelo } from 'src/app/config/cuentas/modelos/Cuentas.modelo';
 import { SeleccionarCuentasComponent } from './seleccionar-cuentas.component';
 
 const CUENTA_A = { cue_idCuentas: 1, cue_nombre: 'Cuenta A' } as CuentasModelo;
@@ -9,7 +9,10 @@ const CUENTA_B = { cue_idCuentas: 2, cue_nombre: 'Cuenta B' } as CuentasModelo;
 @Component({
   standalone: true,
   imports: [SeleccionarCuentasComponent],
-  template: `<app-seleccionar-cuentas [cuentas]="cuentas()" (cuentaElegida)="elegidas.push($event)" />`,
+  template: `<app-seleccionar-cuentas
+    [cuentas]="cuentas()"
+    (cuentaElegida)="elegidas.push($event)"
+  />`,
 })
 class AnfitrionPruebaComponent {
   readonly cuentas = signal<CuentasModelo[]>([CUENTA_A, CUENTA_B]);
@@ -25,7 +28,9 @@ describe('SeleccionarCuentasComponent', () => {
   }
 
   function simularCambio(valor: CuentasModelo | undefined): void {
-    selectorIonic().dispatchEvent(new CustomEvent('ionChange', { detail: { value: valor } }));
+    selectorIonic().dispatchEvent(
+      new CustomEvent('ionChange', { detail: { value: valor } }),
+    );
   }
 
   beforeEach(() => {
@@ -36,7 +41,8 @@ describe('SeleccionarCuentasComponent', () => {
   });
 
   it('muestra una opción por cada cuenta recibida', () => {
-    const opciones = fixture.nativeElement.querySelectorAll('ion-select-option');
+    const opciones =
+      fixture.nativeElement.querySelectorAll('ion-select-option');
 
     expect(opciones.length).toBe(2);
     expect((opciones[0] as HTMLElement).textContent).toContain('Cuenta A');
@@ -53,7 +59,9 @@ describe('SeleccionarCuentasComponent', () => {
     anfitrion.cuentas.set([]);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelectorAll('ion-select-option').length).toBe(0);
+    expect(
+      fixture.nativeElement.querySelectorAll('ion-select-option').length,
+    ).toBe(0);
     expect(anfitrion.elegidas.length).toBe(0);
   });
 

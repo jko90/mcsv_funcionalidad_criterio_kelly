@@ -7,7 +7,7 @@ import {
   RegistroBitacoraModelo,
 } from '../modelos/Bitacora.modelo';
 import { Observable } from 'rxjs';
-import { cuentasRespuetaExitosa } from '../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { cuentasRespuetaExitosa } from '../../../config/cuentas/modelos/Cuentas.modelo';
 
 export interface FiltroBitacora {
   bit_cueIdCuentas: number;

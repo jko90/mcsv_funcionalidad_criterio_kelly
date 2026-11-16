@@ -8,8 +8,8 @@ import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vig
 import { ExportarExcelService } from '../../servicios/exportarExcel.service';
 import { ReportesStore } from '../../../compartido/store/reportesStore';
 import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
-import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
-import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentaStore } from '../../../../config/cuentas/store/cuentaStore';
+import { CuentasModelo } from '../../../../config/cuentas/modelos/Cuentas.modelo';
 import { AnalisisPage } from './analisis.page';
 
 const BASICO: LimitesPlan = {

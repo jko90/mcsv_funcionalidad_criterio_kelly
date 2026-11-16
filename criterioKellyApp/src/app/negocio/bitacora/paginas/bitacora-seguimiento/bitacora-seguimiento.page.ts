@@ -12,12 +12,12 @@ import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BitacoraModelo } from '../../modelos/Bitacora.modelo';
 import { ComentarioModelo } from '../../modelos/Comentario.modelo';
-import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentasModelo } from '../../../../config/cuentas/modelos/Cuentas.modelo';
 import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { BitacoraStore } from '../../store/bitacoraStore';
-import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
+import { CuentaStore } from '../../../../config/cuentas/store/cuentaStore';
 import { ComentariosStore } from '../../store/comentariosStore';
 
 @Component({

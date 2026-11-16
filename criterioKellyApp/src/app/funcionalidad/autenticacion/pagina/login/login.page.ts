@@ -14,8 +14,8 @@ import { NombreUsuarioSesion } from 'src/app/nucleo/seguridad/servicio/NombreUsu
 import { Capacitor } from '@capacitor/core';
 import type { OverlayEventDetail } from '@ionic/core';
 import { IonModal } from '@ionic/angular/standalone';
-import { ModalPinComponent } from '../../../../configuracion/bloqueo-pin/componentes/modal-pin/modal-pin.component';
-import { PinFormularioStore } from '../../../../configuracion/bloqueo-pin/store/pin-formulario.store';
+import { ModalPinComponent } from '../../../../config/bloqueo-pin/componentes/modal-pin/modal-pin.component';
+import { PinFormularioStore } from '../../../../config/bloqueo-pin/store/pin-formulario.store';
 import { LoginStore } from '../../store/login.store';
 import { SuscripcionStore } from '../../../../negocio/suscripcion/store/SuscripcionStore';
 import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';

@@ -15,7 +15,7 @@ import Chart, {
 } from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import jsPDF from 'jspdf';
-import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentasModelo } from '../../../../config/cuentas/modelos/Cuentas.modelo';
 import { OperacionCuentaModelo } from '../../../compartido/modelos/DetalleOperacion.modelo';
 
 Chart.register(ChartDataLabels);
@@ -416,6 +416,15 @@ export class GraficoEstadisticoComponent {
     const imagenX = PDF_CONFIG.margin.x + (anchoDisponible - anchoImagen) / 2;
     const imagenY = altoEncabezado + PDF_CONFIG.margin.y;
 
-    pdf.addImage(imagen, 'PNG', imagenX, imagenY, anchoImagen, altoImagen, '', 'NONE');
+    pdf.addImage(
+      imagen,
+      'PNG',
+      imagenX,
+      imagenY,
+      anchoImagen,
+      altoImagen,
+      '',
+      'NONE',
+    );
   }
 }

@@ -23,10 +23,10 @@ import { DivisasModelo } from '../../modelos/Divisas.modelo';
 import { ComentarioModelo } from '../../modelos/Comentario.modelo';
 import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_ELIMINAR_REGISTRO } from 'src/app/compartidos/textos-alertas';
-import { CuentasModelo } from '../../../../configuracion/cuentas/modelos/Cuentas.modelo';
+import { CuentasModelo } from '../../../../config/cuentas/modelos/Cuentas.modelo';
 import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
 import { BitacoraStore } from '../../store/bitacoraStore';
-import { CuentaStore } from '../../../../configuracion/cuentas/store/cuentaStore';
+import { CuentaStore } from '../../../../config/cuentas/store/cuentaStore';
 import { ComentariosStore } from '../../store/comentariosStore';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 
