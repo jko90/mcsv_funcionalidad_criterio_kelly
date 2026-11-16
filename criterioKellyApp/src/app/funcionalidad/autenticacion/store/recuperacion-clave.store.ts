@@ -1,12 +1,16 @@
 import { computed, inject } from '@angular/core';
-import { signalStore, withComputed, withMethods, withState, patchState } from '@ngrx/signals';
+import {
+  signalStore,
+  withComputed,
+  withMethods,
+  withState,
+  patchState,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, finalize, of, pipe, switchMap, tap } from 'rxjs';
-import {
-  DatosRestablecimiento,
-  PasoRecuperacion,
-} from '../modelos/RecuperacionClave.modelo';
-import { RecuperacionClaveService } from '../servicios/recuperacion-clave.service';
+
+import { RecuperacionClaveService } from '../../../funcionalidad/autenticacion/servicio/recuperacion-clave.service';
+import { DatosRestablecimiento, PasoRecuperacion } from '../modelo/RecuperacionClave.modelo';
 
 type RecuperacionClaveEstado = {
   paso: PasoRecuperacion;

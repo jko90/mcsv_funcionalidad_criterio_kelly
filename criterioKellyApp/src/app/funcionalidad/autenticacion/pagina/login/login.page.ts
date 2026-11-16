@@ -21,7 +21,7 @@ import { ModalPinComponent } from '../../../../configuracion/bloqueo-pin/compone
 import { PinFormularioStore } from '../../../../configuracion/bloqueo-pin/store/pin-formulario.store';
 import { LoginStore } from '../../store/login.store';
 import { SuscripcionStore } from '../../../../negocio/suscripcion/store/SuscripcionStore';
-import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
+import { VerificacionCorreoStore } from '../../../../general/autenticacion/store/verificacion-correo.store';
 
 interface ModalPinResult {
   omitido?: boolean;
@@ -36,7 +36,12 @@ const PUNTO_INICIAL_MODAL_PIN = 0.5;
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicComponentes, ReactiveFormsModule, ModalPinComponent],
+  imports: [
+    CommonModule,
+    IonicComponentes,
+    ReactiveFormsModule,
+    ModalPinComponent,
+  ],
 })
 export class LoginPage {
   private readonly router = inject(Router);
@@ -197,7 +202,9 @@ export class LoginPage {
     }
   }
 
-  alCerrarModalPin(evento: CustomEvent<OverlayEventDetail<ModalPinResult>>): void {
+  alCerrarModalPin(
+    evento: CustomEvent<OverlayEventDetail<ModalPinResult>>,
+  ): void {
     this.estaModalPinAbierto.set(false);
     const resultado = evento.detail.data;
     if (resultado?.omitido || resultado?.pinCreado) {
@@ -207,7 +214,9 @@ export class LoginPage {
 
   async alConfirmarPin(pin: string, modalPin: IonModal): Promise<void> {
     this.pinFormularioStore.guardar(pin);
-    await this.utilServicio.esperarCargaDeStore(() => this.pinFormularioStore.isLoading());
+    await this.utilServicio.esperarCargaDeStore(() =>
+      this.pinFormularioStore.isLoading(),
+    );
     await this.utilServicio.mostrarToast(
       this.pinFormularioStore.mensajeResultado(),
       this.pinFormularioStore.colorAviso(),
@@ -216,7 +225,10 @@ export class LoginPage {
   }
 
   async alMostrarPinDistinto(): Promise<void> {
-    await this.utilServicio.mostrarToast('Digite el mismo valor en las dos opciones', 'danger');
+    await this.utilServicio.mostrarToast(
+      'Digite el mismo valor en las dos opciones',
+      'danger',
+    );
   }
 
   async alOmitirPin(modalPin: IonModal): Promise<void> {

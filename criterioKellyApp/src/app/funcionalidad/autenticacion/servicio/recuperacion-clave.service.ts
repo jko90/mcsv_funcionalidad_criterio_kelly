@@ -7,7 +7,7 @@ import {
   RespuestaRestablecimiento,
   RestablecimientoClave,
   SolicitudRecuperacion,
-} from '../modelos/RecuperacionClave.modelo';
+} from '../modelo/RecuperacionClave.modelo';
 
 @Injectable({ providedIn: 'root' })
 export class RecuperacionClaveService {

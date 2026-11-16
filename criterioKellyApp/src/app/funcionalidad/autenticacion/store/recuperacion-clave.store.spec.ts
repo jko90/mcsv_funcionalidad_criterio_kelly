@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { RecuperacionClaveService } from '../servicios/recuperacion-clave.service';
+import { RecuperacionClaveService } from '../servicio/recuperacion-clave.service';
 import { RecuperacionClaveStore } from './recuperacion-clave.store';
 
 describe('RecuperacionClaveStore', () => {

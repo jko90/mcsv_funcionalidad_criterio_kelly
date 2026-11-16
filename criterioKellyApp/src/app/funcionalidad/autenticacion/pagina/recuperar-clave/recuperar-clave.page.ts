@@ -1,17 +1,27 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { RecuperacionClaveStore } from '../../store/recuperacion-clave.store';
-import { FormularioSolicitarCodigoComponent } from '../../componentes/formulario-solicitar-codigo/formulario-solicitar-codigo.component';
-import { FormularioRestablecerClaveComponent } from '../../componentes/formulario-restablecer-clave/formulario-restablecer-clave.component';
-import { DatosRestablecimiento } from '../../modelos/RecuperacionClave.modelo';
+import { DatosRestablecimiento } from '../../modelo/RecuperacionClave.modelo';
+import { FormularioRestablecerClaveComponent } from 'src/app/funcionalidad/autenticacion/componente/formulario-restablecer-clave/formulario-restablecer-clave.component';
+import { FormularioSolicitarCodigoComponent } from 'src/app/funcionalidad/autenticacion/componente/formulario-solicitar-codigo/formulario-solicitar-codigo.component';
 
 @Component({
   selector: 'app-recuperar-clave',
   standalone: true,
-  imports: [IonicComponentes, EncabezadoComponent, FormularioSolicitarCodigoComponent, FormularioRestablecerClaveComponent],
+  imports: [
+    IonicComponentes,
+    EncabezadoComponent,
+    FormularioSolicitarCodigoComponent,
+    FormularioRestablecerClaveComponent,
+  ],
   templateUrl: './recuperar-clave.page.html',
   styleUrls: ['./recuperar-clave.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

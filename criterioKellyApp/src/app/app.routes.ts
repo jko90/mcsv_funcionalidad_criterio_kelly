@@ -7,12 +7,12 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./general/autenticacion/paginas/login/login.page').then((m) => m.LoginPage),
+      import('./funcionalidad/autenticacion/pagina/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'recuperar-clave',
     loadComponent: () =>
-      import('./general/autenticacion/paginas/recuperar-clave/recuperar-clave.page').then(
+      import('./funcionalidad/autenticacion/pagina/recuperar-clave/recuperar-clave.page').then(
         (m) => m.RecuperarClavePage,
       ),
   },

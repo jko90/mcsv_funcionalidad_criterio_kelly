@@ -11,7 +11,7 @@ import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { PinFormularioStore } from '../../../../configuracion/bloqueo-pin/store/pin-formulario.store';
 import { SuscripcionStore } from '../../../../negocio/suscripcion/store/SuscripcionStore';
 import { LoginStore } from '../../store/login.store';
-import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
+import { VerificacionCorreoStore } from '../../../../general/autenticacion/store/verificacion-correo.store';
 import { LoginPage } from './login.page';
 
 // Valor de prueba obvio: ningún PIN real aparece en este archivo.
@@ -33,7 +33,9 @@ describe('LoginPage · modal del PIN', () => {
   function crearPagina(): LoginPage {
     llamadas = [];
     navegar = jasmine.createSpy('navigate').and.resolveTo(true);
-    guardar = jasmine.createSpy('guardar').and.callFake(() => llamadas.push('guardar'));
+    guardar = jasmine
+      .createSpy('guardar')
+      .and.callFake(() => llamadas.push('guardar'));
     toast = jasmine.createSpy('mostrarToast').and.callFake(async () => {
       llamadas.push('toast');
     });
@@ -51,7 +53,10 @@ describe('LoginPage · modal del PIN', () => {
         { provide: Router, useValue: { navigate: navegar } },
         {
           provide: UtilitariosService,
-          useValue: { mostrarToast: toast, esperarCargaDeStore: () => Promise.resolve() },
+          useValue: {
+            mostrarToast: toast,
+            esperarCargaDeStore: () => Promise.resolve(),
+          },
         },
         { provide: SesionStore, useValue: {} },
         { provide: NombreUsuarioSesion, useValue: {} },
@@ -77,13 +82,18 @@ describe('LoginPage · modal del PIN', () => {
   }
 
   const eventoCierre = (datos?: ResultadoModalPin) =>
-    ({ detail: { data: datos } }) as CustomEvent<OverlayEventDetail<ResultadoModalPin>>;
+    ({ detail: { data: datos } }) as CustomEvent<
+      OverlayEventDetail<ResultadoModalPin>
+    >;
 
   it('crear el PIN: guarda, avisa con éxito y cierra con { pinCreado: true }', async () => {
     const pagina = crearPagina();
     await pagina.alConfirmarPin(PIN_DE_PRUEBA, modal);
     expect(guardar).toHaveBeenCalledOnceWith(PIN_DE_PRUEBA);
-    expect(toast).toHaveBeenCalledOnceWith('PIN creado correctamente.', 'success');
+    expect(toast).toHaveBeenCalledOnceWith(
+      'PIN creado correctamente.',
+      'success',
+    );
     expect(cerrarModal).toHaveBeenCalledOnceWith({ pinCreado: true });
     expect(llamadas).toEqual(['guardar', 'toast', 'dismiss']);
   });
@@ -94,14 +104,20 @@ describe('LoginPage · modal del PIN', () => {
     mensajeResultado.set('No se pudo guardar el PIN');
     colorAviso.set('danger');
     await pagina.alConfirmarPin(PIN_DE_PRUEBA, modal);
-    expect(toast).toHaveBeenCalledOnceWith('No se pudo guardar el PIN', 'danger');
+    expect(toast).toHaveBeenCalledOnceWith(
+      'No se pudo guardar el PIN',
+      'danger',
+    );
     expect(cerrarModal).toHaveBeenCalledOnceWith({ pinCreado: false });
   });
 
   it('valores distintos: solo muestra el aviso y no cierra el modal', async () => {
     const pagina = crearPagina();
     await pagina.alMostrarPinDistinto();
-    expect(toast).toHaveBeenCalledOnceWith('Digite el mismo valor en las dos opciones', 'danger');
+    expect(toast).toHaveBeenCalledOnceWith(
+      'Digite el mismo valor en las dos opciones',
+      'danger',
+    );
     expect(cerrarModal).not.toHaveBeenCalled();
     expect(guardar).not.toHaveBeenCalled();
   });
