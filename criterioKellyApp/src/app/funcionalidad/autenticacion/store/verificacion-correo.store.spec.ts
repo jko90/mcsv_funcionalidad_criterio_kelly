@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { VerificacionCorreoService } from '../servicios/verificacion-correo.service';
+import { VerificacionCorreoService } from '../servicio/verificacion-correo.service';
 import { VerificacionCorreoStore } from './verificacion-correo.store';
 
 describe('VerificacionCorreoStore', () => {

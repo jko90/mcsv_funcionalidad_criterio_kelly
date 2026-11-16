@@ -11,7 +11,7 @@ import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { PinFormularioStore } from '../../../../configuracion/bloqueo-pin/store/pin-formulario.store';
 import { SuscripcionStore } from '../../../../negocio/suscripcion/store/SuscripcionStore';
 import { LoginStore } from '../../store/login.store';
-import { VerificacionCorreoStore } from '../../../../general/autenticacion/store/verificacion-correo.store';
+import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
 import { LoginPage } from './login.page';
 
 // Valor de prueba obvio: ningún PIN real aparece en este archivo.

@@ -12,8 +12,8 @@ import {
   ActivacionCuenta,
   PasoVerificacion,
   SEGUNDOS_ENTRE_REENVIOS,
-} from '../modelos/VerificacionCorreo.modelo';
-import { VerificacionCorreoService } from '../servicios/verificacion-correo.service';
+} from '../modelo/VerificacionCorreo.modelo';
+import { VerificacionCorreoService } from '../servicio/verificacion-correo.service';
 
 type VerificacionCorreoEstado = {
   paso: PasoVerificacion;

@@ -21,7 +21,7 @@ import { ModalPinComponent } from '../../../../configuracion/bloqueo-pin/compone
 import { PinFormularioStore } from '../../../../configuracion/bloqueo-pin/store/pin-formulario.store';
 import { LoginStore } from '../../store/login.store';
 import { SuscripcionStore } from '../../../../negocio/suscripcion/store/SuscripcionStore';
-import { VerificacionCorreoStore } from '../../../../general/autenticacion/store/verificacion-correo.store';
+import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
 
 interface ModalPinResult {
   omitido?: boolean;

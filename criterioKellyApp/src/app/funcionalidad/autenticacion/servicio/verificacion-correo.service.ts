@@ -7,7 +7,7 @@ import {
   RespuestaActivacion,
   RespuestaReenvioCodigo,
   SolicitudReenvioCodigo,
-} from '../modelos/VerificacionCorreo.modelo';
+} from '../modelo/VerificacionCorreo.modelo';
 
 @Injectable({ providedIn: 'root' })
 export class VerificacionCorreoService {

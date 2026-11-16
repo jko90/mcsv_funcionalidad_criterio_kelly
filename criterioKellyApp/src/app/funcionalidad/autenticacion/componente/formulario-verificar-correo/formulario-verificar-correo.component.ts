@@ -13,7 +13,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
-import { ActivacionCuenta } from '../../modelos/VerificacionCorreo.modelo';
+import { ActivacionCuenta } from '../../modelo/VerificacionCorreo.modelo';
 
 const PATRON_CODIGO_SEIS_DIGITOS = /^\d{6}$/;
 

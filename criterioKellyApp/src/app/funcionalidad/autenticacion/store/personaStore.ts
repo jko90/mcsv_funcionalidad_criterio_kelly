@@ -6,10 +6,13 @@ import {
   withState,
 } from '@ngrx/signals';
 import { inject, computed } from '@angular/core';
-import { PersonaService } from '../servicios/persona.service';
-import { DatosPersona, RespuestaRegistro } from '../modelos/Persona.modelo';
+import {
+  DatosPersona,
+  RespuestaRegistro,
+} from '../../../funcionalidad/autenticacion/modelo/Persona.modelo';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { finalize, pipe, switchMap, tap, catchError, of } from 'rxjs';
+import { PersonaService } from '../servicio/persona.service';
 
 type PersonaStoreState = {
   loading: boolean;

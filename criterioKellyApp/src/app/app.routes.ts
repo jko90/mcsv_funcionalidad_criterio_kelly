@@ -7,7 +7,9 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./funcionalidad/autenticacion/pagina/login/login.page').then((m) => m.LoginPage),
+      import('./funcionalidad/autenticacion/pagina/login/login.page').then(
+        (m) => m.LoginPage,
+      ),
   },
   {
     path: 'recuperar-clave',
@@ -19,7 +21,7 @@ export const routes: Routes = [
   {
     path: 'verificar-correo',
     loadComponent: () =>
-      import('./general/autenticacion/paginas/verificar-correo/verificar-correo.page').then(
+      import('./funcionalidad/autenticacion/pagina/verificar-correo/verificar-correo.page').then(
         (m) => m.VerificarCorreoPage,
       ),
   },
@@ -31,7 +33,9 @@ export const routes: Routes = [
   {
     path: 'inicio',
     loadComponent: () =>
-      import('./general/inicio/paginas/inicio/inicio.page').then((m) => m.InicioPage),
+      import('./funcionalidad/inicio/inicio.page').then(
+        (m) => m.InicioPage,
+      ),
     canActivate: [GuardAutenticacion],
   },
   {
@@ -53,7 +57,9 @@ export const routes: Routes = [
   {
     path: 'ayuda',
     loadComponent: () =>
-      import('./general/informacion/paginas/ayuda/ayuda.page').then((m) => m.AyudaPage),
+      import('./general/informacion/paginas/ayuda/ayuda.page').then(
+        (m) => m.AyudaPage,
+      ),
   },
   {
     path: 'acerca-d',
@@ -123,7 +129,7 @@ export const routes: Routes = [
   {
     path: 'registro',
     loadComponent: () =>
-      import('./general/autenticacion/paginas/registro/registro.page').then(
+      import('./funcionalidad/autenticacion/pagina/registro/registro.page').then(
         (m) => m.RegistroPage,
       ),
   },

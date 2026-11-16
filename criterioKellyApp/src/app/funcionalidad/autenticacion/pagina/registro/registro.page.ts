@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { Router } from '@angular/router';
-import { DatosPersona } from '../../modelos/Persona.modelo';
+import { DatosPersona } from '../../modelo/Persona.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { PersonaStore } from '../../store/personaStore';
 import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
@@ -42,9 +42,12 @@ export class RegistroPage {
 
   registroForm: FormGroup = this._inicializarFormulario();
   // El formulario no es una señal: sin esto los computed de abajo nunca se recalculan.
-  private readonly cambiosFormulario = toSignal(this.registroForm.valueChanges, {
-    initialValue: this.registroForm.value,
-  });
+  private readonly cambiosFormulario = toSignal(
+    this.registroForm.valueChanges,
+    {
+      initialValue: this.registroForm.value,
+    },
+  );
   mostrarContrasena = false;
   mostrarConfirmarContrasena = false;
 

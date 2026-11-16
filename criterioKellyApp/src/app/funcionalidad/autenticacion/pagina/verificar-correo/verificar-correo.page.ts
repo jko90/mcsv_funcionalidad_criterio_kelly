@@ -11,9 +11,9 @@ import { interval, map } from 'rxjs';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { FormularioVerificarCorreoComponent } from '../../componentes/formulario-verificar-correo/formulario-verificar-correo.component';
-import { ActivacionCuenta } from '../../modelos/VerificacionCorreo.modelo';
+import { ActivacionCuenta } from '../../modelo/VerificacionCorreo.modelo';
 import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
+import { FormularioVerificarCorreoComponent } from '../../componente/formulario-verificar-correo/formulario-verificar-correo.component';
 
 const MILISEGUNDOS_POR_SEGUNDO = 1000;
 
