@@ -7,14 +7,14 @@ import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/ale
 import { ALERTA_OLVIDE_PIN } from 'src/app/compartidos/textos-alertas';
 import { ModalPinComponent } from '../../componentes/modal-pin/modal-pin.component';
 import { PinFormularioStore } from '../../store/pin-formulario.store';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
-import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
+import { ServicioInactividad } from 'src/app/configuracion/seguridad/servicio/ServicioInactividad';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { Capacitor } from '@capacitor/core';
 import type { OverlayEventDetail } from '@ionic/core';
 import { IonModal } from '@ionic/angular/standalone';
-import { DbPINWebStore } from 'src/app/nucleo/store/dbPIN-web.store';
-import { DbPINAppStore } from 'src/app/nucleo/store/dbPIN-app.store';
+import { DbPINWebStore } from 'src/app/configuracion/store/dbPIN-web.store';
+import { DbPINAppStore } from 'src/app/configuracion/store/dbPIN-app.store';
 
 @Component({
   selector: 'app-cambiar-pin',

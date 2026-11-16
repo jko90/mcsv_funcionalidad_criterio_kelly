@@ -19,7 +19,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
+import { ErrorApi } from 'src/app/configuracion/modelo/error-api';
 import { desescaparEntidades } from 'src/app/negocio/suscripcion/configuracion/textos-pago';
 import { DatosPagoService } from 'src/app/negocio/suscripcion/servicios/datos-pago.service';
 import { mensajeErrorArchivoQr } from '../configuracion/validadores-pago';

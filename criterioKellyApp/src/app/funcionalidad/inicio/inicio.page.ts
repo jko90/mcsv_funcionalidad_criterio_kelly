@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { RefresherCustomEvent } from '@ionic/angular';
 import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
@@ -18,8 +25,8 @@ import { AvisoBloqueoComponent } from 'src/app/negocio/suscripcion/componentes/a
 import { SuscripcionStore } from 'src/app/negocio/suscripcion/store/SuscripcionStore';
 import { PlanesStore } from 'src/app/negocio/suscripcion/store/PlanesStore';
 import { PlanVigenteStore } from 'src/app/negocio/suscripcion/store/plan-vigente.store';
-import { MenuStore } from 'src/app/nucleo/store/menu.store';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
+import { MenuStore } from 'src/app/configuracion/store/menu.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
 
 @Component({
   selector: 'app-inicio',
@@ -47,16 +54,21 @@ export class InicioPage {
   readonly planesParaElegir = this.planesStore.planesParaElegir;
   readonly estaProcesando = this.suscripcionStore.isLoading;
   readonly avisoConflictoPlan = this.suscripcionStore.avisoConflictoPlan;
-  readonly avisoPendienteAbierto = computed(() => this.avisoConflictoPlan() !== null);
+  readonly avisoPendienteAbierto = computed(
+    () => this.avisoConflictoPlan() !== null,
+  );
   readonly tituloConflicto = ALERTA_CONFLICTO_PLAN.titulo;
   readonly tituloConfirmarPlan = ALERTA_CONFIRMAR_PLAN.titulo;
   readonly alertaCancelarPlan = ALERTA_CANCELAR_PLAN;
   readonly cancelarPlanPendiente = signal(false);
-  readonly mensajeCancelarPlan = this.planVigenteStore.mensajeConfirmarCancelacion;
+  readonly mensajeCancelarPlan =
+    this.planVigenteStore.mensajeConfirmarCancelacion;
   readonly planAConfirmar = signal<number | null>(null);
   readonly mensajeConfirmarPlan = computed(() => {
     const idPlanIntervalo = this.planAConfirmar();
-    const plan = this.planesParaElegir().find((p) => p.pin_idPlanInterv === idPlanIntervalo);
+    const plan = this.planesParaElegir().find(
+      (p) => p.pin_idPlanInterv === idPlanIntervalo,
+    );
     const detalle = plan
       ? `${plan.pla_nombre} · ${plan.ins_nombre} (${plan.pin_precioFinal} ${plan.pla_moneda})`
       : 'este plan';
@@ -74,7 +86,8 @@ export class InicioPage {
     });
     effect(() => {
       const mensaje = this.suscripcionStore.errorElegirPlan();
-      if (mensaje) untracked(() => this.utilServicio.mostrarToast(mensaje, 'danger'));
+      if (mensaje)
+        untracked(() => this.utilServicio.mostrarToast(mensaje, 'danger'));
     });
   }
 
@@ -104,7 +117,8 @@ export class InicioPage {
   alConfirmarElegirPlan(): void {
     const idPlanIntervalo = this.planAConfirmar();
     this.planAConfirmar.set(null);
-    if (idPlanIntervalo !== null) this.suscripcionStore.elegirPlan(idPlanIntervalo);
+    if (idPlanIntervalo !== null)
+      this.suscripcionStore.elegirPlan(idPlanIntervalo);
   }
 
   alCancelarElegirPlan(): void {

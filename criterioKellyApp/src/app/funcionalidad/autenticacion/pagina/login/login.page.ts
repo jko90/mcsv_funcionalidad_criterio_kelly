@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { App } from '@capacitor/app';
-import { NombreUsuarioSesion } from 'src/app/nucleo/seguridad/servicio/NombreUsuarioSesion';
+import { NombreUsuarioSesion } from 'src/app/configuracion/seguridad/servicio/NombreUsuarioSesion';
 import { Capacitor } from '@capacitor/core';
 import type { OverlayEventDetail } from '@ionic/core';
 import { IonModal } from '@ionic/angular/standalone';
@@ -19,9 +19,9 @@ import { PinFormularioStore } from '../../../../config/bloqueo-pin/store/pin-for
 import { LoginStore } from '../../store/login.store';
 import { SuscripcionStore } from '../../../../negocio/suscripcion/store/SuscripcionStore';
 import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
-import { DbPINWebStore } from 'src/app/nucleo/store/dbPIN-web.store';
-import { DbPINAppStore } from 'src/app/nucleo/store/dbPIN-app.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
+import { DbPINWebStore } from 'src/app/configuracion/store/dbPIN-web.store';
+import { DbPINAppStore } from 'src/app/configuracion/store/dbPIN-app.store';
 
 interface ModalPinResult {
   omitido?: boolean;

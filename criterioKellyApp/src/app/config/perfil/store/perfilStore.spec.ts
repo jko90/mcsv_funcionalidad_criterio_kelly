@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { throwError } from 'rxjs';
-import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
+import { ErrorApi } from 'src/app/configuracion/modelo/error-api';
 import { PerfilService } from '../servicios/perfil.service';
 import { PerfilStore } from './perfilStore';
 

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { signalStore } from '@ngrx/signals';
 import { conPinBloqueo } from './pin-bloqueo.feature';
-import { DataBaseService } from 'src/app/nucleo/base-datos/data-base.service';
+import { DataBaseService } from 'src/app/configuracion/base-datos/data-base.service';
 
 export const DbPINAppStore = signalStore(
   { providedIn: 'root' },

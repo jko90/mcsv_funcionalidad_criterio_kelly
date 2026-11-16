@@ -42,7 +42,7 @@ import {
   textoBloqueo,
 } from '../configuracion/permisos-plan.config';
 import { SuscripcionService } from '../servicios/suscripcion.service';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
 
 export const INTERVALO_TICK_MS = 30_000;
 export const SEGUNDOS_POR_DIA = 86_400;
@@ -89,7 +89,9 @@ function textoDias(cantidad: number): string {
 function formatearTiempo(segundos: number): string {
   if (segundos < SEGUNDOS_POR_MINUTO) return 'menos de 1 min';
   const horas = Math.floor(segundos / SEGUNDOS_POR_HORA);
-  const minutos = Math.floor((segundos % SEGUNDOS_POR_HORA) / SEGUNDOS_POR_MINUTO);
+  const minutos = Math.floor(
+    (segundos % SEGUNDOS_POR_HORA) / SEGUNDOS_POR_MINUTO,
+  );
   return horas >= 1 ? `${horas} h ${minutos} min` : `${minutos} min`;
 }
 
@@ -145,10 +147,7 @@ function avisoSinPlan(plan: PlanVigente): string {
   }
 }
 
-function avisoPlanLibre(
-  dias: number,
-  marca: MarcaPlanAvisado | null,
-): string {
+function avisoPlanLibre(dias: number, marca: MarcaPlanAvisado | null): string {
   const restante = `te quedan ${textoDias(dias)}`;
   if (marca?.estado === 'SIN_PLAN') {
     return `Tu renovación se anuló por falta de pago; estás en el plan Libre y ${restante}`;
@@ -165,7 +164,10 @@ function avisoPlanPagado(plan: PlanVigente): string {
   return `Tu plan ${nombre} está activo${hasta}`;
 }
 
-function esMismaMarca(marca: MarcaPlanAvisado | null, plan: PlanVigente): boolean {
+function esMismaMarca(
+  marca: MarcaPlanAvisado | null,
+  plan: PlanVigente,
+): boolean {
   return (
     marca !== null &&
     marca.estado === plan.estado &&
@@ -176,112 +178,127 @@ function esMismaMarca(marca: MarcaPlanAvisado | null, plan: PlanVigente): boolea
 export const PlanVigenteStore = signalStore(
   { providedIn: 'root' },
   withState<PlanVigenteEstado>(estadoInicial),
-  withComputed(({ plan, loading, error, recibidoEnMs, ahoraMs, marcaAvisada, bloqueo }) => {
-    const segundosRestantes = computed(() => {
-      const segundosServidor = plan()?.segundosRestantes ?? 0;
-      const transcurridos = Math.floor(
-        (ahoraMs() - recibidoEnMs()) / MS_POR_SEGUNDO,
-      );
-      return Math.max(0, segundosServidor - Math.max(0, transcurridos));
-    });
-    const estado = computed(() => plan()?.estado ?? null);
-    const esPrueba = computed(() => estado() === 'PRUEBA');
-    const diasRestantes = computed(() =>
-      Math.ceil(segundosRestantes() / SEGUNDOS_POR_DIA),
-    );
-    const estadoMenu = computed<EstadoMenu>(() => estadoMenuDesdePlan(plan()));
-    const estaCancelado = computed(() => plan()?.cancelado === true);
-    // Con un periodo ya pagado por anticipado el plan termina al final de ese periodo.
-    const fechaTerminoPlan = computed(
-      () => plan()?.planProgramado?.fechaFin ?? plan()?.fechaCorte ?? null,
-    );
-
-    return {
-      isLoading: computed(() => loading()),
-      errorMessage: computed(() => error()),
-      estado,
-      limites: computed<LimitesPlan>(() => limitesPantalla(plan())),
-      esPrueba,
-      segundosRestantes,
-      diasRestantes,
-      textoTiempoRestante: computed(() =>
-        esPrueba()
-          ? `Tu prueba termina en ${formatearTiempo(segundosRestantes())}`
-          : null,
-      ),
-      planPendiente: computed<PlanPendiente | null>(
-        () => plan()?.planPendiente ?? null,
-      ),
-      planProgramado: computed<PlanProgramado | null>(
-        () => plan()?.planProgramado ?? null,
-      ),
-      tituloPendiente: computed(() => {
-        const pendiente = plan()?.planPendiente;
-        return pendiente ? `${pendiente.pla_nombre} · ${pendiente.ins_nombre}` : null;
-      }),
-      mensajePendiente: computed(() => {
-        const vigente = plan();
-        return vigente?.planPendiente
-          ? armarMensajePendiente(vigente.estado, vigente.planPendiente)
-          : null;
-      }),
-      mensajeProgramado: computed(() => {
-        const vigente = plan();
-        if (vigente?.estado !== 'PAGO' || !vigente.planProgramado) return null;
-        return `Tu renovación ya está pagada, empieza el ${vigente.planProgramado.fechaInicio}`;
-      }),
-      aviso: computed(() => {
-        const vigente = plan();
-        if (vigente === null || vigente.estado === 'PRUEBA') return null;
-        if (esMismaMarca(marcaAvisada(), vigente)) return null;
-        switch (vigente.estado) {
-          case 'LIBRE':
-            return avisoPlanLibre(diasRestantes(), marcaAvisada());
-          case 'PAGO':
-            return avisoPlanPagado(vigente);
-          default:
-            return avisoSinPlan(vigente);
-        }
-      }),
-      puedeVerPlanes: computed(() => estado() === 'SIN_PLAN'),
-      // RN-01: la acción depende de si el servidor ya tiene un comprobante en revisión.
-      puedeSubirComprobante: computed(
-        () => plan()?.planPendiente?.comprobanteEnviado === false,
-      ),
-      puedeVerEstadoPago: computed(
-        () => plan()?.planPendiente?.comprobanteEnviado === true,
-      ),
-      // RN-12: plan de pago vigente sin pago pendiente ni periodo ya programado.
-      puedePagarAnticipado: computed(() => {
-        const vigente = plan();
-        return (
-          vigente?.estado === 'PAGO' &&
-          vigente.planPendiente === null &&
-          vigente.planProgramado === null
+  withComputed(
+    ({
+      plan,
+      loading,
+      error,
+      recibidoEnMs,
+      ahoraMs,
+      marcaAvisada,
+      bloqueo,
+    }) => {
+      const segundosRestantes = computed(() => {
+        const segundosServidor = plan()?.segundosRestantes ?? 0;
+        const transcurridos = Math.floor(
+          (ahoraMs() - recibidoEnMs()) / MS_POR_SEGUNDO,
         );
-      }),
-      estadoMenu,
-      estaCancelado,
-      fechaTerminoPlan,
-      puedeCancelar: computed(() => estado() === 'PAGO' && !estaCancelado()),
-      mensajeConfirmarCancelacion: computed(() => {
-        const fecha = fechaTerminoPlan();
-        return fecha
-          ? `Tu plan seguirá activo hasta el ${fecha} y no se renovará. ¿Quieres cancelarlo?`
-          : 'Tu plan no se renovará. ¿Quieres cancelarlo?';
-      }),
-      // Se evalúa con el plan actual: si ya no hay restricción, no hay aviso.
-      bloqueoVisible: computed<BloqueoPlan | null>(() => {
-        const registrado = bloqueo();
-        if (registrado === null || estadoMenu() === 'COMPLETO') return null;
-        return { ...registrado, estado: estadoMenu() };
-      }),
-      textoBloqueo: computed(() => {
-        if (bloqueo() === null || estadoMenu() === 'COMPLETO') return null;
-        return textoBloqueo(estadoMenu(), plan()?.planPendiente ?? null);
-      }),
-    };
-  }),
+        return Math.max(0, segundosServidor - Math.max(0, transcurridos));
+      });
+      const estado = computed(() => plan()?.estado ?? null);
+      const esPrueba = computed(() => estado() === 'PRUEBA');
+      const diasRestantes = computed(() =>
+        Math.ceil(segundosRestantes() / SEGUNDOS_POR_DIA),
+      );
+      const estadoMenu = computed<EstadoMenu>(() =>
+        estadoMenuDesdePlan(plan()),
+      );
+      const estaCancelado = computed(() => plan()?.cancelado === true);
+      // Con un periodo ya pagado por anticipado el plan termina al final de ese periodo.
+      const fechaTerminoPlan = computed(
+        () => plan()?.planProgramado?.fechaFin ?? plan()?.fechaCorte ?? null,
+      );
+
+      return {
+        isLoading: computed(() => loading()),
+        errorMessage: computed(() => error()),
+        estado,
+        limites: computed<LimitesPlan>(() => limitesPantalla(plan())),
+        esPrueba,
+        segundosRestantes,
+        diasRestantes,
+        textoTiempoRestante: computed(() =>
+          esPrueba()
+            ? `Tu prueba termina en ${formatearTiempo(segundosRestantes())}`
+            : null,
+        ),
+        planPendiente: computed<PlanPendiente | null>(
+          () => plan()?.planPendiente ?? null,
+        ),
+        planProgramado: computed<PlanProgramado | null>(
+          () => plan()?.planProgramado ?? null,
+        ),
+        tituloPendiente: computed(() => {
+          const pendiente = plan()?.planPendiente;
+          return pendiente
+            ? `${pendiente.pla_nombre} · ${pendiente.ins_nombre}`
+            : null;
+        }),
+        mensajePendiente: computed(() => {
+          const vigente = plan();
+          return vigente?.planPendiente
+            ? armarMensajePendiente(vigente.estado, vigente.planPendiente)
+            : null;
+        }),
+        mensajeProgramado: computed(() => {
+          const vigente = plan();
+          if (vigente?.estado !== 'PAGO' || !vigente.planProgramado)
+            return null;
+          return `Tu renovación ya está pagada, empieza el ${vigente.planProgramado.fechaInicio}`;
+        }),
+        aviso: computed(() => {
+          const vigente = plan();
+          if (vigente === null || vigente.estado === 'PRUEBA') return null;
+          if (esMismaMarca(marcaAvisada(), vigente)) return null;
+          switch (vigente.estado) {
+            case 'LIBRE':
+              return avisoPlanLibre(diasRestantes(), marcaAvisada());
+            case 'PAGO':
+              return avisoPlanPagado(vigente);
+            default:
+              return avisoSinPlan(vigente);
+          }
+        }),
+        puedeVerPlanes: computed(() => estado() === 'SIN_PLAN'),
+        // RN-01: la acción depende de si el servidor ya tiene un comprobante en revisión.
+        puedeSubirComprobante: computed(
+          () => plan()?.planPendiente?.comprobanteEnviado === false,
+        ),
+        puedeVerEstadoPago: computed(
+          () => plan()?.planPendiente?.comprobanteEnviado === true,
+        ),
+        // RN-12: plan de pago vigente sin pago pendiente ni periodo ya programado.
+        puedePagarAnticipado: computed(() => {
+          const vigente = plan();
+          return (
+            vigente?.estado === 'PAGO' &&
+            vigente.planPendiente === null &&
+            vigente.planProgramado === null
+          );
+        }),
+        estadoMenu,
+        estaCancelado,
+        fechaTerminoPlan,
+        puedeCancelar: computed(() => estado() === 'PAGO' && !estaCancelado()),
+        mensajeConfirmarCancelacion: computed(() => {
+          const fecha = fechaTerminoPlan();
+          return fecha
+            ? `Tu plan seguirá activo hasta el ${fecha} y no se renovará. ¿Quieres cancelarlo?`
+            : 'Tu plan no se renovará. ¿Quieres cancelarlo?';
+        }),
+        // Se evalúa con el plan actual: si ya no hay restricción, no hay aviso.
+        bloqueoVisible: computed<BloqueoPlan | null>(() => {
+          const registrado = bloqueo();
+          if (registrado === null || estadoMenu() === 'COMPLETO') return null;
+          return { ...registrado, estado: estadoMenu() };
+        }),
+        textoBloqueo: computed(() => {
+          if (bloqueo() === null || estadoMenu() === 'COMPLETO') return null;
+          return textoBloqueo(estadoMenu(), plan()?.planPendiente ?? null);
+        }),
+      };
+    },
+  ),
   withMethods(
     (
       store,

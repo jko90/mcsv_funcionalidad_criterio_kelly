@@ -20,7 +20,7 @@ import {
   esUrlApi,
   esUrlSesion,
 } from './sesion-http';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
 
 const MENSAJE_SESION_EXPIRADA = 'Tu sesión expiró, vuelve a iniciar sesión';
 

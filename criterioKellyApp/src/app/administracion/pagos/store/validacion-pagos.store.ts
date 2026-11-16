@@ -9,7 +9,7 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, filter, finalize, of, pipe, switchMap, tap } from 'rxjs';
-import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
+import { ErrorApi } from 'src/app/configuracion/modelo/error-api';
 import {
   esMotivoValido,
   mensajeConfirmarAprobacion,

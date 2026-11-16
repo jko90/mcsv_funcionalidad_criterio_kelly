@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentaStore } from '../../../../config/cuentas/store/cuentaStore';
 import { LIMITES_SIN_RESTRICCION } from '../../../suscripcion/configuracion/permisos-plan.config';

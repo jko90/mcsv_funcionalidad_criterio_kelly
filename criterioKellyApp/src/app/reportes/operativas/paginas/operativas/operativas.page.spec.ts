@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { LIMITES_SIN_RESTRICCION } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
 import { LimitesPlan } from '../../../../negocio/suscripcion/modelos/PlanVigente.modelo';

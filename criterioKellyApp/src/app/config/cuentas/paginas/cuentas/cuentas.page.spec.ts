@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DBCriterioKellyAppStore } from 'src/app/compartidos/store/dbkelly-app.store';
 import { DBCriterioKellyWebStore } from 'src/app/compartidos/store/dbkelly-web.store';

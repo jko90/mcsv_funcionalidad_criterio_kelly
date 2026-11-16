@@ -26,7 +26,7 @@ import {
   tap,
   throwError,
 } from 'rxjs';
-import { Rol } from 'src/app/nucleo/modelo/Rol.modelo';
+import { Rol } from 'src/app/configuracion/modelo/Rol.modelo';
 import { UsuarioApp } from 'src/app/funcionalidad/autenticacion/modelo/Login.modelo';
 
 import {
@@ -34,15 +34,15 @@ import {
   EstadoRestauracion,
   RespuestaSesion,
   usuarioDesdeRespuesta,
-} from '../../nucleo/modelo/sesion.modelo';
-import { ES_PLATAFORMA_NATIVA } from 'src/app/nucleo/servicio/plataforma';
-import { SesionService } from 'src/app/nucleo/servicio/sesion.service';
-import { AlmacenSeguroService } from 'src/app/nucleo/servicio/almacen-seguro.service';
+} from '../modelo/sesion.modelo';
+import { ES_PLATAFORMA_NATIVA } from 'src/app/configuracion/servicio/plataforma';
+import { SesionService } from 'src/app/configuracion/servicio/sesion.service';
+import { AlmacenSeguroService } from 'src/app/configuracion/servicio/almacen-seguro.service';
 import {
   CoordinadorPestanasService,
   MensajeSesion,
   NOMBRE_BLOQUEO_RENOVACION,
-} from 'src/app/nucleo/servicio/coordinador-pestanas.service';
+} from 'src/app/configuracion/servicio/coordinador-pestanas.service';
 
 type SesionEstado = {
   usuario: UsuarioApp | null;

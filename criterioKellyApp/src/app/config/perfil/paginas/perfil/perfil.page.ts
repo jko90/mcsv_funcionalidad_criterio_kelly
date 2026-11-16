@@ -9,7 +9,7 @@ import {
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { Router } from '@angular/router';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import {
   ActualizarPerfilRequest,
   CambiarClaveRequest,
@@ -20,9 +20,9 @@ import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.se
 import { PerfilStore } from '../../store/perfilStore';
 import { AlertaCkComponent } from 'src/app/compartidos/componentes/alerta-ck/alerta-ck.component';
 import { ALERTA_CERRAR_SESIONES } from 'src/app/compartidos/textos-alertas';
-import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/configuracion/seguridad/servicio/ServicioInactividad';
 import { FormularioCambioClaveComponent } from '../../componentes/formulario-cambio-clave/formulario-cambio-clave.component';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
 
 @Component({
   selector: 'app-perfil',

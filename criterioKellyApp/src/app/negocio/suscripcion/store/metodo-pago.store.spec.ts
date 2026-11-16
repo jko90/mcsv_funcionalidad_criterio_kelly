@@ -1,7 +1,7 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
-import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
+import { ErrorApi } from 'src/app/configuracion/modelo/error-api';
 import { DatosPagoDisponibles } from '../modelos/DatosPago.modelo';
 import { DatosPagoService } from '../servicios/datos-pago.service';
 import { PlanVigente } from '../modelos/PlanVigente.modelo';

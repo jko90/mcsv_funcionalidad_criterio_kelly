@@ -9,10 +9,10 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { Capacitor } from '@capacitor/core';
 import { catchError, finalize, from, of, pipe, switchMap, tap } from 'rxjs';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { DbPINWebStore } from 'src/app/nucleo/store/dbPIN-web.store';
-import { DbPINAppStore } from 'src/app/nucleo/store/dbPIN-app.store';
+import { DbPINWebStore } from 'src/app/configuracion/store/dbPIN-web.store';
+import { DbPINAppStore } from 'src/app/configuracion/store/dbPIN-app.store';
 
 export type ResultadoGuardadoPin = 'creado' | 'error';
 

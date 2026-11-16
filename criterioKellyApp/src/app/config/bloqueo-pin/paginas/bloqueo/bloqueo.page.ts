@@ -13,14 +13,14 @@ import {
   TEXTO_SALIR,
 } from 'src/app/compartidos/textos-alertas';
 import { firstValueFrom } from 'rxjs';
-import { NombreUsuarioSesion } from 'src/app/nucleo/seguridad/servicio/NombreUsuarioSesion';
-import { SesionService } from 'src/app/nucleo/servicio/sesion.service';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { NombreUsuarioSesion } from 'src/app/configuracion/seguridad/servicio/NombreUsuarioSesion';
+import { SesionService } from 'src/app/configuracion/servicio/sesion.service';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { Capacitor } from '@capacitor/core';
-import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
-import { DbPINWebStore } from 'src/app/nucleo/store/dbPIN-web.store';
-import { DbPINAppStore } from 'src/app/nucleo/store/dbPIN-app.store';
+import { ServicioInactividad } from 'src/app/configuracion/seguridad/servicio/ServicioInactividad';
+import { DbPINWebStore } from 'src/app/configuracion/store/dbPIN-web.store';
+import { DbPINAppStore } from 'src/app/configuracion/store/dbPIN-app.store';
 
 const MAX_INTENTOS_CLAVE = 3;
 

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/configuracion/seguridad/servicio/ServicioInactividad';
 import { SesionStore } from 'src/app/compartidos/store/sesion.store';
 import { UltimoPago } from '../../modelos/EstadoPago.modelo';
 import { PlanVigente } from '../../modelos/PlanVigente.modelo';

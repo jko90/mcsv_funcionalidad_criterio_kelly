@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import type { IonModal } from '@ionic/angular/standalone';
 import type { OverlayEventDetail } from '@ionic/core';
-import { NombreUsuarioSesion } from 'src/app/nucleo/seguridad/servicio/NombreUsuarioSesion';
+import { NombreUsuarioSesion } from 'src/app/configuracion/seguridad/servicio/NombreUsuarioSesion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';

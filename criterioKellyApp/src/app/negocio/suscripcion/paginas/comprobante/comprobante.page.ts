@@ -18,15 +18,20 @@ import { FormularioComprobanteComponent } from '../../componentes/formulario-com
 import { IndicadorPasosPagoComponent } from '../../componentes/indicador-pasos-pago/indicador-pasos-pago.component';
 import { InstruccionesPagoComponent } from '../../componentes/instrucciones-pago/instrucciones-pago.component';
 import { SelectorMetodoPagoComponent } from '../../componentes/selector-metodo-pago/selector-metodo-pago.component';
-import { MetodoPago, SolicitudComprobante } from '../../modelos/EstadoPago.modelo';
+import {
+  MetodoPago,
+  SolicitudComprobante,
+} from '../../modelos/EstadoPago.modelo';
 import { ComprobanteStore } from '../../store/comprobante.store';
 import { MetodoPagoStore } from '../../store/metodo-pago.store';
 import { PlanVigenteStore } from '../../store/plan-vigente.store';
 import { validarImagenComprobante } from './validacion-imagen';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
 
-const MENSAJE_DIRECCION_COPIADA = 'Copiado. Ya puedes pegarlo en tu app de pago.';
-const MENSAJE_COPIA_FALLIDA = 'No se pudo copiar, selecciona el texto y cópialo a mano.';
+const MENSAJE_DIRECCION_COPIADA =
+  'Copiado. Ya puedes pegarlo en tu app de pago.';
+const MENSAJE_COPIA_FALLIDA =
+  'No se pudo copiar, selecciona el texto y cópialo a mano.';
 const MENSAJE_COMPROBANTE_ENVIADO =
   'Comprobante enviado. El administrador lo revisará y te avisaremos aquí.';
 

@@ -15,7 +15,7 @@ import {
   BitacoraModelo,
 } from '../../modelos/Bitacora.modelo';
 import { ComentarioModelo } from '../../modelos/Comentario.modelo';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { CuentaResponse } from '../../../../config/cuentas/modelos/Cuentas.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
@@ -23,8 +23,8 @@ import { BitacoraStore } from '../../store/bitacoraStore';
 import { CuentaStore } from '../../../../config/cuentas/store/cuentaStore';
 import { ComentariosStore } from '../../store/comentariosStore';
 import { Capacitor } from '@capacitor/core';
-import { DBCriterioKellyWebStore } from 'src/app/nucleo/store/dbkelly-web.store';
-import { DBCriterioKellyAppStore } from 'src/app/nucleo/store/dbkelly-app.store';
+import { DBCriterioKellyWebStore } from 'src/app/configuracion/store/dbkelly-web.store';
+import { DBCriterioKellyAppStore } from 'src/app/configuracion/store/dbkelly-app.store';
 
 @Component({
   selector: 'app-bitacora-fin',

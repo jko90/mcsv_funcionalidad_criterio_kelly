@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Capacitor } from '@capacitor/core';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { DbPINWebStore } from 'src/app/compartidos/store/dbPIN-web.store';

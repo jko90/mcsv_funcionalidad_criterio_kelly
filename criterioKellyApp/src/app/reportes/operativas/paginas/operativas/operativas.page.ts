@@ -6,7 +6,7 @@ import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentasModelo } from '../../../../config/cuentas/modelos/Cuentas.modelo';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { GraficoEstadisticoComponent } from '../../componentes/grafico-estadistico/grafico-estadistico.component';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';

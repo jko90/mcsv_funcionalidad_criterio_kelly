@@ -19,11 +19,12 @@ import {
 import { PagosService } from '../servicios/pagos.service';
 import { SuscripcionService } from '../servicios/suscripcion.service';
 import { PlanVigenteStore } from './plan-vigente.store';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
 
 const MENSAJE_ERROR_CARGA = 'No se pudo consultar el estado de tu pago';
 const MENSAJE_ERROR_ENVIO = 'No se pudo enviar el comprobante';
-const MENSAJE_SIN_PLAN_PARA_PAGAR = 'No hay un plan para el que puedas subir un comprobante';
+const MENSAJE_SIN_PLAN_PARA_PAGAR =
+  'No hay un plan para el que puedas subir un comprobante';
 
 type ComprobanteEstado = {
   ultimoPago: UltimoPago | null;
@@ -56,43 +57,52 @@ function mensajeDeError(error: unknown): string {
 export const ComprobanteStore = signalStore(
   { providedIn: 'root' },
   withState<ComprobanteEstado>(estadoInicial),
-  withComputed(({ loading, error, ultimoPago }, planVigenteStore = inject(PlanVigenteStore)) => {
-    const plan = planVigenteStore.plan;
-    const planPendiente = computed(() => plan()?.planPendiente ?? null);
+  withComputed(
+    (
+      { loading, error, ultimoPago },
+      planVigenteStore = inject(PlanVigenteStore),
+    ) => {
+      const plan = planVigenteStore.plan;
+      const planPendiente = computed(() => plan()?.planPendiente ?? null);
 
-    const modo = computed<ModoComprobante>(() => {
-      const vigente = plan();
-      if (vigente === null) return 'NINGUNO';
-      const pendiente = vigente.planPendiente;
-      if (pendiente !== null) {
-        if (vigente.estado === 'PAGO') return 'ANTICIPADO';
-        return pendiente.esRenovacion ? 'RENOVACION' : 'PRIMER_PAGO';
-      }
-      const puedeAnticipar =
-        vigente.estado === 'PAGO' &&
-        vigente.planProgramado === null &&
-        vigente.pin_idPlanInterv !== null;
-      return puedeAnticipar ? 'ANTICIPADO' : 'NINGUNO';
-    });
+      const modo = computed<ModoComprobante>(() => {
+        const vigente = plan();
+        if (vigente === null) return 'NINGUNO';
+        const pendiente = vigente.planPendiente;
+        if (pendiente !== null) {
+          if (vigente.estado === 'PAGO') return 'ANTICIPADO';
+          return pendiente.esRenovacion ? 'RENOVACION' : 'PRIMER_PAGO';
+        }
+        const puedeAnticipar =
+          vigente.estado === 'PAGO' &&
+          vigente.planProgramado === null &&
+          vigente.pin_idPlanInterv !== null;
+        return puedeAnticipar ? 'ANTICIPADO' : 'NINGUNO';
+      });
 
-    const estaEnRevision = computed(
-      () => planPendiente()?.comprobanteEnviado === true || ultimoPago()?.pag_situacion === 'R',
-    );
+      const estaEnRevision = computed(
+        () =>
+          planPendiente()?.comprobanteEnviado === true ||
+          ultimoPago()?.pag_situacion === 'R',
+      );
 
-    return {
-      isLoading: computed(() => loading()),
-      errorMessage: computed(() => error()),
-      plan,
-      modo,
-      estaEnRevision,
-      // RN-01 y RN-12: solo con algo por pagar y sin un comprobante ya en revisión.
-      puedeEnviar: computed(() => modo() !== 'NINGUNO' && !estaEnRevision()),
-      textoPeriodo: computed(() => textoPeriodoComprobante(modo(), plan())),
-      tituloFormulario: computed(() =>
-        modo() === 'ANTICIPADO' ? 'Pagar mi renovación por anticipado' : 'Subir comprobante',
-      ),
-    };
-  }),
+      return {
+        isLoading: computed(() => loading()),
+        errorMessage: computed(() => error()),
+        plan,
+        modo,
+        estaEnRevision,
+        // RN-01 y RN-12: solo con algo por pagar y sin un comprobante ya en revisión.
+        puedeEnviar: computed(() => modo() !== 'NINGUNO' && !estaEnRevision()),
+        textoPeriodo: computed(() => textoPeriodoComprobante(modo(), plan())),
+        tituloFormulario: computed(() =>
+          modo() === 'ANTICIPADO'
+            ? 'Pagar mi renovación por anticipado'
+            : 'Subir comprobante',
+        ),
+      };
+    },
+  ),
   withMethods(
     (
       store,
@@ -106,7 +116,9 @@ export const ComprobanteStore = signalStore(
           tap(() => patchState(store, { loading: true, error: null })),
           switchMap(() =>
             pagosService.obtenerMiUltimoPago().pipe(
-              tap((respuesta) => patchState(store, { ultimoPago: respuesta.pago })),
+              tap((respuesta) =>
+                patchState(store, { ultimoPago: respuesta.pago }),
+              ),
               catchError(() => {
                 patchState(store, { error: MENSAJE_ERROR_CARGA });
                 return of(null);
@@ -118,7 +130,8 @@ export const ComprobanteStore = signalStore(
       );
 
       const recargarPlanVigente = (): void => {
-        const usuarioId = planVigenteStore.usuarioId() ?? sesionStore.usuario()?.id;
+        const usuarioId =
+          planVigenteStore.usuarioId() ?? sesionStore.usuario()?.id;
         if (usuarioId !== undefined && usuarioId !== null) {
           planVigenteStore.cargar({ usuarioId });
         }
@@ -126,7 +139,9 @@ export const ComprobanteStore = signalStore(
 
       // Con un plan pendiente se reutiliza su suscripción; el pago anticipado no envía
       // sis_idSuscrip y usa la combinación del plan vigente (RN-04, RN-12).
-      const armarCuerpo = (solicitud: SolicitudComprobante): SolicitudCrearConPago | null => {
+      const armarCuerpo = (
+        solicitud: SolicitudComprobante,
+      ): SolicitudCrearConPago | null => {
         const pendiente = store.plan()?.planPendiente ?? null;
         if (pendiente !== null) {
           return {
@@ -144,11 +159,20 @@ export const ComprobanteStore = signalStore(
       const enviarComprobante = rxMethod<SolicitudComprobante>(
         pipe(
           filter(() => !store.enviando()),
-          tap(() => patchState(store, { enviando: true, envioExitoso: false, error: null })),
+          tap(() =>
+            patchState(store, {
+              enviando: true,
+              envioExitoso: false,
+              error: null,
+            }),
+          ),
           switchMap((solicitud) => {
             const cuerpo = armarCuerpo(solicitud);
             if (cuerpo === null) {
-              patchState(store, { enviando: false, error: MENSAJE_SIN_PLAN_PARA_PAGAR });
+              patchState(store, {
+                enviando: false,
+                error: MENSAJE_SIN_PLAN_PARA_PAGAR,
+              });
               return of(null);
             }
             return suscripcionService.crearSuscripcionConPago(cuerpo).pipe(

@@ -21,7 +21,7 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentaStore } from '../../../cuentas/store/cuentaStore';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';
 import { RUTA_PLANES } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
 import { PlanVigenteStore } from '../../../../negocio/suscripcion/store/plan-vigente.store';
@@ -29,8 +29,8 @@ import {
   DIVISOR_KELLY_RECOMENDADO,
   TEXTO_DIVISOR_FIJO,
 } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
-import { DBCriterioKellyWebStore } from 'src/app/nucleo/store/dbkelly-web.store';
-import { DBCriterioKellyAppStore } from 'src/app/nucleo/store/dbkelly-app.store';
+import { DBCriterioKellyWebStore } from 'src/app/configuracion/store/dbkelly-web.store';
+import { DBCriterioKellyAppStore } from 'src/app/configuracion/store/dbkelly-app.store';
 
 type AlertaDivisor =
   | { tipo: 'editar'; cuenta: CuentasModelo; valor: number }

@@ -1,7 +1,7 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { Rol } from 'src/app/nucleo/modelo/Rol.modelo';
+import { Rol } from 'src/app/configuracion/modelo/Rol.modelo';
 import { Menu } from '../modelos/menu';
 import { MenuService } from '../servicios/menu.service';
 import { MenuStore } from './menu.store';

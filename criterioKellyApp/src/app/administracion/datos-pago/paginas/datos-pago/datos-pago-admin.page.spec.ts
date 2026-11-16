@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ServicioInactividad } from 'src/app/nucleo/seguridad/servicio/ServicioInactividad';
+import { ServicioInactividad } from 'src/app/configuracion/seguridad/servicio/ServicioInactividad';
 import { ManejoImagenesService } from 'src/app/compartidos/servicios/manejo-imagenes.service';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { RedUsdtConQr } from '../../modelos/DatosPagoAdmin.modelo';

@@ -4,7 +4,7 @@ import { MenuController } from '@ionic/angular';
 import { UtilitariosService } from '../../../compartidos/servicios/utilitarios.service';
 import { Location } from '@angular/common';
 import { LimpiezaClienteService } from '../../servicio/limpieza-cliente.service';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
 
 @Injectable({
   providedIn: 'root',

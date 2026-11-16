@@ -17,7 +17,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { ErrorApi } from 'src/app/nucleo/modelo/error-api';
+import { ErrorApi } from 'src/app/configuracion/modelo/error-api';
 import {
   descripcionPlan,
   desescaparEntidades,

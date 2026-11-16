@@ -5,7 +5,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { environment } from 'src/environments/environment';
-import { OMITIR_MANEJO_ERROR } from 'src/app/nucleo/seguridad/interceptores/sesion-http';
+import { OMITIR_MANEJO_ERROR } from 'src/app/configuracion/seguridad/interceptores/sesion-http';
 import { SuscripcionService } from './suscripcion.service';
 
 describe('SuscripcionService · plan vigente', () => {

@@ -13,7 +13,7 @@ import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { CuentasModelo } from '../../../../config/cuentas/modelos/Cuentas.modelo';
 import { SeleccionarCuentasComponent } from 'src/app/config/cuentas/componentes/seleccionar-cuentas/seleccionar-cuentas.component';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { CuentaStore } from '../../../../config/cuentas/store/cuentaStore';
 import { ReportesStore } from '../../../compartido/store/reportesStore';
 import { AlertaLimitePlanComponent } from 'src/app/compartidos/componentes/alerta-limite-plan/alerta-limite-plan.component';

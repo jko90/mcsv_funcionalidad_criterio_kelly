@@ -13,7 +13,7 @@ import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
 import { CuentaResponse } from '../../../../config/cuentas/modelos/Cuentas.modelo';
 import { CuentaStore } from '../../../../config/cuentas/store/cuentaStore';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { CriterioKellyStore } from '../../store/criterioKellyStore';
 import { ResultadosStore } from '../../store/resultadosStore';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';

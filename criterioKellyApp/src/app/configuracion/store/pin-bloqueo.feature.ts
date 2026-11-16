@@ -27,7 +27,7 @@ import {
   ERROR_PIN_SIN_CRIPTOGRAFIA,
   generarHashPin,
   verificarPinContraHash,
-} from 'src/app/nucleo/seguridad/servicio/hash-pin';
+} from 'src/app/configuracion/seguridad/servicio/hash-pin';
 
 type EstadoPinBloqueo = {
   pin: PinBloqueo | null;

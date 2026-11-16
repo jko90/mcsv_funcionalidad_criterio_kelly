@@ -1,4 +1,4 @@
-import { Rol } from 'src/app/nucleo/modelo/Rol.modelo';
+import { Rol } from 'src/app/configuracion/modelo/Rol.modelo';
 import {
   LoginRequest,
   UsuarioApp,

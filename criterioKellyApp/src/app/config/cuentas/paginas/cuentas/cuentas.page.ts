@@ -34,7 +34,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ServicioAutenticacion } from 'src/app/nucleo/seguridad/servicio/ServicioAutenticacion';
+import { ServicioAutenticacion } from 'src/app/configuracion/seguridad/servicio/ServicioAutenticacion';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { CuentaStore } from '../../store/cuentaStore';
 import { Capacitor } from '@capacitor/core';
@@ -45,8 +45,8 @@ import {
   haAlcanzadoTopeCuentas,
   textoTopeCuentas,
 } from '../../../../negocio/suscripcion/configuracion/permisos-plan.config';
-import { DBCriterioKellyWebStore } from 'src/app/nucleo/store/dbkelly-web.store';
-import { DBCriterioKellyAppStore } from 'src/app/nucleo/store/dbkelly-app.store';
+import { DBCriterioKellyWebStore } from 'src/app/configuracion/store/dbkelly-web.store';
+import { DBCriterioKellyAppStore } from 'src/app/configuracion/store/dbkelly-app.store';
 
 const MONTO_MINIMO = 0.01;
 const MONTO_MAXIMO = 100000000;

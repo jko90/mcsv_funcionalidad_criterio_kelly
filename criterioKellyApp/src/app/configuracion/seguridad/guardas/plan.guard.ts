@@ -1,7 +1,15 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
-import { filter, isObservable, map, Observable, of, switchMap, take } from 'rxjs';
+import {
+  filter,
+  isObservable,
+  map,
+  Observable,
+  of,
+  switchMap,
+  take,
+} from 'rxjs';
 import {
   estadoMenuDesdePlan,
   esRutaControlada,
@@ -10,7 +18,7 @@ import {
 } from 'src/app/negocio/suscripcion/configuracion/permisos-plan.config';
 import { PlanVigente } from 'src/app/negocio/suscripcion/modelos/PlanVigente.modelo';
 import { PlanVigenteStore } from 'src/app/negocio/suscripcion/store/plan-vigente.store';
-import { SesionStore } from 'src/app/nucleo/store/sesion.store';
+import { SesionStore } from 'src/app/configuracion/store/sesion.store';
 
 const RUTA_INICIO = '/inicio';
 
@@ -37,7 +45,10 @@ export const planGuard: CanActivateFn = (_ruta, estadoRuta): Decision => {
   const decidirConPlanDelServidor = (): Decision => {
     const usuarioId = sesionStore.usuario()?.id;
     if (!sesionStore.estaAutenticado() || usuarioId === undefined) return true;
-    if (planVigenteStore.cargado() && planVigenteStore.usuarioId() === usuarioId) {
+    if (
+      planVigenteStore.cargado() &&
+      planVigenteStore.usuarioId() === usuarioId
+    ) {
       return decidir(planVigenteStore.plan());
     }
     if (!planVigenteStore.isLoading()) planVigenteStore.cargar({ usuarioId });
