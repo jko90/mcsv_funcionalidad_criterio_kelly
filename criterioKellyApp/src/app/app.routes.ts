@@ -57,14 +57,14 @@ export const routes: Routes = [
   {
     path: 'ayuda',
     loadComponent: () =>
-      import('./general/informacion/paginas/ayuda/ayuda.page').then(
+      import('./funcionalidad/soporte/ayuda/ayuda.page').then(
         (m) => m.AyudaPage,
       ),
   },
   {
     path: 'acerca-d',
     loadComponent: () =>
-      import('./general/informacion/paginas/acerca-d/acerca-d.page').then(
+      import('./funcionalidad/soporte/acerca-d/acerca-d.page').then(
         (m) => m.AcercaDPage,
       ),
   },
