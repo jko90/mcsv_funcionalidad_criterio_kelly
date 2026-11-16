@@ -7,19 +7,19 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./paginas/util/login/login.page').then((m) => m.LoginPage),
+      import('./general/autenticacion/paginas/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'recuperar-clave',
     loadComponent: () =>
-      import('./paginas/util/recuperar-clave/recuperar-clave.page').then(
+      import('./general/autenticacion/paginas/recuperar-clave/recuperar-clave.page').then(
         (m) => m.RecuperarClavePage,
       ),
   },
   {
     path: 'verificar-correo',
     loadComponent: () =>
-      import('./paginas/util/verificar-correo/verificar-correo.page').then(
+      import('./general/autenticacion/paginas/verificar-correo/verificar-correo.page').then(
         (m) => m.VerificarCorreoPage,
       ),
   },
@@ -31,7 +31,7 @@ export const routes: Routes = [
   {
     path: 'inicio',
     loadComponent: () =>
-      import('./paginas/inicio/inicio.page').then((m) => m.InicioPage),
+      import('./general/inicio/paginas/inicio/inicio.page').then((m) => m.InicioPage),
     canActivate: [GuardAutenticacion],
   },
   {
@@ -53,12 +53,12 @@ export const routes: Routes = [
   {
     path: 'ayuda',
     loadComponent: () =>
-      import('./paginas/util/ayuda/ayuda.page').then((m) => m.AyudaPage),
+      import('./general/informacion/paginas/ayuda/ayuda.page').then((m) => m.AyudaPage),
   },
   {
     path: 'acerca-d',
     loadComponent: () =>
-      import('./paginas/util/acerca-d/acerca-d.page').then(
+      import('./general/informacion/paginas/acerca-d/acerca-d.page').then(
         (m) => m.AcercaDPage,
       ),
   },
@@ -123,7 +123,7 @@ export const routes: Routes = [
   {
     path: 'registro',
     loadComponent: () =>
-      import('./paginas/suscripcion/registro/registro.page').then(
+      import('./general/autenticacion/paginas/registro/registro.page').then(
         (m) => m.RegistroPage,
       ),
   },

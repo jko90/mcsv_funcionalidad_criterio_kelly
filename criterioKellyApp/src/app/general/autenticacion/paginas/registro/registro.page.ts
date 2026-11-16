@@ -10,13 +10,13 @@ import {
 } from '@angular/forms';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { Router } from '@angular/router';
-import { DatosPersona } from '../../util/modelos/Persona.modelo';
+import { DatosPersona } from '../../modelos/Persona.modelo';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
-import { PersonaStore } from '../../util/store/personaStore';
-import { VerificacionCorreoStore } from '../../util/store/verificacion-correo.store';
-import { PlanesStore } from '../../../negocio/suscripcion/store/PlanesStore';
-import { PLAN_LIBRE_ID_INTERVALO } from '../../../negocio/suscripcion/modelos/Suscripcion.modelo';
-import { PlanReservadoService } from '../../../negocio/suscripcion/servicios/plan-reservado.service';
+import { PersonaStore } from '../../store/personaStore';
+import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
+import { PlanesStore } from '../../../../negocio/suscripcion/store/PlanesStore';
+import { PLAN_LIBRE_ID_INTERVALO } from '../../../../negocio/suscripcion/modelos/Suscripcion.modelo';
+import { PlanReservadoService } from '../../../../negocio/suscripcion/servicios/plan-reservado.service';
 import {
   ErroresPoliticaClave,
   MENSAJES_POLITICA_CLAVE,

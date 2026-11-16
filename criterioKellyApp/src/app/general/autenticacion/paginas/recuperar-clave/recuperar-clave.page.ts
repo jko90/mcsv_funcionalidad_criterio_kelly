@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import { IonicComponentes } from 'src/app/compartidos/IonicComponentes';
 import { UtilitariosService } from 'src/app/compartidos/servicios/utilitarios.service';
 import { EncabezadoComponent } from 'src/app/compartidos/componentes/encabezado/encabezado.component';
-import { RecuperacionClaveStore } from '../store/recuperacion-clave.store';
-import { FormularioSolicitarCodigoComponent } from '../componentes/formulario-solicitar-codigo/formulario-solicitar-codigo.component';
-import { FormularioRestablecerClaveComponent } from '../componentes/formulario-restablecer-clave/formulario-restablecer-clave.component';
-import { DatosRestablecimiento } from '../modelos/RecuperacionClave.modelo';
+import { RecuperacionClaveStore } from '../../store/recuperacion-clave.store';
+import { FormularioSolicitarCodigoComponent } from '../../componentes/formulario-solicitar-codigo/formulario-solicitar-codigo.component';
+import { FormularioRestablecerClaveComponent } from '../../componentes/formulario-restablecer-clave/formulario-restablecer-clave.component';
+import { DatosRestablecimiento } from '../../modelos/RecuperacionClave.modelo';
 
 @Component({
   selector: 'app-recuperar-clave',

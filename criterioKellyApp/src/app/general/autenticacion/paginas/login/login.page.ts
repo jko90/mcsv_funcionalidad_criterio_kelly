@@ -17,11 +17,11 @@ import { DbPINAppStore } from 'src/app/compartidos/store/dbPIN-app.store';
 import { Capacitor } from '@capacitor/core';
 import type { OverlayEventDetail } from '@ionic/core';
 import { IonModal } from '@ionic/angular/standalone';
-import { ModalPinComponent } from '../../../configuracion/bloqueo-pin/componentes/modal-pin/modal-pin.component';
-import { PinFormularioStore } from '../../../configuracion/bloqueo-pin/store/pin-formulario.store';
-import { LoginStore } from '../store/login.store';
-import { SuscripcionStore } from '../../../negocio/suscripcion/store/SuscripcionStore';
-import { VerificacionCorreoStore } from '../store/verificacion-correo.store';
+import { ModalPinComponent } from '../../../../configuracion/bloqueo-pin/componentes/modal-pin/modal-pin.component';
+import { PinFormularioStore } from '../../../../configuracion/bloqueo-pin/store/pin-formulario.store';
+import { LoginStore } from '../../store/login.store';
+import { SuscripcionStore } from '../../../../negocio/suscripcion/store/SuscripcionStore';
+import { VerificacionCorreoStore } from '../../store/verificacion-correo.store';
 
 interface ModalPinResult {
   omitido?: boolean;
